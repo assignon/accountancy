@@ -1,9 +1,3 @@
-new Vue({
-  router,
-  store,
-  render: h => h(App)
-}).$mount("#app");
-
 import "material-design-icons-iconfont/dist/material-design-icons.css";
 // import "vue-material-design-icons/styles.css";
 import "@fortawesome/fontawesome-free/css/all.css";
@@ -19,6 +13,8 @@ import Axios from "axios";
 // vue session
 import VueSession from "vue-session";
 
+import vuetify from "./plugins/vuetify";
+
 Vue.config.productionTip = false;
 Vue.use(VAnimateCss);
 Vue.use(Vuex);
@@ -31,9 +27,9 @@ Axios.defaults.withCredentials = false;
 Vue.prototype.$axios = Axios;
 
 new Vue({
-  created() {
-  },
+  created() {},
   router,
   store,
-  render: (h) => h(App),
+  vuetify,
+  render: h => h(App)
 }).$mount("#app");

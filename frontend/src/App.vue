@@ -1,9 +1,8 @@
 <template>
-  <v-app id="app" app>
+  <v-app id='app'>
+    <!-- <Nav v-if="!$route.name.startsWith('Login')" /> -->
     <v-main>
-      <!-- <Nav v-if="!$route.name.startsWith('Dash')" /> -->
-      <!-- <Nav /> -->
-      <!-- <Sidebar /> -->
+      <!-- <Sidebar v-if="!$route.name.startsWith('Login')" /> -->
       <router-view class="animated fadeIn"></router-view>
     </v-main>
   </v-app>
@@ -12,15 +11,21 @@
 <script>
 // import Nav from "./components/layouts/Nav";
 // import Sidebar from "./components/layouts/Sidebar";
+
 export default {
   name: "App",
+
   components: {
     // Nav,
-    // Sidebar,
+    // Sidebar
   },
-  data: () => ({}),
-  created() {
-  },
+
+  data: () => ({
+    //
+  }),
+
+  created(){},
+
   methods: {
     createSession() {
       if (!this.$session.has("auth")) {
@@ -30,7 +35,7 @@ export default {
       this.$store.state.AUTHENTICATED = this.$session.get("auth");
       console.log(this.$store.state.AUTHENTICATED);
     },
-  },
+  }
 };
 </script>
 

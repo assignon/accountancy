@@ -1,7 +1,7 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import Login from "../views/Login.vue";
-// import Dashboard from "../views/dashboard/Dashboard.vue";
+import Dashboard from "../views/Dashboard.vue";
 // import NotAuthorize from "../views/dashboard/NotAuthorize.vue";
 
 Vue.use(VueRouter);
@@ -10,20 +10,19 @@ const routes = [
   {
     path: "/",
     name: "Login",
-    component: Login,
+    component: Login
   },
-  // {
-  //   path: "/dashboard",
-  //   name: "Dashboard",
-  //   component: Home
-  // },
+  {
+    path: "/dashboard",
+    name: "Dashboard",
+    component: Dashboard
+  },
   // {
   //   path: "/notAuthorize",
   //   name: "NotAuthorize",
   //   component: NotAuthorize,
   // },
 
-  
   // {
   //   path: "/about",
   //   name: "About",
