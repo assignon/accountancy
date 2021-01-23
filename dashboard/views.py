@@ -23,7 +23,8 @@ from rest_framework.status import (
 )
 
 from dashboard.serializers import DashboardSerializer
-from .models import Credentials, Products
+from orders.models import Credentials
+from products.models import Products
 
 # Create your views here.
 
@@ -76,4 +77,46 @@ class DashboardView(viewsets.ModelViewSet):
     serializer_class = DashboardSerializer
     permission_classes = [IsAuthenticated]
 
-    pass
+    @csrf_exempt
+    @action(methods=['post'], detail=False)
+    def products(self, request):
+        """
+        get all products count from DB
+
+        Args:
+            request (dict): [request data]
+        """
+        pass
+
+    @csrf_exempt
+    @action(methods=['post'], detail=False)
+    def come_in(self, request):
+        """
+        get base on the current date the incoming products and the count
+
+        Args:
+            request (dict): [request data]
+        """
+        pass
+
+    @csrf_exempt
+    @action(methods=['post'], detail=False)
+    def day_orders(self, request):
+        """
+        get base on the current date the orders and the count
+
+        Args:
+            request (dict): [request data]
+        """
+        pass
+
+    @csrf_exempt
+    @action(methods=['post'], detail=False)
+    def ongoing_payments(self, request):
+        """
+        get base on the ongoing payments
+
+        Args:
+            request (dict): [request data]
+        """
+        pass

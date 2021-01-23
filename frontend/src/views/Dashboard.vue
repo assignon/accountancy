@@ -1,6 +1,8 @@
 <template>
-    <div class='dash-core' v-if="this.$session.has('authenticated') && this.$session.get('authenticated')">
-        <h1>welcom to the dash</h1>
+    <div class='dash-core animated fadeIn' v-if="this.$session.has('authenticated') && this.$session.get('authenticated')">
+        <v-layout class="dash-layout">
+
+        </v-layout>
     </div>
 </template>
 
@@ -38,3 +40,15 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+    .dash-core{
+        height: 100vh;
+        width: 85%;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        margin-left: 15%;
+        border: 1px solid red;
+    }
+</style>
