@@ -25,6 +25,7 @@ class Payment(models.Model):
         max_length=50, choices=pay_interval, default='daily')
     times = models.IntegerField()
     start = models.DateField()
+    objects = PaymentManager()
 
     @staticmethod
     def paymentDates_end(id):
@@ -63,7 +64,8 @@ class Payment(models.Model):
 
                 end_date = self.start + timedelta(days=times*days_in_month)
 
-                return {'paying_dates': payment_dates, 'end': end_date}
+                # return {'paying_dates': payment_dates, 'end': end_date}
+                return end_date
 
     @staticmethod
     def paying_in_terms(id):
@@ -87,6 +89,7 @@ class Orders(models.Model):
     quantity = models.IntegerField()
     order_on = models.DateField(auto_now=True)
     order_at = models.TimeField(auto_now=True)
+    objects = OrdersManager()
 
     class Meta:
         ordering = ['-id']

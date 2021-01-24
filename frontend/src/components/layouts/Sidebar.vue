@@ -11,15 +11,21 @@
                 <p>Dashboard</p>
             </router-link>
 
-            <router-link to="/orders" style="text-decoration: none;" class='menu-item'>
-                <v-icon color='white'>fas fa-truck-loading</v-icon>
-                <p>Orders</p>
-            </router-link>
+            <div class='link-container'>
+                <router-link to="/orders" style="text-decoration: none;" class='menu-item'>
+                    <v-icon color='white'>fas fa-truck-loading</v-icon>
+                    <p>Orders</p>
+                </router-link>
+                <v-icon style='font-size:28px;position:relative;bottom:1px' color='#0163d1' class='ml-3'>fas fa-plus-square</v-icon>
+            </div>
 
-            <router-link to="/products" style="text-decoration: none;" class='menu-item'>
-                <v-icon color='white'>fas fa-boxes</v-icon>
-                <p>Products</p>
-            </router-link>
+            <div class='link-container'>
+                <router-link to="/products" style="text-decoration: none;" class='menu-item'>
+                    <v-icon color='white'>fas fa-boxes</v-icon>
+                    <p>Products</p>
+                </router-link>
+                <v-icon style='font-size:28px;position:relative;bottom:1px' color='#0163d1' class='ml-3'>fas fa-plus-square</v-icon>
+            </div>
 
             <div class='menu-item' v-if="!$route.name.startsWith('Dashboard')">
                 <v-icon color='white'>fas fa-sort-amount-down-alt</v-icon>
@@ -97,6 +103,19 @@ export default {
         margin-left: 15%;
     }
     .menu-item{
+        height: auto;
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: flex-start;
+        cursor: pointer;
+        margin-bottom: 10px;
+    }
+    .link-container .menu-item{
+        width: 50%;
+    }
+    .link-container{
         height: auto;
         width: 100%;
         display: flex;

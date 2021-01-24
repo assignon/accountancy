@@ -23,10 +23,9 @@ def get_related(obj, parent, obj_id):
     return related_arr
 
 
-class CustomerManager(models.Manager):
+class OrdersManager(models.Manager):
     def get_orders(self, dte=None):
         from products.models import Products
-        from .models import Customers
         """
         get orders base on the give date
 
@@ -40,58 +39,128 @@ class CustomerManager(models.Manager):
 
         if dte == None:
             # get products of the current date
-            orders = self.select_related().filter(
-                add_on=current_date.date())
+            orders = self.prefetch_related().filter(
+                order_on=current_date)
 
             return {
                 'orders': orders.values(),
                 # 'tire': [get_related(Tires, id=product['tire_id']) for product in added_products],
-                'products': get_related(Products, orders, 'product_id'),
+                # 'products': get_related(Products, orders, 'product_id'),
                 'count': orders.count()
             }
         else:
             # get products base on give date
-            orders = self.select_related().filter(
-                add_on=dte)
+            orders = self.prefetch_related().filter(
+                order_on=dte)
 
             return {
                 'orders': orders.values(),
-                'products': get_related(Products, orders, 'tire_id'),
+                # 'products': get_related(Products, orders, 'tire_id'),
                 'count': orders.count()
             }
 
-    def ongoing_payments(self, dte=None, lmit=None):
-        from .models import Customers, Credentials, Payments, PaymentMethods
-        current_date = datetime.now().date()
-        current_dates_payments = []
+
+class PaymentManager(models.Manager):
+    pass
+    # def ongoing_payments(self, dte=None):
+    #     from .models import PaymentMethods, Payment
+
+    #     current_date = datetime.now().date()
+    #     current_dates_payments = []
+    #     # querysets
+    #     payments = self.select_related().all()
+    #     payment_methods = get_related(PaymentMethods, payments, 'method_id')
+
+    #     if dte == None:
+    #         # get customer who are paying on the current day
+    #         for payment in payments.values():
+    #             payments_dates = Payment.paymentDates_end(payment['id'])
+    #             if current_date in payments_dates['paying_dates']:
+    #                 current_dates_payments.append(payment)[:10]
+
+    #         return {
+    #             'payments': current_dates_payments,
+    #             'methods': payment_methods
+    #         }
+    #     else:
+    #         return {
+    #             'payments': payments,
+    #             'methods': payment_methods
+    #         }
+
+
+class CustomerManager(models.Manager):
+    def customer_orders(self, customerid):
+        from products.models import Products
+        from orders.models import Orders, Credentials
+        """
+        get orders base on the give date
+
+        Args:
+            dte ([date], optional): [current date if none else give date]. Defaults to None.
+
+        Returns:
+            [obj]: [products data]
+        """
+        customer = self.select_related().filter(
+            order_id=customerid)
+        # get orders
+        orders = get_related(Orders, customer, 'order_id'),
+
+        return {
+            'orders': orders,
+            'credential': get_related(Credentials, customer, 'credential_id'),
+            'products': get_related(Products, orders, 'product_id'),
+            'count': orders.count()
+        }
+
+    def customer_ongoing_payment(self, customerid):
+        from .models import Credentials, Payments, PaymentMethods
         # querysets
-        customers = Customers.select_related.all()
+        customers = self.select_related().filter(id=customerid)
         credential = get_related(Credentials, customers, 'credential_id')
         payments = get_related(Payments, customers, 'payment_id')
         payment_methods = get_related(PaymentMethods, payments, 'method_id')
 
-        if dte == None:
-            # get customer who are paying on the current day
-            for payment in payments:
-                if current_date in Payments.paymentDates_end(payment['id'])['paying_dates']:
-                    current_dates_payments.append(payment)[:10]
+        return {
+            'credentials': credential,
+            'payments': payments,
+            'methods': payment_methods
+        }
 
-            return {
-                'credentials': credential,
-                'payments': current_dates_payments,
-                'methods': payment_methods
-            }
-        else:
-            return {
-                'credentials': credential,
-                'payments': payments,
-                'methods': payment_methods
-            }
-            # # get all ongoing payment with limit
-            # pass
-            # if lmit == None:
-            #     # get all the ongoing payments
-            #     pass
-            # else:
-            #     # get the ongoing payment base on the given limit
-            #     pass
+    def ongoing_payments(self, dte=datetime.now().date(), limit=None):
+        from .models import PaymentMethods, Payment, Credentials
+
+        customer_payments = []
+        customer_payment_method = []
+        credentials = []
+        # querysets
+        payments = Payment.objects.all(
+        ) if limit == None else Payment.select_related().all()[:limit]
+
+        # get customer who are paying on the current day
+        for payment in payments.values():
+            payments_dates = Payment.paymentDates_end(payment['id'])
+            print(payments_dates['paying_dates'])
+            # dte_obj = datetime.strptime(dte, '%Y-%m-%d')
+            print(type(payments_dates['paying_dates']))
+
+            for dates in payments_dates['paying_dates']:
+                if dte == datetime.strftime(dates, '%Y-%m-%d'):
+                    payment_method = Payment.objects.filter(id=payment['id'])
+                    customer_payments.append(payment)
+                    # get payments methods
+                    customer_payment_method.extend(get_related(
+                        PaymentMethods, payment_method, 'method_id'))
+                    # get customer credentials
+                    customers = self.select_related().filter(
+                        payment_id=payment['id'])
+                    credentials.extend(get_related(
+                        Credentials, customers, 'credential_id'))
+
+        return {
+            'customers': credentials,
+            'payments': customer_payments,
+            'methods': customer_payment_method,
+            'count': len(customer_payments)
+        }

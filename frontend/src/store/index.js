@@ -2,6 +2,8 @@ import Vue from "vue";
 import Vuex from "vuex";
 
 import dashboard from "./modules/dashboard";  // store file from modules map import example
+import product from "./modules/products";
+import order from "./modules/orders";
 
 import axios from "axios";
 
@@ -31,17 +33,17 @@ export default new Vuex.Store({
   },
 
   getters: {
-    // setAppointments: (state) => (data) => {
-    //   if (state.appointmentDataArr.length > 0) {
-    //     state.appointmentDataArr = [];
-    //   } 
-    //   data.forEach((item) => {
-    //     state.appointmentDataArr.push(item);
-    //   });
-    // },
-    // getAppointments: (state) => {
-    //   return state.appointmentDataArr;
-    // },
+    setData: (state) => (data) => {
+      // data[array]: contain array and api response data
+      console.log(state);
+
+      if (data[0].length > 0) {
+        data[0] = []
+      }
+      data[1].forEach((items) => {
+        data[0].push(items)
+      })
+    },
   },
 
   mutations: {
@@ -213,6 +215,8 @@ export default new Vuex.Store({
   },
 
   modules: {
-    dashboard: dashboard
+    dashboard: dashboard,
+    product: product,
+    order: order
   }
 });

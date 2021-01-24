@@ -23,7 +23,7 @@ from rest_framework.status import (
 )
 
 from orders.serializers import OrderSerializer
-from .models import Customers
+from .models import Customers, Orders, Payment
 
 # Create your views here.
 
@@ -33,4 +33,31 @@ class OrderView(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
 
-    pass
+    @csrf_exempt
+    @action(methods=['get'], detail=False)
+    def orders(self, request):
+        """
+        get base on the current date the orders and the count
+
+        Args:
+            request (dict): [request data]
+        """
+        dte = request.query_params.get('date')
+        orders = Orders.objects.get_orders(dte)
+
+        return Response(orders)
+
+    @csrf_exempt
+    @action(methods=['get'], detail=False)
+    def ongoing_payments(self, request):
+        """
+        get base on the ongoing payments
+
+        Args:
+            request (dict): [request data]
+        """
+        dte = request.query_params.get('date')
+        # payments_dates = Payment.paymentDates_end(payment['id'])
+        payments = Customers.objects.ongoing_payments(dte)
+
+        return Response(payments)

@@ -33,7 +33,33 @@ class ProductView(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
     permission_classes = [IsAuthenticated]
 
-    pass
+    @csrf_exempt
+    @action(methods=['get'], detail=False)
+    def products(self, request):
+        """
+        get all products count from DB
+
+        Args:
+            request (dict): [request data]
+        """
+        products = Products.objects.all_products()
+
+        return Response(products)
+
+    @csrf_exempt
+    @action(methods=['get'], detail=False)
+    def come_in(self, request):
+        """
+        get base on the current date the incoming products and the count
+
+        Args:
+            request (dict): [request data]
+        """
+        dte = request.query_params.get('date')
+
+        incoming = Products.objects.get_incoming_products(dte)
+
+        return Response(incoming)
 
 
 # Create your views here.
