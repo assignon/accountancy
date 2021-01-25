@@ -76,4 +76,8 @@ class DashboardView(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = DashboardSerializer
     permission_classes = [IsAuthenticated]
-    pass
+
+    @action(methods=['get'], detail=False)
+    def signout(self, request):
+        logout(request)
+        return Response({'logout': True})

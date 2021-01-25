@@ -69,6 +69,7 @@ class Payment(models.Model):
 
     @staticmethod
     def paying_in_terms(id):
+        # amount of money pay by term
         self = Payment.objects.get(id=id)
         if self.pay_in == 'terms':
             return int(Orders.paying(id))/int(self.times)

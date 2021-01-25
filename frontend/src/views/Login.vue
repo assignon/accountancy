@@ -1,9 +1,9 @@
 <template>
-  <div class="login-core">
-    <v-layout class='login-layout'>
-      <h2>Signin</h2>
+  <div class="login-core animated fadeIn">
+      <div class='logo mb-5'></div>
+      <h2 class='mb-3'>CHIICAM Signin</h2>
       <v-form class='login-form' ref='loginForm'>
-        <p class='err-msg'></p>
+        <p class='err-msg mb-2'></p>
         <v-text-field
             v-model="email"
             :rules="[$store.state.emailRules, $store.state.rules.required]"
@@ -22,11 +22,10 @@
             outlined
         ></v-text-field>
         <div class='btn-container'>
-          <v-btn medium @click='signin()'>Login</v-btn>
-          <p>password forgot?</p>
+          <v-btn large @click='signin()' color='#1976d2'>Login</v-btn>
+          <p class='mt-2'>password forgot?</p>
         </div>
       </v-form>
-    </v-layout>
   </div>
 </template>
 
@@ -93,5 +92,56 @@ export default {
 </script>
 
 <style scoped>
-  
+  .login-core{
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .logo{
+    width: 100px;
+    height: 100px;
+    border: 1px solid #15141c;
+  }
+  .login-core h2{
+    text-align: center;
+  }
+  .login-form{
+    height: auto;
+    width: 35%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .err-msg{
+    text-align: center;
+    font-size: 17px;
+    color: #ce2b58;
+  }
+  .login-form .v-text-field{
+    width: 100%;
+  }
+  .btn-container{
+    height: auto;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-end;
+  }
+  .btn-container .v-btn{
+    color: #fff;
+    font-size: 15px;
+    font-weight: bolder;
+  }
+  .btn-container p{
+    text-align: right;
+    font-size: 17px;
+    font-weight: bolder;
+    cursor: pointer;
+    color: #1976d2;
+  }
 </style>

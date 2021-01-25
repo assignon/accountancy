@@ -39,10 +39,10 @@
                 <p>Settings</p>
             </router-link>
 
-            <router-link to="/logout" style="text-decoration: none;" class='logout'>
+            <div @click='logout()' style="text-decoration: none;" class='logout'>
                 <v-icon color='white'>fas fa-sign-out-alt</v-icon>
                 <p>Log out</p>
-            </router-link>
+            </div>
         </div>
     </div>
 </template>
@@ -59,7 +59,25 @@ export default {
 
     created(){},
 
-    methods:{}
+    methods:{
+        logout(){
+            let self = this;
+
+            this.$store.dispatch("getReq", {
+                url: "dashboard/signout",
+                params: {
+                },
+                auth: self.$session.get('token'),
+                csrftoken: self.$session.get('token'),
+                callback: function(data) {
+                    if(data.logout){
+                        self.$session.destroy();
+                        self.$router.push({name: 'Login'})
+                    }
+                },
+            });
+        }
+    }
 }
 </script>
 
@@ -150,5 +168,6 @@ export default {
         flex-direction: row;
         justify-content: flex-start;
         align-items: flex-start;
+        cursor: pointer;
     }
 </style>

@@ -24,7 +24,7 @@ def get_related(obj, parent, obj_id):
 
 
 class OrdersManager(models.Manager):
-    def get_orders(self, dte=None):
+    def get_orders(self, dte=None, limit=None):
         from products.models import Products
         """
         get orders base on the give date
@@ -40,7 +40,8 @@ class OrdersManager(models.Manager):
         if dte == None:
             # get products of the current date
             orders = self.prefetch_related().filter(
-                order_on=current_date)
+                order_on=current_date) if limit == None else self.prefetch_related().filter(
+                order_on=current_date)[:limit]
 
             return {
                 'orders': orders.values(),
@@ -51,7 +52,8 @@ class OrdersManager(models.Manager):
         else:
             # get products base on give date
             orders = self.prefetch_related().filter(
-                order_on=dte)
+                order_on=dte) if limit == None else self.prefetch_related().filter(
+                order_on=dte)[:limit]
 
             return {
                 'orders': orders.values(),
@@ -141,14 +143,22 @@ class CustomerManager(models.Manager):
         # get customer who are paying on the current day
         for payment in payments.values():
             payments_dates = Payment.paymentDates_end(payment['id'])
-            print(payments_dates['paying_dates'])
             # dte_obj = datetime.strptime(dte, '%Y-%m-%d')
-            print(type(payments_dates['paying_dates']))
 
             for dates in payments_dates['paying_dates']:
                 if dte == datetime.strftime(dates, '%Y-%m-%d'):
                     payment_method = Payment.objects.filter(id=payment['id'])
-                    customer_payments.append(payment)
+                    customer_payments.append(
+                        {
+                            'id': payment['id'],
+                            'method_id': payment['method_id'],
+                            'pay_in': payment['pay_in'],
+                            'payment_interval': payment['payment_interval'],
+                            'start': payment['start'],
+                            'times': payment['times'],
+                            'payment_dates': payments_dates['paying_dates']
+                        }
+                    )
                     # get payments methods
                     customer_payment_method.extend(get_related(
                         PaymentMethods, payment_method, 'method_id'))

@@ -27,7 +27,7 @@
                                 <v-icon>fas fa-coins</v-icon>
                                 <p class='mt-3'>Payments</p>
                             </div>
-                            <h3 class='display-1'>{{payments[0].count}}</h3>
+                            <h3 class='display-1'>{{customerPayments[0].count}}</h3>
                         </div>
 
                         <div class='orders-count'>
@@ -41,6 +41,7 @@
                 </div>
 
                 <div class="orders" v-if='orders[0].count > 0'>
+
                 </div>
                 <div class='no-orders' v-else>
                     <v-icon>fas fa-truck-loading</v-icon>
@@ -52,22 +53,34 @@
                 <div class='calendar-payments'>
                     <div class='calendar'></div>
 
-                    <div  class='payment-container' v-if='payments[0].count > 0'>
+                    <div  class='payment-container' v-if='customerPayments[0].count > 0'>
                         <div class='payment-header'>
-                            <p><v-icon color='white' medium>fas fa-coins</v-icon>Pyaments</p>
+                            <p>
+                                <v-icon color='white' medium>fas fa-coins</v-icon>
+                                <span>Pyaments for {{paymentDate}}</span>
+                            </p>
                         </div>
-                        <div class='payments mt-5' 
-                            v-for="(payment, i) in payments[0].customers" 
+                        <div class='payments mt-5 ml-5' 
+                            v-for="(payment, i) in customerPayments" 
                             :key='i'
                         >
-                            <p><v-icon class='mr-2' color='white'>fas fa-user-circle</v-icon> {{payment.name}}</p>
-                            <p>{{ payments[0].payments[i].pay_in}}</p>
-                            <PaymentProgressBar />
+                            <p>
+                                <v-icon class='mr-2' color='white'>fas fa-user-circle</v-icon>
+                                <span>{{payment.customers[i].name}}</span>
+                                <span class='ml-3'>({{payment.payments[i].payment_interval}})</span>
+                            </p>
+                            <!-- <p>{{ payment.payments[i].pay_in }}</p> -->
+                            <PaymentProgressBar 
+                                class='ml-3'
+                                style='position: relative;top:3px;'
+                                :times="payment.payments[i].times"
+                                :paymentDatesArr="payment.payments[i].payment_dates"
+                            />
                         </div>
                     </div>
                     <div class='no-payments' v-else>
                         <v-icon>fas fa-coins</v-icon>
-                        <p class='mt-3'>No payment scheduled for today </p>
+                        <p class='mt-3'>No payment scheduled for {{paymentDate}} </p>
                     </div>
                 </div>
             </v-flex>
@@ -92,13 +105,13 @@ export default {
             addedProducts: 'product/getAddedProducts',
             // orders
             orders: 'order/getOrders',
-            payments: 'order/getPayments',
+            customerPayments: 'order/getPayments',
         }),
     },
 
     data(){
         return {
-
+            paymentDate: 'today'
         }
     },
 
@@ -161,7 +174,8 @@ export default {
             this.$store.dispatch("getReq", {
                 url: "order/ongoing_payments",
                 params: {
-                    date: '2021-01-22'
+                    date: '2021-01-22',
+                    limit: 10,
                 },
                 auth: self.$session.get('token'),
                 csrftoken: self.$session.get('token'),
@@ -179,12 +193,13 @@ export default {
             this.$store.dispatch("getReq", {
                 url: "order/orders",
                 params: {
-                    date: null
+                    date: '2021-01-22',
+                    limit: 20,
                 },
                 auth: self.$session.get('token'),
                 csrftoken: self.$session.get('token'),
                 callback: function(data) {
-                    console.log('orders',data);
+                    // console.log('orders',data);
                     store.getters["setData"]([store.state.order.ordersArr, [data]]);
                 },
             });
@@ -338,19 +353,37 @@ export default {
         justify-content:flex-start;
         align-items: flex-start;
     }
+    .payment-header{
+        width: 90%;
+        height: auto;
+        margin-left: 5%;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: flex-start;
+        align-items: flex-end;
+    }
+    .payment-header p{
+        margin: 0px;
+        padding: 0px;
+    }
+    .payment-header p span{
+        color: white;
+        margin-left: 10px;
+    }
     .calendar-payments .payments{
         width: 100%;
         height:100%;
         display: flex;
         flex-direction: row;
-        justify-content:space-around;
+        justify-content:flex-start;
         align-items: flex-start;
     }
     .calendar-payments .payments .v-icon{
-        font-size: 50px;
+        font-size: 40px;
     }
     .calendar-payments .payments p{
-        font-size: 17px;
+        font-size: 15px;
         color: white;
         font-weight: bold;
         text-align: left;
