@@ -51,13 +51,58 @@ class OrderView(viewsets.ModelViewSet):
     @action(methods=['get'], detail=False)
     def ongoing_payments(self, request):
         """
-        get base on the ongoing payments
+        get base on the date ongoing payments
 
         Args:
             request (dict): [request data]
         """
-        dte = request.query_params.get('date')
+        dte = datetime.strftime(datetime.now().date(), '%Y-%m-%d') if request.query_params.get(
+            'date') == None else request.query_params.get('date')
+        limit = request.query_params.get('limit')
         # payments_dates = Payment.paymentDates_end(payment['id'])
-        payments = Customers.objects.ongoing_payments(dte)
+        payments = Customers.objects.ongoing_payments(dte, limit)
 
         return Response(payments)
+
+    @csrf_exempt
+    @action(methods=['get'], detail=False)
+    def payments(self, request):
+        """
+        get base on the date ongoing payments
+
+        Args:
+            request (dict): [request data]
+        """
+        limit = request.query_params.get('limit')
+
+        payments = Customers.objects.all_payments(limit)
+
+        return Response(payments)
+
+    @csrf_exempt
+    @action(methods=['get'], detail=False)
+    def order_details(self, request):
+        """
+        get base on the customer id order details
+
+        Args:
+            request (dict): [request data]
+        """
+        customer_id = request.query_params.get('customerId')
+        order = Customers.objects.customer_orders(customer_id)
+
+        return Response(order)
+
+    @csrf_exempt
+    @action(methods=['get'], detail=False)
+    def payment_details(self, request):
+        """
+        get base on the customer id order details
+
+        Args:
+            request (dict): [request data]
+        """
+        customer_id = request.query_params.get('customerId')
+        payment = Customers.objects.customer_ongoing_payment(customer_id)
+
+        return Response(payment)

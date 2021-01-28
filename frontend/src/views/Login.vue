@@ -23,18 +23,20 @@
         ></v-text-field>
         <div class='btn-container'>
           <v-btn large @click='signin()' color='#1976d2'>Login</v-btn>
-          <p class='mt-2'>password forgot?</p>
+          <p class='mt-2' @click='$store.state.passForgotDialog=true'>password forgot?</p>
         </div>
       </v-form>
+      <PasswordForgot/>
   </div>
 </template>
 
 <script>
-// import HelloWorld from "@/components/HelloWorld.vue";
+import PasswordForgot from "@/components/modals/PasswordForgot.vue";
 
 export default {
   name: "Home",
   components: {
+    PasswordForgot,
   },
 
   data(){
@@ -136,6 +138,7 @@ export default {
     color: #fff;
     font-size: 15px;
     font-weight: bolder;
+    text-transform: capitalize;
   }
   .btn-container p{
     text-align: right;

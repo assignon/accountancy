@@ -1,23 +1,23 @@
 <template>
   <v-app id='app'>
-    <!-- <Nav v-if="!$route.name.startsWith('Login')" /> -->
     <v-main>
       <Sidebar v-if="!$route.name.startsWith('Login')" />
       <router-view class="animated fadeIn"></router-view>
+      <FormsModal/>
     </v-main>
   </v-app>
 </template>
 
 <script>
-// import Nav from "./components/layouts/Nav";
 import Sidebar from "./components/layouts/Sidebar";
+import FormsModal from "./components/modals/FormsModal";
 
 export default {
   name: "App",
 
   components: {
-    // Nav,
-    Sidebar
+    Sidebar,
+    FormsModal,
   },
 
   data: () => ({

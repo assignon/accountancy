@@ -31,6 +31,7 @@ class Tires(models.Model):
     brands = models.ManyToManyField(Brands)
     profiles = models.ManyToManyField(Profiles)
     vehicule = models.ForeignKey(Vehicule, on_delete=models.DO_NOTHING)
+    quantity = models.IntegerField(default=1)
 
     def __str__(self):
         return self.size

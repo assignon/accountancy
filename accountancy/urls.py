@@ -25,6 +25,7 @@ from .router import router
 from dashboard import views as dash_view
 from django.conf.urls import url
 from django.views.generic import TemplateView
+from accountancy import views
 
 urlpatterns = [
 

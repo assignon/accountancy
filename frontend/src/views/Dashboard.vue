@@ -10,7 +10,7 @@
                         </p>
                         
                         <v-icon style='font-size: 70px;' class='mb-3'>fas fa-boxes</v-icon>
-                        <h1 class='display-3'>{{products[0].count}}</h1>
+                        <h1 class='display-3 animated bounceIn'>{{products[0].count}}</h1>
                     </v-flex>
                     
                     <v-flex xs12 sm12 md4 lg4 xl4 class='incoming-counts'>
@@ -18,7 +18,7 @@
                                 Incoming products
                         </p>
                         <v-icon style='font-size: 70px;' class='mb-3'>fas fa-boxes</v-icon>
-                        <h1 class='display-3'>{{addedProducts[0].count}}</h1>
+                        <h1 class='display-3 animated bounceIn'>{{addedProducts[0].count}}</h1>
                     </v-flex>
 
                     <v-flex xs12 sm12 md3 lg3 xl3 class='orders-payments'>
@@ -27,7 +27,7 @@
                                 <v-icon>fas fa-coins</v-icon>
                                 <p class='mt-3'>Payments</p>
                             </div>
-                            <h3 class='display-1'>{{customerPayments[0].count}}</h3>
+                            <h3 class='display-1 animated bounceIn'>{{customerPayments[0].count}}</h3>
                         </div>
 
                         <div class='orders-count'>
@@ -35,13 +35,19 @@
                                 <v-icon>fas fa-truck-loading</v-icon>
                                 <p class='mt-3'>Orders</p>
                             </div>
-                            <h3 class='display-1'>{{orders[0].count}}</h3>
+                            <h3 class='display-1 animated bounceIn'>{{orders[0].count}}</h3>
                         </div>
                     </v-flex>
                 </div>
 
                 <div class="orders" v-if='orders[0].count > 0'>
-
+                    <div class='orders-header' style='margin-left:2%;'>
+                        <p>
+                            <v-icon color='white' medium>fas fa-truck-loading</v-icon>
+                            <span>Orders</span>
+                        </p>
+                    </div>
+                    <OrdersTemp :orderArr='orders'/>
                 </div>
                 <div class='no-orders' v-else>
                     <v-icon>fas fa-truck-loading</v-icon>
@@ -51,7 +57,13 @@
 
             <v-flex xs12 sm12 md3 lg3 xl3 class='rigth-side'>
                 <div class='calendar-payments'>
-                    <div class='calendar'></div>
+                    <div class='calendar'>
+                        <Calendar 
+                            @orders='getOrders'
+                            @payments='getPayments'
+                            @addedProducts='getAddedProducts'
+                        />
+                    </div>
 
                     <div  class='payment-container' v-if='customerPayments[0].count > 0'>
                         <div class='payment-header'>
@@ -60,21 +72,20 @@
                                 <span>Pyaments for {{paymentDate}}</span>
                             </p>
                         </div>
-                        <div class='payments mt-5 ml-5' 
-                            v-for="(payment, i) in customerPayments" 
+                        <div class='payments mt-5 ml-5 animated fadeInUp' 
+                            v-for="(payment, i) in customerPayments[0].payments" 
                             :key='i'
                         >
                             <p>
                                 <v-icon class='mr-2' color='white'>fas fa-user-circle</v-icon>
-                                <span>{{payment.customers[i].name}}</span>
-                                <span class='ml-3'>({{payment.payments[i].payment_interval}})</span>
+                                <span>{{payment.customer[0].name}}</span>
+                                <span class='ml-3'>({{payment.payment_interval}})</span>
                             </p>
-                            <!-- <p>{{ payment.payments[i].pay_in }}</p> -->
                             <PaymentProgressBar 
                                 class='ml-3'
                                 style='position: relative;top:3px;'
-                                :times="payment.payments[i].times"
-                                :paymentDatesArr="payment.payments[i].payment_dates"
+                                :times="payment.times"
+                                :paymentDatesArr="payment.payment_dates"
                             />
                         </div>
                     </div>
@@ -85,17 +96,28 @@
                 </div>
             </v-flex>
         </v-layout>
+        <InformationModal 
+            bColor='#15141c'    
+            border='1px solid #15141c'
+            closeClr='white' 
+        />
     </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex';
 import PaymentProgressBar from "@/components/layouts/PaymentProgressBar.vue";
+import OrdersTemp from "@/components/layouts/OrdersTemp.vue";
+import InformationModal from "@/components/modals/InformationModal.vue";
+import Calendar from "@/components/layouts/Calendar.vue";
 export default {
     name: 'Dashboard',
 
     components: {
-        PaymentProgressBar
+        PaymentProgressBar,
+        OrdersTemp,
+        InformationModal,
+        Calendar,
     },
 
     computed: {
@@ -124,10 +146,10 @@ export default {
     created(){
         // products
         this.allProducts()
-        this.getAddedProducts()
+        this.getAddedProducts(null)
         // orders
-        this.getPayments()
-        this.getOrders()
+        this.getPayments(null)
+        this.getOrders(null)
     },
 
     methods: {
@@ -149,14 +171,14 @@ export default {
             });
         },
 
-        getAddedProducts(){
+        getAddedProducts(date){
             let self = this;
             let store = self.$store;
 
             this.$store.dispatch("getReq", {
                 url: "product/come_in",
                 params: {
-                    date: null
+                    date: date
                 },
                 auth: self.$session.get('token'),
                 csrftoken: self.$session.get('token'),
@@ -167,33 +189,33 @@ export default {
             });
         },
 
-        getPayments(){
+        getPayments(date){
             let self = this;
             let store = self.$store;
 
             this.$store.dispatch("getReq", {
                 url: "order/ongoing_payments",
                 params: {
-                    date: '2021-01-22',
-                    limit: 10,
+                    date: date,
+                    limit: 0,
                 },
                 auth: self.$session.get('token'),
                 csrftoken: self.$session.get('token'),
                 callback: function(data) {
-                    console.log('payments',data);
+                    // console.log('payments',data);
                     store.getters["setData"]([store.state.order.paymentsArr, [data]]);
                 },
             });
         },
 
-        getOrders(){
+        getOrders(date){
             let self = this;
             let store = self.$store;
 
             this.$store.dispatch("getReq", {
                 url: "order/orders",
                 params: {
-                    date: '2021-01-22',
+                    date: date,
                     limit: 20,
                 },
                 auth: self.$session.get('token'),
@@ -292,7 +314,7 @@ export default {
         width: 100%;
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        justify-content: flex-start;
         align-items: center;
         margin-top: 30px;
         height:550px;
@@ -353,7 +375,7 @@ export default {
         justify-content:flex-start;
         align-items: flex-start;
     }
-    .payment-header{
+    .payment-header, .orders-header{
         width: 90%;
         height: auto;
         margin-left: 5%;
@@ -363,11 +385,11 @@ export default {
         justify-content: flex-start;
         align-items: flex-end;
     }
-    .payment-header p{
+    .payment-header p, .orders-header p{
         margin: 0px;
         padding: 0px;
     }
-    .payment-header p span{
+    .payment-header p span, .orders-header p span{
         color: white;
         margin-left: 10px;
     }
@@ -378,6 +400,7 @@ export default {
         flex-direction: row;
         justify-content:flex-start;
         align-items: flex-start;
+        cursor: pointer;
     }
     .calendar-payments .payments .v-icon{
         font-size: 40px;

@@ -30,6 +30,13 @@ export default new Vuex.Store({
       v => !!v || "Email is required",
       v => /.+@.+/.test(v) || "Email is not valid"
     ],
+    passForgotDialog: false,
+    forgotEmail: '',
+    infoDrawer: false,
+    infoTempName: null, // vue dynamic template name
+    formsTemp: null, 
+    formName: null,
+    formsDialog: false,
   },
 
   getters: {
@@ -38,7 +45,7 @@ export default new Vuex.Store({
       console.log(state);
 
       if (data[0].length > 0) {
-        data[0] = []
+        data[0].length = 0
       }
       data[1].forEach((items) => {
         data[0].push(items)

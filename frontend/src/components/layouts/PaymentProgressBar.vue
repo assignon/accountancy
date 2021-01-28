@@ -20,13 +20,18 @@ export default {
 
     computed:{
         paymentProgressValue: function(){
-            // let currentDate = new Date().toISOString().split('T')[0]
-            // let parts = 100/this.times
-            // let payment_turn = this.paymentDatesArr.indexOf(currentDate)
-            console.log(this.paymentDatesArr);
+            let currentDate = new Date().toISOString().split('T')[0]
+            let parts = 100/this.times
+            let dateIndexArr = []
 
-            // return payment_turn*parts
-            return 50
+            this.paymentDatesArr.forEach(date => {
+                if (currentDate > date){
+                    dateIndexArr = []
+                    dateIndexArr.push(this.paymentDatesArr.indexOf(date)+1)
+                }
+            })
+
+            return dateIndexArr[0]*parts
         }
     },
 

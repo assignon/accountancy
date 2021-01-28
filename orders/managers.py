@@ -1,5 +1,6 @@
 from django.db import models
 from datetime import datetime
+from django.core import serializers
 
 
 def get_related(obj, parent, obj_id):
@@ -23,9 +24,29 @@ def get_related(obj, parent, obj_id):
     return related_arr
 
 
+def get_prefetch_related(parent):
+    """
+    get related model data of a many to many key relation
+
+    Args:
+        related_field ([model class]): [related field name in model class]
+        parent ([model class]): [model class with the many to many key]
+
+    Returns:
+        [array]: [array with related object data]
+    """
+    related_arr = None
+
+    for p in parent:
+        related_arr = p
+
+    return related_arr
+
+
 class OrdersManager(models.Manager):
     def get_orders(self, dte=None, limit=None):
-        from products.models import Products
+        from products.models import Vehicule
+        from orders.models import Customers, Payment, PaymentMethods, ProductOrdered, Tires, Orders
         """
         get orders base on the give date
 
@@ -36,6 +57,7 @@ class OrdersManager(models.Manager):
             [obj]: [products data]
         """
         current_date = datetime.now().date()
+        orders_arr = []
 
         if dte == None:
             # get products of the current date
@@ -43,21 +65,88 @@ class OrdersManager(models.Manager):
                 order_on=current_date) if limit == None else self.prefetch_related().filter(
                 order_on=current_date)[:limit]
 
+            # get credentials and orders
+            for order in orders.values():
+                customer = Customers.objects.get_customer(
+                    order_id=order['id'])
+                payment = Payment.objects.filter(id=customer.payment_id)
+
+                ordered_products = ProductOrdered.objects.filter(
+                    orders__id=order['id'])
+
+                payment_data = {
+                    'method': get_related(PaymentMethods, payment, 'method_id'),
+                    'pay_in': payment.values()[0]['pay_in'],
+                    'payment_interval': payment.values()[0]['payment_interval'],
+                    'times': payment.values()[0]['times'],
+                    'start': payment.values()[0]['start']
+                }
+
+                orders_arr.append({
+                    'order': order,
+                    'credentials': Customers.objects.get_credentials(
+                        order_id=order['id']),
+                    'payment': payment_data,
+                    'paying': Orders.paying(order['id']),
+                    'ordered_products': [
+                        {
+                            'ordered_product': p_d,
+                            'product': Tires.objects.filter(id=p_d['product_id']).values(),
+                            'vehicule': get_related(Vehicule, Tires.objects.filter(id=p_d['product_id']), 'vehicule_id'),
+                            'brands': [brand for brand in get_prefetch_related(Tires.objects.filter(id=p_d['product_id'])).brands.all().values()],
+                            'profiles':  [profile for profile in get_prefetch_related(Tires.objects.filter(id=p_d['product_id'])).profiles.all().values()],
+                        }
+                        for p_d in ordered_products.values()
+                    ]
+                })
+
             return {
-                'orders': orders.values(),
-                # 'tire': [get_related(Tires, id=product['tire_id']) for product in added_products],
-                # 'products': get_related(Products, orders, 'product_id'),
+                'order': orders_arr,
                 'count': orders.count()
             }
+
         else:
             # get products base on give date
             orders = self.prefetch_related().filter(
                 order_on=dte) if limit == None else self.prefetch_related().filter(
                 order_on=dte)[:limit]
 
+            for order in orders.values():
+                customer = Customers.objects.get_customer(
+                    order_id=order['id'])
+                payment = Payment.objects.filter(id=customer.payment_id)
+
+                ordered_products = ProductOrdered.objects.filter(
+                    orders__id=order['id'])
+
+                payment_data = {
+                    'method': get_related(PaymentMethods, payment, 'method_id'),
+                    'pay_in': payment.values()[0]['pay_in'],
+                    'payment_interval': payment.values()[0]['payment_interval'],
+                    'times': payment.values()[0]['times'],
+                    'start': payment.values()[0]['start']
+                }
+
+                orders_arr.append({
+                    'order': order,
+                    'credentials': Customers.objects.get_credentials(
+                        order_id=order['id']),
+                    'payment': payment_data,
+                    'paying': Orders.paying(order['id']),
+                    'ordered_products': [
+                        {
+                            'ordered_product': p_d,
+                            'product': Tires.objects.filter(id=p_d['product_id']).values(),
+                            'vehicule': get_related(Vehicule, Tires.objects.filter(id=p_d['product_id']), 'vehicule_id'),
+                            'brands': [brand for brand in get_prefetch_related(Tires.objects.filter(id=p_d['product_id'])).brands.all().values()],
+                            'profiles':  [profile for profile in get_prefetch_related(Tires.objects.filter(id=p_d['product_id'])).profiles.all().values()],
+                        }
+                        for p_d in ordered_products.values()
+                    ]
+                })
+
             return {
-                'orders': orders.values(),
-                # 'products': get_related(Products, orders, 'tire_id'),
+                'order': orders_arr,
                 'count': orders.count()
             }
 
@@ -92,45 +181,99 @@ class PaymentManager(models.Manager):
 
 
 class CustomerManager(models.Manager):
+    def get_customer(self, **kwargs):
+        customer = self.select_related().get(**kwargs)
+
+        return customer
+
+    def get_credentials(self, **kwargs):
+        from orders.models import Credentials
+
+        customer = self.select_related().get(**kwargs)
+        credentials = Credentials.objects.get(id=customer.credential_id)
+
+        return {
+            'id': credentials.id,
+            'customer_id': customer.id,
+            'name': credentials.name,
+            'email': credentials.email,
+            'address': credentials.address,
+            'tel_number': credentials.tel_number,
+        }
+
     def customer_orders(self, customerid):
-        from products.models import Products
-        from orders.models import Orders, Credentials
+        from products.models import Products, Vehicule, Tires
+        from orders.models import Orders, Credentials, Payment, PaymentMethods, ProductOrdered
         """
-        get orders base on the give date
+        get orders by customer id
 
         Args:
-            dte ([date], optional): [current date if none else give date]. Defaults to None.
+            customerid [id]: customer id
 
         Returns:
             [obj]: [products data]
         """
-        customer = self.select_related().filter(
-            order_id=customerid)
+        customer = self.select_related().filter(id=customerid)
+        products_ordered_arr = []
+
         # get orders
-        orders = get_related(Orders, customer, 'order_id'),
+        order = Orders.objects.get(
+            id=customer.values()[0]['order_id'])
+        print('ord', order.id)
+        payment = Payment.objects.filter(id=customer.values()[0]['payment_id'])
+        payment_id = payment.values()[0]['id']
+        products_ordered = order.product_ordered.all()
+
+        for product_ordered in products_ordered.values():
+            products = Tires.objects.filter(
+                id=product_ordered['product_id'])
+            products_ordered_arr.append(
+                {
+                    'ordered_product': product_ordered,
+                    'products': products.values(),
+                    'profiles': get_prefetch_related(products).profiles.all().values(),
+                    'brands': get_prefetch_related(products).brands.all().values(),
+                    'vehicule': get_related(Vehicule, products, 'vehicule_id'),
+                }
+            )
 
         return {
-            'orders': orders,
+            'order': {
+                'order_on': order.order_on,
+                'order_at': order.order_at
+            },
             'credential': get_related(Credentials, customer, 'credential_id'),
-            'products': get_related(Products, orders, 'product_id'),
-            'count': orders.count()
+            'products':  products_ordered_arr,
+            'payment': payment.values(),
+            'paying': Orders.paying(order.id),
+            'method': get_related(PaymentMethods, payment, 'method_id'),
+            'payment_helper': {
+                'paymentDates_end': Payment.paymentDates_end(payment_id),
+                'paying_in_terms': Payment.paying_in_terms(payment_id, customer.values()[0]['id']),
+                'completed': Payment.completed(payment_id)
+            }
         }
 
     def customer_ongoing_payment(self, customerid):
-        from .models import Credentials, Payments, PaymentMethods
+        from .models import Credentials, Payment, PaymentMethods, Orders
         # querysets
         customers = self.select_related().filter(id=customerid)
+        order = Orders.objects.get(id=customers.values()[0]['order_id'])
         credential = get_related(Credentials, customers, 'credential_id')
-        payments = get_related(Payments, customers, 'payment_id')
-        payment_methods = get_related(PaymentMethods, payments, 'method_id')
+        payments = get_related(Payment, customers, 'payment_id')
+        payment_methods = PaymentMethods.objects.filter(
+            id=payments[0]['method_id'])
 
         return {
             'credentials': credential,
             'payments': payments,
-            'methods': payment_methods
+            'methods': payment_methods.values(),
+            'paying_term': Payment.paying_in_terms(payments[0]['id'], customerid),
+            'paying': Orders.paying(order.id),
+            'payment_dates': Payment.paymentDates_end(payments[0]['id'])
         }
 
-    def ongoing_payments(self, dte=datetime.now().date(), limit=None):
+    def ongoing_payments(self, dte, limit):
         from .models import PaymentMethods, Payment, Credentials
 
         customer_payments = []
@@ -138,7 +281,7 @@ class CustomerManager(models.Manager):
         credentials = []
         # querysets
         payments = Payment.objects.all(
-        ) if limit == None else Payment.select_related().all()[:limit]
+        )[:int(limit)] if int(limit) != 0 else Payment.objects.all()
 
         # get customer who are paying on the current day
         for payment in payments.values():
@@ -147,7 +290,12 @@ class CustomerManager(models.Manager):
 
             for dates in payments_dates['paying_dates']:
                 if dte == datetime.strftime(dates, '%Y-%m-%d'):
+                    payment_method = Payment.objects.filter(
+                        id=payment['id'])
                     payment_method = Payment.objects.filter(id=payment['id'])
+                    customers = self.select_related().filter(
+                        payment_id=payment['id'])
+
                     customer_payments.append(
                         {
                             'id': payment['id'],
@@ -156,21 +304,58 @@ class CustomerManager(models.Manager):
                             'payment_interval': payment['payment_interval'],
                             'start': payment['start'],
                             'times': payment['times'],
-                            'payment_dates': payments_dates['paying_dates']
+                            'payment_dates': payments_dates['paying_dates'],
+                            # get payments methods
+                            'methods': get_related(
+                                PaymentMethods, payment_method, 'method_id'),
+                            # get customer credentials
+                            'customer': get_related(
+                                Credentials, customers, 'credential_id')
                         }
                     )
-                    # get payments methods
-                    customer_payment_method.extend(get_related(
-                        PaymentMethods, payment_method, 'method_id'))
-                    # get customer credentials
-                    customers = self.select_related().filter(
-                        payment_id=payment['id'])
-                    credentials.extend(get_related(
-                        Credentials, customers, 'credential_id'))
 
         return {
             'customers': credentials,
             'payments': customer_payments,
             'methods': customer_payment_method,
-            'count': len(customer_payments)
+            'count': len(customer_payments),
+        }
+
+    def all_payments(self, limit):
+        from .models import PaymentMethods, Payment, Credentials
+
+        customer_payments = []
+        # querysets
+        payments = Payment.objects.all(
+        ) if int(limit) == 0 else Payment.objects.all()[:int(limit)]
+
+        for payment in payments.values():
+            payments_dates = Payment.paymentDates_end(payment['id'])
+            payment_method = Payment.objects.filter(id=payment['id'])
+            customers = self.select_related().filter(
+                payment_id=payment['id'])
+
+            customer_payments.append(
+                {
+                    'id': payment['id'],
+                    'method_id': payment['method_id'],
+                    'pay_in': payment['pay_in'],
+                    'payment_interval': payment['payment_interval'],
+                    'start': payment['start'],
+                    'times': payment['times'],
+                    'payment_dates': payments_dates['paying_dates'],
+                    # get payments methods
+                    'methods': get_related(
+                        PaymentMethods, payment_method, 'method_id'),
+                    # get customer credentials
+                    'customer': get_related(
+                        Credentials, customers, 'credential_id')
+                }
+            )
+
+        return {
+            # 'customers': credentials,
+            'payments': customer_payments,
+            # 'methods': customer_payment_method,
+            'count': len(customer_payments),
         }

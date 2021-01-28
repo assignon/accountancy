@@ -56,7 +56,7 @@ class Payment(models.Model):
             else:
                 # get number of days in current month(moth order take place)
                 days_in_month = monthrange(
-                    order_date.year, order_date.month)[0]
+                    order_date.year, order_date.month)[1]
 
                 for count in range(self.times):
                     payment_dates.append(
@@ -64,15 +64,15 @@ class Payment(models.Model):
 
                 end_date = self.start + timedelta(days=times*days_in_month)
 
-                # return {'paying_dates': payment_dates, 'end': end_date}
-                return end_date
+                return {'paying_dates': payment_dates, 'end': end_date}
 
     @staticmethod
-    def paying_in_terms(id):
+    def paying_in_terms(payment_id, customer_id):
         # amount of money pay by term
-        self = Payment.objects.get(id=id)
+        self = Payment.objects.get(id=payment_id)
+        customer = Customers.objects.get(id=customer_id)
         if self.pay_in == 'terms':
-            return int(Orders.paying(id))/int(self.times)
+            return int(Orders.paying(customer.order_id))/int(self.times)
 
     @staticmethod
     def completed(id):
@@ -85,9 +85,23 @@ class Payment(models.Model):
         return PaymentMethods.objects.get(id=self.method_id).name
 
 
-class Orders(models.Model):
-    product = models.ManyToManyField(Tires)
+class ProductOrdered(models.Model):
+    product = models.ForeignKey(
+        Tires, on_delete=models.DO_NOTHING)
     quantity = models.IntegerField()
+
+    @staticmethod
+    def product_price(id):
+        self = ProductOrdered
+
+        p_o = self.objects.get(id=id)
+        product = Tires.objects.get(id=p_o.product_id)
+
+        return product.price*p_o.quantity
+
+
+class Orders(models.Model):
+    product_ordered = models.ManyToManyField(ProductOrdered)
     order_on = models.DateField(auto_now=True)
     order_at = models.TimeField(auto_now=True)
     objects = OrdersManager()
@@ -106,9 +120,9 @@ class Orders(models.Model):
     def paying(id):
         self = Orders.objects.get(id=id)
         total_price = 0
-        products = self.product.all().values()
+        products = self.product_ordered.all().values()
         for product in products:
-            total_price += product['price']
+            total_price += ProductOrdered.product_price(product['id'])
 
         return total_price
 
