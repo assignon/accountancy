@@ -32,11 +32,12 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path('api/signin/', dash_view.signin),
-    # url(r'^$', TemplateView.as_view(template_name='index.html')),
-    # # frontend urls
-    # path('', views.home, name='home'),
-    # path('ls/', views.ls, name='learningstory'),
-    # path('ps/', views.ps, name='projectstory'),
+    url(r'^$', TemplateView.as_view(template_name='index.html')),
+    # frontend urls
+    path('', views.login, name='Login'),
+    path('orders/', views.orders, name='orders'),
+    path('dashboard/', views.dashboard, name='dashboard'),
+    # path('products/', views.products, name='products'),
 
 ] + static(
     settings.STATIC_URL, document_root=settings.STATIC_ROOT,
