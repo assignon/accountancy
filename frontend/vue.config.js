@@ -1,16 +1,16 @@
-module.exports = {
-  transpileDependencies: ["vuetify"],
-  "devServer": {
-    "proxy": {
-      "^/": {
-        "target": "http://127.0.0.1:8000/",
-        "ws": false
-      }
-    }
-  },
-  "outputDir": "./dist/",
-  "assetsDir": "static",
-  "transpileDependencies": [
-    "vuetify"
-  ]
-};
+// module.exports = {
+//   transpileDependencies: ["vuetify"],
+//   "devServer": {
+//     "proxy": {
+//       "^/": {
+//         "target": "http://127.0.0.1:8000/",
+//         "ws": false
+//       }
+//     }
+//   },
+//   "outputDir": "./dist/",
+//   "assetsDir": "static",
+//   "transpileDependencies": [
+//     "vuetify"
+//   ]
+// };
