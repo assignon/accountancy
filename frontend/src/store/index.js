@@ -136,6 +136,29 @@ export default new Vuex.Store({
         });
     },
 
+    publicPostAxiosCall(state, payload) {
+      /*
+           http post request
+           params:
+               payload: [object]: [data sended with the request]
+       */
+      axios
+        .post(`${payload.host}/api/${payload.url}/`, {
+          body: payload.params,
+          headers: {
+              "X-CSRFToken": payload.csrftoken,
+              Authorization: `token ${payload.auth}`,
+          },
+        })
+        .then(response => {
+          let res = response.data;
+          payload.callback(res);
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+
     putAxiosCall(state, payload) {
       /*
            http put request
@@ -194,6 +217,17 @@ export default new Vuex.Store({
       });
     },
 
+    publicPostReq({ commit, rootState }, payload) {
+      commit("publicPostAxiosCall", {
+        url: payload.url,
+        params: payload.params,
+        auth: payload.auth,
+        csrftoken: payload.csrftoken,
+        callback: payload.callback,
+        host: rootState.HOST,
+      });
+    },
+
     postReq({ commit, rootState }, payload) {
       commit("postAxiosCall", {
         url: payload.url,
@@ -208,7 +242,7 @@ export default new Vuex.Store({
     putReq({ commit, rootState }, payload) {
       commit("putAxiosCall", {
         url: payload.url,
-        params: payload.params,
+        body: payload.params,
         auth: payload.auth,
         csrftoken: payload.csrftoken,
         callback: payload.callback,

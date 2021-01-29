@@ -35,6 +35,7 @@ from products.models import Products
 def signin(request):
     email = request.data['body']['email']
     password = request.data['body']['password']
+    print('reqqq', request)
     # get username and password count
     email_count = User.objects.filter(email=email).count()
     passsword_count = User.objects.filter(password=password).count()
