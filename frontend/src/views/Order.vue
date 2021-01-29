@@ -222,6 +222,7 @@ export default {
         align-items: flex-start;
         margin-left: 15%;
         /* background-color: #1e1d2b; */
+        background-color: #fafafa;
     }
     .order-layout{
         height: auto;
@@ -323,19 +324,23 @@ export default {
     }
     .payment-container .payments{
         width: 100%;
-        height:100%;
+        height:auto;
         display: flex;
         flex-direction: row;
         justify-content:flex-start;
         align-items: flex-start;
         cursor: pointer;
-        border: 1px solid #fff;
+        border: 1px solid #fafafa;
         border-radius: 10px;
-        background-color: #fff;
-        padding: 25px 15px 7px 15px;
+        background-color: #ebf0f7;
+        /* padding: 10px 10px 0px 10px; */
+        padding-top: 10px;
+        padding-left: 20px;
+        padding-bottom: -0px;
+        margin-bottom: -5px;
         cursor: pointer;
-        margin-bottom: 10px;
-        box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2), 0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12);
+        box-shadow: rgba(255, 255, 255, 0.2) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0.9) 0px 0px 0px 1px;
+        /* box-shadow: 5px 11px 15px -7px rgba(0, 0, 0, 0.2), 0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12); */
     }
     .payment-container .payments .v-icon{
         font-size: 40px;

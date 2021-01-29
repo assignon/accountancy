@@ -5,45 +5,48 @@
             <v-flex xs12 sm12 md8 lg8 xl8 class='left-side'>
                 <div class='counts'>
                     <v-flex xs12 sm12 md4 lg4 xl4 class='products-count'>
-                        <p>
-                            All products
-                        </p>
-                        
-                        <v-icon style='font-size: 70px;' class='mb-3'>fas fa-boxes</v-icon>
-                        <h1 class='display-3 animated bounceIn'>{{products[0].count}}</h1>
+                        <div class='inventory-header'>
+                            <v-icon style='font-size: 30px;' class='mb-2 ml-3'>fas fa-boxes</v-icon>
+                            <p class='ml-3'>Inventories</p>
+                        </div>
+
+                        <div class='inventory-container'>
+                            <h1 class='display-3 animated bounceIn'>{{products[0].count}}</h1>
+                        </div>
                     </v-flex>
                     
-                    <v-flex xs12 sm12 md4 lg4 xl4 class='incoming-counts'>
+                    <!-- <v-flex xs12 sm12 md4 lg4 xl4 class='incoming-counts'>
                         <p>
                                 Incoming products
                         </p>
                         <v-icon style='font-size: 70px;' class='mb-3'>fas fa-boxes</v-icon>
                         <h1 class='display-3 animated bounceIn'>{{addedProducts[0].count}}</h1>
+                    </v-flex> -->
+                    <v-flex xs12 sm12 md4 lg4 xl4 class='paying-counts'>
+                            <div class='payment-header'>
+                                <v-icon>fas fa-coins</v-icon>
+                                <p class='mt-1 ml-3'>Payments</p>
+                            </div>
+                            <div class='count-container'>
+                                <h1 class='display-3 animated bounceIn'>{{customerPayments[0].count}}</h1>
+                            </div>
                     </v-flex>
 
-                    <v-flex xs12 sm12 md3 lg3 xl3 class='orders-payments'>
-                        <div class='paying-counts'>
-                            <div>
-                                <v-icon>fas fa-coins</v-icon>
-                                <p class='mt-3'>Payments</p>
-                            </div>
-                            <h3 class='display-1 animated bounceIn'>{{customerPayments[0].count}}</h3>
-                        </div>
-
-                        <div class='orders-count'>
-                            <div>
+                    <v-flex xs12 sm12 md3 lg3 xl3 class='orders-count'>
+                            <div class='order-header'>
                                 <v-icon>fas fa-truck-loading</v-icon>
-                                <p class='mt-3'>Orders</p>
+                                <p class='animated bounceIn ml-3'>Orders</p>
                             </div>
-                            <h3 class='display-1 animated bounceIn'>{{orders[0].count}}</h3>
-                        </div>
+                            <div class='order-container'>
+                                <h1 class='display-3 animated bounceIn'>{{orders[0].count}}</h1>
+                            </div>
                     </v-flex>
                 </div>
 
                 <div class="orders" v-if='orders[0].count > 0'>
                     <div class='orders-header' style='margin-left:2%;'>
                         <p>
-                            <v-icon color='white' medium>fas fa-truck-loading</v-icon>
+                            <v-icon color='#1e1d2b' medium>fas fa-truck-loading</v-icon>
                             <span>Orders</span>
                         </p>
                     </div>
@@ -75,9 +78,10 @@
                         <div class='payments mt-5 ml-5 animated fadeInUp' 
                             v-for="(payment, i) in customerPayments[0].payments" 
                             :key='i'
+                            @click='$store.state.infoDrawer=true, paymentDetails(payment.customer[0].id)'
                         >
                             <p>
-                                <v-icon class='mr-2' color='white'>fas fa-user-circle</v-icon>
+                                <v-icon class='mr-2' color='#1e1d2b'>fas fa-user-circle</v-icon>
                                 <span>{{payment.customer[0].name}}</span>
                                 <span class='ml-3'>({{payment.payment_interval}})</span>
                             </p>
@@ -208,6 +212,25 @@ export default {
             });
         },
 
+        paymentDetails(customerid){
+            let self = this;
+
+            this.$store.dispatch('order/getPaymentDetails', {
+                url: 'order/payment_details',
+                params: {
+                    customerId: customerid
+                },
+                auth: self.$session.get('token'),
+                csrftoken: self.$session.get('token'),
+                callback: function(data){
+                    // console.log('api data', data);
+                    self.$store.state.infoTempName = 'PaymentDetails'
+                    self.$store.getters["setData"]([self.$store.state.order.customerPaymentArr, [data]]);
+                    
+                },
+            })
+        },
+
         getOrders(date){
             let self = this;
             let store = self.$store;
@@ -233,12 +256,13 @@ export default {
 <style scoped>
     .dash-core{
         height: 100vh;
-        width: 85%;
+        width: auto;
         display: flex;
         justify-content: center;
         align-items: flex-start;
         margin-left: 15%;
-        background-color: #1e1d2b;
+        /* background-color: #1e1d2b; */
+        background-color: #fff;
     }
     .dash-layout{
         height: auto;
@@ -272,7 +296,10 @@ export default {
         justify-content: center;
         align-items: center;
         height:300px;
-        background-color: #15141c;
+        /* background-color: #15141c; */
+        background-color: #ebf0f7;
+        box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+        /* box-shadow: 5px 11px 15px -7px rgba(0, 0, 0, 0.2), 0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12); */
         border-radius: 10px;
     }
     .orders-payments{
@@ -289,25 +316,42 @@ export default {
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        height:149px;
-        background-color: #15141c;
+        height:300px;
+        background-color: #ebf0f7;
+        box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
         border-radius: 10px;
     }
+    .order-header, .payment-header, .inventory-header{
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: flex-start;
+        margin-left: 30px;
+    }
+    .paying-counts .count-container, .orders-count .order-container, .inventory-container{
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+         height: 70%;
+    }
     .products-count p, .incoming-counts p, .orders-count p, .paying-counts p{
-        color: white;
+        color: #15141c;
         /* color: #1e1d2b; */
         font-size: 18px;
         font-weight: bold;
         text-align: left;
     }
-    .products-count h1, .incoming-counts h1, .orders-count h3, .paying-counts h3{
-        color: white;
+    .products-count h1, .incoming-counts h1, .orders-count h1, .paying-counts h1{
+        color: #15141c;
         /* color: #1e1d2b; */
         text-align: center;
         font-weight: bold;
     }
     .counts .v-icon{
-        color: #0163d1;
+        /* color: #0163d1; */
+        color: #15141c;
         font-size: 30px;
     }
     .orders{
@@ -318,7 +362,8 @@ export default {
         align-items: center;
         margin-top: 30px;
         height:550px;
-        background-color: #15141c;
+        background-color: #ebf0f7;
+        box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;
         border-radius: 10px;
     }
     .no-orders{
@@ -329,7 +374,8 @@ export default {
         align-items: center;
         margin-top: 30px;
         height:550px;
-        background-color: #15141c;
+        background-color: #ebf0f7;
+        box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;
         border-radius: 10px;
     }
     .no-orders .v-icon{
@@ -362,13 +408,15 @@ export default {
         height:400px;
         width: 100%;
         margin-bottom: 30px;
-        background-color: #15141c;
+        background-color: #ebf0f7;
+        box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
         border-radius: 10px;
     }
     .payment-container{
         width: 100%;
         height:450px;
-        background-color: #15141c;
+        background-color: #ebf0f7;
+        box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;
         border-radius: 10px;
         display: flex;
         flex-direction: column;
@@ -390,12 +438,13 @@ export default {
         padding: 0px;
     }
     .payment-header p span, .orders-header p span{
-        color: white;
+        color: #1e1d2b;
+        font-weight: bold;
         margin-left: 10px;
     }
     .calendar-payments .payments{
         width: 100%;
-        height:100%;
+        height:auto;
         display: flex;
         flex-direction: row;
         justify-content:flex-start;
@@ -407,14 +456,15 @@ export default {
     }
     .calendar-payments .payments p{
         font-size: 15px;
-        color: white;
+        color: #1e1d2b;
         font-weight: bold;
         text-align: left;
     }
     .calendar-payments .no-payments{
         width: 100%;
         height:450px;
-        background-color: #15141c;
+        background-color: #ebf0f7;
+        box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;
         border-radius: 10px;
         display: flex;
         flex-direction: column;

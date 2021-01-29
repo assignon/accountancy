@@ -16,7 +16,11 @@
                     <v-icon color='white'>fas fa-truck-loading</v-icon>
                     <p>Orders</p>
                 </router-link>
-                <v-icon style='font-size:28px;position:relative;bottom:1px' color='#0163d1' class='ml-3'>fas fa-plus-square</v-icon>
+                <v-icon 
+                    style='font-size:28px;position:relative;bottom:1px' 
+                    color='#0163d1' class='ml-3' 
+                    @click='newOrder()'
+                >fas fa-plus-square</v-icon>
             </div>
 
             <div class='link-container'>
@@ -76,6 +80,12 @@ export default {
                     }
                 },
             });
+        },
+
+        newOrder(){
+            this.$store.state.formsDialog = true;
+            this.$store.state.formName = 'Order';
+            this.$store.state.formsTemp = 'OrderStepper';
         }
     }
 }

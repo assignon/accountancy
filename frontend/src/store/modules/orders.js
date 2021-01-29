@@ -7,6 +7,22 @@ export default {
         paymentsArr: [],
         customerOrderArr: [],
         customerPaymentArr: [],
+        paymentMethodsArr: [],
+        // customer informations
+        email: null,
+        name: null,
+        address: null,
+        telNumber: null,
+        // order informations
+        product: null,
+        productArr: [],
+        quantity: 1,
+        // payment informations
+        startDate: new Date().toISOString().substr(0, 10),
+        payInterval: null,
+        payIn: null,
+        payMethod: null,
+        times: 2,
     },
 
     getters: {
@@ -21,6 +37,9 @@ export default {
         },
         getcustomerPayment: (state) => {
             return state.customerPaymentArr
+        },
+        getPaymentMethods: (state) => {
+            return state.paymentMethodsArr
         }
     },
 

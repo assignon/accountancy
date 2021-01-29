@@ -22,7 +22,7 @@ from rest_framework.status import (
     HTTP_200_OK
 )
 
-from orders.serializers import OrderSerializer
+from orders.serializers import OrderSerializer, PaymentSerializer
 from .models import Customers, Orders, Payment
 
 # Create your views here.
@@ -106,3 +106,22 @@ class OrderView(viewsets.ModelViewSet):
         payment = Customers.objects.customer_ongoing_payment(customer_id)
 
         return Response(payment)
+
+
+class PaymentView(viewsets.ModelViewSet):
+    queryset = Payment.objects.all()
+    serializer_class = PaymentSerializer
+    permission_classes = [IsAuthenticated]
+
+    @csrf_exempt
+    @action(methods=['get'], detail=False)
+    def payment_methods(self, request):
+        """
+        get the available payment methods
+
+        Args:
+            request (dict): [request data]
+        """
+        paymentmethods = Payment.objects.get_payment_methods()
+
+        return Response(paymentmethods)

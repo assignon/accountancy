@@ -45,8 +45,8 @@
             <p>Pay by terms: {{orderDeteails[0].payment_helper.paying_in_terms}}</p>
             <p>Pay in: {{orderDeteails[0].payment[0].pay_in}}</p>
             <p>Payment Interval: {{orderDeteails[0].payment[0].payment_interval}}</p>
-            <p>Start Date: {{orderDeteails[0].payment[0].start}}</p>
-            <p>Times: {{orderDeteails[0].payment[0].times}}</p>
+            <p>Start Date: {{orderDeteails[0].customer[0].start}}</p>
+            <p>Times: {{orderDeteails[0].customer[0].times}}</p>
             <div class='payment-dates'>
                 <p>Payment Dates:</p>
                 <div class='dates ml-2' 

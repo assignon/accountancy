@@ -39,7 +39,7 @@ import { mapGetters } from 'vuex';
 export default {
   name: "Order",
 
-  props: ['name'],
+  props: [],
   
     components: {
         OrderStepper
@@ -67,7 +67,10 @@ export default {
 </script>
 
 <style scoped>
-  .v-dialog, .v-dialog--fullscreen{
+.stepper-dialog{
+    height: 90%;
+}
+  /* .v-dialog, .v-dialog--fullscreen{
       background-color: #1e1d2b;
-  }
+  } */
 </style>

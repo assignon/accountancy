@@ -18,9 +18,9 @@
             <p>Method: {{paymentDeteails[0].methods[0].name}}</p>
             <p>Pay in: {{paymentDeteails[0].payments[0].pay_in}}</p>
             <p>Payment Interval: {{paymentDeteails[0].payments[0].payment_interval}}</p>
-            <p>Times: {{paymentDeteails[0].payments[0].times}}</p>
+            <p>Times: {{paymentDeteails[0].customer[0].times}}</p>
 
-            <p>Start Date: {{parseDate(paymentDeteails[0].payments[0].start)}}</p>
+            <p>Start Date: {{parseDate(paymentDeteails[0].customer[0].start)}}</p>
             <p>End Date: {{parseDate(paymentDeteails[0].payment_dates.end)}}</p>
             <p
                 v-if='dateNow < paymentDeteails[0].payment_dates.paying_dates[paymentDeteails[0].payment_dates.paying_dates.length-1]'

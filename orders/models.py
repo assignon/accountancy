@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 from products.models import Tires
 from datetime import datetime, timedelta
 from calendar import monthrange
@@ -23,34 +24,35 @@ class Payment(models.Model):
                     ('monthly', 'monthly'))
     payment_interval = models.CharField(
         max_length=50, choices=pay_interval, default='daily')
-    times = models.IntegerField()
-    start = models.DateField()
     objects = PaymentManager()
 
     @staticmethod
-    def paymentDates_end(id):
+    def paymentDates_end(customer_id):
+        customer = Customers.objects.get(id=customer_id)
         # payment end date of payment and dates of payments
-        self = Payment.objects.get(id=id)
+        self = Payment.objects.get(id=customer.payment_id)
         # -1 because the 1st payment happen on the order day
-        times = self.times-1
+        times = customer.times-1
         order_date = datetime.now().date()
         payment_dates = []
 
         if self.pay_in == 'once':
-            return self.start
+            return customer.start
         else:
             if self.payment_interval == 'daily':
-                for count in range(self.times):
-                    payment_dates.append(self.start + timedelta(days=count))
+                for count in range(customer.times):
+                    payment_dates.append(
+                        customer.start + timedelta(days=count))
 
-                end_date = self.start + timedelta(days=times)
+                end_date = customer.start + timedelta(days=times)
 
                 return {'paying_dates': payment_dates, 'end': end_date}
             elif self.payment_interval == 'weekly':
-                for count in range(self.times):
-                    payment_dates.append(self.start + timedelta(days=count*7))
+                for count in range(customer.times):
+                    payment_dates.append(
+                        customer.start + timedelta(days=count*7))
 
-                end_date = self.start + timedelta(days=times*7)
+                end_date = customer.start + timedelta(days=times*7)
 
                 return {'paying_dates': payment_dates, 'end': end_date}
             else:
@@ -58,25 +60,25 @@ class Payment(models.Model):
                 days_in_month = monthrange(
                     order_date.year, order_date.month)[1]
 
-                for count in range(self.times):
+                for count in range(customer.times):
                     payment_dates.append(
-                        self.start + timedelta(days=count*days_in_month))
+                        customer.start + timedelta(days=count*days_in_month))
 
-                end_date = self.start + timedelta(days=times*days_in_month)
+                end_date = customer.start + timedelta(days=times*days_in_month)
 
                 return {'paying_dates': payment_dates, 'end': end_date}
 
     @staticmethod
-    def paying_in_terms(payment_id, customer_id):
+    def paying_in_terms(customer_id):
         # amount of money pay by term
-        self = Payment.objects.get(id=payment_id)
         customer = Customers.objects.get(id=customer_id)
+        self = Payment.objects.get(id=customer.payment_id)
         if self.pay_in == 'terms':
-            return int(Orders.paying(customer.order_id))/int(self.times)
+            return int(Orders.paying(customer.order_id))/int(customer.times)
 
     @staticmethod
-    def completed(id):
-        if Payment.paymentDates_end(id)['end'] == datetime.now().date():
+    def completed(customer_id):
+        if Payment.paymentDates_end(customer_id)['end'] == datetime.now().date():
             return True
         else:
             return False
@@ -141,6 +143,8 @@ class Customers(models.Model):
     credential = models.ForeignKey(Credentials, on_delete=models.CASCADE)
     order = models.ForeignKey(Orders, on_delete=models.CASCADE)
     payment = models.ForeignKey(Payment, on_delete=models.DO_NOTHING)
+    times = models.IntegerField(default=2)
+    start = models.DateField(default=timezone.now())
     objects = CustomerManager()
 
     @staticmethod
