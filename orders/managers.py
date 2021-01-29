@@ -44,6 +44,58 @@ def get_prefetch_related(parent):
 
 
 class OrdersManager(models.Manager):
+    def create_order(self, **kwargs):
+        from orders.models import Customers, Payment, PaymentMethods, ProductOrdered, Tires, Credentials
+
+        # get payment method
+        method = PaymentMethods.objects.get(name=kwargs['method'])
+        # create order
+        order = self.objects.create()
+        order.save()
+        for product in kwargs['ordered_products']:
+            # get tire
+            tire = Tires.objects.get(name=product['name'])
+            # create ordered products
+            ordered_products = ProductOrdered.objects.create(
+                procuct=tire, quantity=product['qty'])
+            order.product_ordered.add(ordered_products)
+
+        # create payment
+        payment = Payment.objects.create(
+            method=method,
+            pay_in=kwargs['pay_in'],
+            payment_interval=kwargs['payment_interval'],
+        )
+        # create credential
+        credentials = Credentials.objects.create(
+            name=kwargs['name'],
+            email=kwargs['email'],
+            address=kwargs['address'],
+            tel_number=kwargs['tel_number']
+        )
+        # create customer
+        Customers.onjects.create(
+            credentials=credentials,
+            order=order,
+            payment=payment,
+            times=kwargs['times'],
+            start=kwargs['start']
+        )
+
+        return 'Order placed'
+
+    def remove_order(self, order_id):
+        from orders.models import Customers
+
+        order = self.prefetch_related().get(id=order_id)
+
+        # remove all ordered products
+        order.product_ordered.all().delete()
+        # remove customer and order
+        Customers.objects.filter(order_id=order_id).delete()
+
+        return 'Order removed'
+
     def get_orders(self, dte=None, limit=None):
         from products.models import Vehicule
         from orders.models import Customers, Payment, PaymentMethods, ProductOrdered, Tires, Orders
@@ -196,6 +248,7 @@ class PaymentManager(models.Manager):
 
 
 class CustomerManager(models.Manager):
+
     def get_customer(self, **kwargs):
         customer = self.select_related().get(**kwargs)
 

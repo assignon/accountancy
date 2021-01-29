@@ -34,6 +34,50 @@ class OrderView(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     @csrf_exempt
+    @action(methods=['post'], detail=False)
+    def new_order(self, request):
+        """
+        create new order
+
+        Args:
+            request (dict): [request data]
+        """
+        # dte = request.query_params.get('date')
+        kwargs = {
+            # customer data
+            'name': request.data['body']['name'],
+            'email': request.data['body']['email'],
+            'address': request.data['body']['address'],
+            'tel_number': request.data['body']['tel_number'],
+            'times': request.data['body']['times'],
+            'start': request.data['body']['start'],
+            # order data
+            'ordered_products': request.data['body']['ordered_products'],
+            # payment data
+            'method': request.data['body']['method'],
+            'pay_in': request.data['body']['pay_in'],
+            'payment_interval': request.data['body']['payment_interval'],
+        }
+
+        Orders.objects.create_order(kwargs)
+
+        return Response({'created': True})
+
+    @csrf_exempt
+    @action(methods=['delete'], detail=False)
+    def remove_order(self, request):
+        """
+        remove order
+
+        Args:
+            request (dict): [request data]
+        """
+        order_id = request.query_params.get('order_id')
+        Orders.objects.remove_order(order_id)
+
+        return Response({'remove': True})
+
+    @csrf_exempt
     @action(methods=['get'], detail=False)
     def orders(self, request):
         """

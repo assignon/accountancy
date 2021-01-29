@@ -70,21 +70,34 @@ export default {
 
     methods: {
         addOrder(){
-            alert('form filled')
-        //     let self = this;
-        //     let store = self.$store.state.ls;
-        //     let formErrMsg = document.querySelector(".quality-form-err-msg");
-        //     let validationErrMsg = document.querySelector('.v-messages__message');
-            
-        //     if (self.$store.state.ls.qualitycriteriaArr.length >= 3 && store.dod != null) {
-        //         if(!document.body.contains(validationErrMsg)){
-        //             self.$emit('submit')
-        //         }else{
-        //             formErrMsg.innerHTML = validationErrMsg.textContent;
-        //         }
-        //     } else {
-        //         formErrMsg.innerHTML = "Definition Of Done field is empty or quality criteria < 7";
-        //     }
+            let self = this;
+            let store = self.$store.state.order;
+            // let formErrMsg = document.querySelector(".payment-form-err-msg");
+            console.log( store.productArr);
+
+            // this.$store.dispatch("postReq", {
+            //     url: "order/new_order",
+            //     params: {
+            //         // customer informations
+            //         email: store.email,
+            //         name: store.name,
+            //         address: store.address,
+            //         tel_number: store.telNumber,
+            //         times: store.times,
+            //         start: store.startDate,
+            //         // order informations
+            //         ordered_products: store.productArr,
+            //         // payment informations
+            //         payment_interval: store.payInterval,
+            //         pay_in: store.payIn,
+            //         method: store.payMethod,
+            //     },
+            //     auth: self.$session.get('token'),
+            //     csrftoken: self.$session.get('token'),
+            //     callback: function(data) {
+            //         console.log('added',data);
+            //     },
+            // });
         },
     },
 }

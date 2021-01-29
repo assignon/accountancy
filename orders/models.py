@@ -14,9 +14,15 @@ class PaymentMethods(models.Model):
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        # avoid duplacate
+        if PaymentMethods.objects.filter(name=self.name).count() > 0:
+            raise Exception('This payment method already exists')
+        return super().save(*args, **kwargs)
+
 
 class Payment(models.Model):
-    method = models.ForeignKey(PaymentMethods, on_delete=models.CASCADE)
+    method = models.ForeignKey(PaymentMethods, on_delete=models.DO_NOTHING)
     pay_choices = (('once', 'once'), ('terms', 'terms'))
     pay_in = models.CharField(
         max_length=50, choices=pay_choices, default='once')
@@ -101,6 +107,12 @@ class ProductOrdered(models.Model):
 
         return product.price*p_o.quantity
 
+    def save(self, *args, **kwargs):
+        # check if quantity > 0
+        if self.quantity <= 0:
+            raise Exception("Ordered product(s) quantity must be > 0")
+        return super().save(*args, **kwargs)
+
 
 class Orders(models.Model):
     product_ordered = models.ManyToManyField(ProductOrdered)
@@ -137,6 +149,13 @@ class Credentials(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        credential = Credentials.objects.filter(email=self.email)
+        if credential.count() > 0:
+            # get the existing credential obj
+            return Credentials.objects.get(id=credential.values()[0]['id'])
+        return super().save(*args, **kwargs)
 
 
 class Customers(models.Model):

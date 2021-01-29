@@ -172,10 +172,10 @@ export default {
 
             if(store.product != null && store.quantity != null && store.quantity > 0){
                 // check if quality Criteria already exist in $store.state.ls.qualitycriteriaArr
-                let chipExists = self.$store.state.order.productArr.findIndex(x => x.title ==  store.product);
+                let chipExists = self.$store.state.order.productArr.findIndex(x => x.name ==  store.product);
                 if(chipExists == -1){
                     // push
-                    let currentEntry = {title: store.product, qty: store.quantity};
+                    let currentEntry = {name: store.product, qty: store.quantity};
                     self.$store.state.order.productArr.push(currentEntry);
                     // create and add new quality Criteria chip
                     let currentEntryIndex = self.$store.state.order.productArr.indexOf(currentEntry);

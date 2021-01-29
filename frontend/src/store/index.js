@@ -121,8 +121,7 @@ export default new Vuex.Store({
                payload: [object]: [data sended with the request]
        */
       axios
-        .post(`${payload.host}/api/${payload.url}/`, {
-          body: payload.params,
+        .post(`${payload.host}/api/${payload.url}/`, payload.params,{
           headers: {
               "X-CSRFToken": payload.csrftoken,
               Authorization: `token ${payload.auth}`,
@@ -144,8 +143,7 @@ export default new Vuex.Store({
                payload: [object]: [data sended with the request]
        */
       axios
-        .put(`${payload.host}/api/${payload.url}/`, {
-          body: payload.params,
+        .put(`${payload.host}/api/${payload.url}/`, payload.params, {
           headers: {
               "X-CSRFToken": payload.csrftoken,
               Authorization: `token ${payload.auth}`,
