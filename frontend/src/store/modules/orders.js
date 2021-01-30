@@ -19,6 +19,9 @@ export default {
         product: null,
         productArr: [],
         quantity: 1,
+        vehicule: null,
+        brands: [],
+        profiles: [],
         // payment informations
         payInterval: null,
         payIn: null,

@@ -83,7 +83,7 @@
             width="20%"
             class="fot-weight-bold white--text"
             color="#1976d2"
-            @click="submitOrder()"
+            @click="submitOrder(orderStep)"
           >
             <p style='font-size:17px;margin:auto;'>Add Order</p>
           </v-btn>
@@ -162,7 +162,7 @@ export default {
             });
         },
 
-        submitOrder(){
+        submitOrder(stepNum){
             let self = this;
             let store = self.$store.state.order;
             let formErrMsg = document.querySelector(".payment-form-err-msg");
@@ -171,14 +171,14 @@ export default {
                 // if(new Date().toISOString() <= store.startDate){
                     if(store.payIn == 'Once'){
                         if(!document.body.contains(validationErrMsg)){
-                            this.$emit('submit')
+                            this.$emit('submit', stepNum)
                         }else{
                             formErrMsg.innerHTML = validationErrMsg.textContent;
                         }
                     }else{
                         if(store.payInterval != null && store.times > 0){
                             if(!document.body.contains(validationErrMsg)){
-                                this.$emit('submit')
+                                this.$emit('submit', stepNum)
                             }else{
                                 formErrMsg.innerHTML = validationErrMsg.textContent;
                             }

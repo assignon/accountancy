@@ -42,7 +42,7 @@ export default {
   props: [],
   
     components: {
-        OrderStepper
+        OrderStepper,
     },
 
     computed: {

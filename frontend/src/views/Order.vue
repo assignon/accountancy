@@ -2,7 +2,7 @@
   <div class="order-core animated fadeIn">
      <v-layout class='order-layout'>
          <div class='create-order'>
-             <v-btn large @click='newOrder()' rounded color='#1976d2'>New Order</v-btn>
+             <v-btn large @click='newOrder()' rounded color='#1976d2' class='mr-5'>New Order</v-btn>
          </div>
 
          <div class='flex-container'>
@@ -28,7 +28,7 @@
                 </v-tabs>
 
                 <v-tabs-items v-model='tab'>
-                    <v-tab-item v-if='orders[0].count > 0' style='width: 900px;margin-top:50px;' class='ml-5'>
+                    <v-tab-item v-if='orders[0].count > 0' style='width: 1000px;margin-top:50px;' class='ml-5'>
                         <OrdersTemp :orderArr='orders'/>
                     </v-tab-item>
                     <v-tab-item v-else>
@@ -38,7 +38,7 @@
                         </div>
                     </v-tab-item>
                      
-                    <v-tab-item style='width: 900px;margin-top:50px;' class='ml-5'>
+                    <v-tab-item style='width: 970px;margin-top:50px;' class='ml-5'>
                         <div  class='payment-container' v-if='customerPayments[0].count > 0'>
                             <div class='payments mt-5 ml-5 animated fadeInUp' 
                                 v-for="(payment, i) in customerPayments[0].payments" 
@@ -50,6 +50,11 @@
                                     <span>{{payment.customer[0].name}}</span>
                                     <span class='ml-3'>({{payment.payment_interval}})</span>
                                 </p>
+
+                                <p style='position: relative;top:5px;margin-left:60px' class=''>
+                                    <v-icon style='font-size: 20px' color='#15141c'>fas fa-credit-card</v-icon>
+                                    {{payment.methods[0].name}}
+                                </p>
                                 
                                 <PaymentProgressBar 
                                     class='ml-3'
@@ -57,10 +62,6 @@
                                     :times="payment.times"
                                     :paymentDatesArr="payment.payment_dates"
                                 />
-                                <p style='position: relative;top:5px;margin-left:60px' class=''>
-                                    <v-icon style='font-size: 20px' color='#15141c'>fas fa-credit-card</v-icon>
-                                    {{payment.methods[0].name}}
-                                </p>
                             </div>
                         </div>
                         <div class='no-payments' v-else>
@@ -71,7 +72,7 @@
                 </v-tabs-items>
             </v-flex>
 
-            <v-flex xs12 sm12 md3 lg3 xl3 class='calendar-flex mt-5'>
+            <v-flex xs12 sm12 md3 lg3 xl3 class='calendar-flex mt-5 mr-5'>
                 <Calendar 
                     @orders='getOrders'
                     @payments='getPayments'
@@ -293,6 +294,7 @@ export default {
         display: flex;
         justify-content: flex-start;
         align-items: flex-start;
+        box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;
     }
     .no-orders{
         width: 100%;
@@ -324,7 +326,7 @@ export default {
     }
     .payment-container .payments{
         width: 100%;
-        height:auto;
+        height:60px;
         display: flex;
         flex-direction: row;
         justify-content:flex-start;
@@ -336,7 +338,7 @@ export default {
         /* padding: 10px 10px 0px 10px; */
         padding-top: 10px;
         padding-left: 20px;
-        padding-bottom: -0px;
+        padding-bottom: 0px;
         margin-bottom: -5px;
         cursor: pointer;
         box-shadow: rgba(255, 255, 255, 0.2) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0.9) 0px 0px 0px 1px;

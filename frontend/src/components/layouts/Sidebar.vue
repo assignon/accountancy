@@ -28,7 +28,12 @@
                     <v-icon color='white'>fas fa-boxes</v-icon>
                     <p>Products</p>
                 </router-link>
-                <v-icon style='font-size:28px;position:relative;bottom:1px' color='#0163d1' class='ml-3'>fas fa-plus-square</v-icon>
+                <v-icon 
+                    style='font-size:28px;position:relative;bottom:1px' 
+                    color='#0163d1'
+                    class='ml-3'
+                    @click='addProduct()'
+                >fas fa-plus-square</v-icon>
             </div>
 
             <div class='menu-item' v-if="!$route.name.startsWith('Dashboard')">
@@ -86,6 +91,12 @@ export default {
             this.$store.state.formsDialog = true;
             this.$store.state.formName = 'Order';
             this.$store.state.formsTemp = 'OrderStepper';
+        },
+
+        addProduct(){
+            this.$store.state.formsDialog = true;
+            this.$store.state.formName = 'Product';
+            // this.$store.state.formsTemp = 'OrderStepper';
         }
     }
 }

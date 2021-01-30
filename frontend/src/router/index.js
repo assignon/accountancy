@@ -3,6 +3,7 @@ import VueRouter from "vue-router";
 import Login from "../views/Login.vue";
 import Dashboard from "../views/Dashboard.vue";
 import Order from "../views/Order.vue";
+import Product from "../views/Product.vue";
 // import NotAuthorize from "../views/dashboard/NotAuthorize.vue";
 
 Vue.use(VueRouter);
@@ -22,6 +23,11 @@ const routes = [
     path: "/orders",
     name: "Order",
     component: Order
+  },
+  {
+    path: "/products",
+    name: "Product",
+    component: Product
   },
   // {
   //   path: "/notAuthorize",

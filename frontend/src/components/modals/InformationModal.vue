@@ -1,7 +1,7 @@
 <template>
     <v-navigation-drawer
       v-model="$store.state.infoDrawer"
-      absolute
+      fixed
       height='100vh'
       right
       width='40%'

@@ -71,14 +71,14 @@
                     <div  class='payment-container' v-if='customerPayments[0].count > 0'>
                         <div class='payment-header'>
                             <p>
-                                <v-icon color='white' medium>fas fa-coins</v-icon>
+                                <v-icon color='#15141c' medium>fas fa-coins</v-icon>
                                 <span>Pyaments for {{paymentDate}}</span>
                             </p>
                         </div>
                         <div class='payments mt-5 ml-5 animated fadeInUp' 
                             v-for="(payment, i) in customerPayments[0].payments" 
                             :key='i'
-                            @click='$store.state.infoDrawer=true, paymentDetails(payment.customer[0].id)'
+                            @click='$store.state.infoDrawer=true, paymentDetails(payment.customer_id)'
                         >
                             <p>
                                 <v-icon class='mr-2' color='#1e1d2b'>fas fa-user-circle</v-icon>
@@ -365,6 +365,8 @@ export default {
         background-color: #ebf0f7;
         box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;
         border-radius: 10px;
+        overflow-y: scroll;
+        overflow-x: hidden;
     }
     .no-orders{
         width: 100%;
@@ -422,13 +424,15 @@ export default {
         flex-direction: column;
         justify-content:flex-start;
         align-items: flex-start;
+        overflow-y: scroll;
+        overflow-x: hidden;
     }
     .payment-header, .orders-header{
         width: 90%;
         height: auto;
         margin-left: 5%;
         margin-top: 20px;
-        margin-bottom: 20px;
+        margin-bottom: 10px;
         display: flex;
         justify-content: flex-start;
         align-items: flex-end;

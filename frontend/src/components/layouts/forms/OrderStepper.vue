@@ -10,7 +10,7 @@
             step="1"
         >
             Customer Informtions
-            <small>Summarize if needed</small>
+            <!-- <small>Summarize if needed</small> -->
         </v-stepper-step>
 
         <v-stepper-content step="1">
@@ -22,7 +22,7 @@
             step="2"
         >
             Order
-            <small>Summarize if needed</small>
+            <!-- <small>Summarize if needed</small> -->
         </v-stepper-step>
 
         <v-stepper-content step="2">
@@ -34,7 +34,7 @@
             step="3"
         >
             Payment Informtions
-            <small>Summarize if needed</small>
+            <!-- <small>Summarize if needed</small> -->
         </v-stepper-step>
 
         <v-stepper-content step="3">
@@ -55,7 +55,7 @@ export default {
     components: {
         OrderForm,
         CustomerInformationsForm,
-        PaymentForm
+        PaymentForm,
     },
 
     computed: {
@@ -69,37 +69,60 @@ export default {
     created(){},
 
     methods: {
+        customerOrder(customerID){
+            let self = this;
+            this.$store.dispatch('order/getOrderDetails', {
+                url: 'order/order_details',
+                params: {
+                    customerId: customerID
+                },
+                auth: self.$session.get('token'),
+                csrftoken: self.$session.get('token'),
+                callback: function(data){
+                    // console.log('api data', data);
+                    self.$store.state.infoTempName = 'OrderDetails'
+                    self.$store.getters["setData"]([self.$store.state.order.customerOrderArr, [data]]);
+                    
+                },
+            })
+        },
+
         addOrder(){
             let self = this;
             let store = self.$store.state.order;
             // let formErrMsg = document.querySelector(".payment-form-err-msg");
-            console.log( store.productArr);
+            let body = {
+                // customer informations
+                email: store.email,
+                name: store.name,
+                address: store.address,
+                tel_number: store.telNumber,
+                times: store.times,
+                start: store.startDate,
+                // order informations
+                ordered_products: store.productArr,
+                // payment informations
+                payment_interval: store.payInterval,
+                pay_in: store.payIn,
+                method: store.payMethod,
+            }
 
-            // this.$store.dispatch("postReq", {
-            //     url: "order/new_order",
-            //     params: {
-            //         // customer informations
-            //         email: store.email,
-            //         name: store.name,
-            //         address: store.address,
-            //         tel_number: store.telNumber,
-            //         times: store.times,
-            //         start: store.startDate,
-            //         // order informations
-            //         ordered_products: store.productArr,
-            //         // payment informations
-            //         payment_interval: store.payInterval,
-            //         pay_in: store.payIn,
-            //         method: store.payMethod,
-            //     },
-            //     auth: self.$session.get('token'),
-            //     csrftoken: self.$session.get('token'),
-            //     callback: function(data) {
-            //         console.log('added',data);
-            //     },
-            // });
+            this.$store.dispatch("postReq", {
+                url: "order/new_order",
+                params: body,
+                auth: self.$session.get('token'),
+                csrftoken: self.$session.get('token'),
+                callback: function(data) {
+                    // console.log('added',data);
+                    if(data.created){
+                        // window.location.reload();
+                        self.customerOrder(data.order_id)
+                        self.$store.state.pdfDialog = true;
+                    }
+                },
+            });
         },
-    },
+    }
 }
 </script>
 

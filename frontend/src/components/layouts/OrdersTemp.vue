@@ -4,7 +4,7 @@
             class='order-temp-layout animated fadeInUp'
             v-for="(order,i) in orderArr[0].order"
             :key='i'
-            @click='$store.state.infoDrawer=true, customerOrder(order.credentials.customer_id)'
+            @click.stop='$store.state.infoDrawer=true, customerOrder(order.credentials.customer_id)'
         >
             <v-flex xs12 sm12 md2 lg2 xl2 class='customer-name'>
                 <v-icon medium color='#1e1d2b'>fas fa-user-circle</v-icon>
@@ -22,7 +22,7 @@
             <v-flex xs12 sm12 md3 lg3 xl3 class='date'>
                 <p>
                     <v-icon small color='#1e1d2b' class='mr-1'>fas fa-calendar-alt</v-icon>
-                    {{parseDate(order.order_on)}}
+                    {{parseDate(order.order.order_on)}}kglkj
                 </p>
             </v-flex>
 
@@ -33,12 +33,16 @@
                 </p>
             </v-flex>
 
-            <v-flex xs12 sm12 md2 lg2 xl2 class='payment-method'>
+            <v-flex xs12 sm12 md3 lg3 xl3 class='payment-method'>
                 <p>
                     <v-icon small color='#1e1d2b' class='mr-1'>fas fa-credit-card</v-icon>
                     {{order.payment.method[0].name}}
                 </p>
             </v-flex>
+
+            <!-- <v-flex xs12 sm12 md1 lg1 xl1 class='payment-method'>
+                <v-icon small color='#ce2b58' class=''>fas fa-trash-alt</v-icon>
+            </v-flex> -->
 
         </v-layout>
     </div>
@@ -70,7 +74,6 @@ export default {
 
         customerOrder(customerID){
             let self = this;
-
             this.$store.dispatch('order/getOrderDetails', {
                 url: 'order/order_details',
                 params: {
