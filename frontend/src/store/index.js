@@ -36,6 +36,7 @@ export default new Vuex.Store({
     formsTemp: null, 
     formName: null,
     formsDialog: false,
+    pdfDialog: false,
   },
 
   getters: {
@@ -120,8 +121,34 @@ export default new Vuex.Store({
            params:
                payload: [object]: [data sended with the request]
        */
+      let body = {
+        body: payload.params
+      }
       axios
-        .post(`${payload.host}/api/${payload.url}/`, payload.params,{
+        .post(`${payload.host}/api/${payload.url}/`, body,{
+          headers: {
+              "X-CSRFToken": payload.csrftoken,
+              Authorization: `token ${payload.auth}`,
+          },
+        })
+        .then(response => {
+          let res = response.data;
+          payload.callback(res);
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+
+    publicPostAxiosCall(state, payload) {
+      /*
+           http post request
+           params:
+               payload: [object]: [data sended with the request]
+       */
+      axios
+        .post(`${payload.host}/api/${payload.url}/`, {
+          body: payload.params,
           headers: {
               "X-CSRFToken": payload.csrftoken,
               Authorization: `token ${payload.auth}`,
@@ -142,8 +169,11 @@ export default new Vuex.Store({
            params:
                payload: [object]: [data sended with the request]
        */
+      let body = {
+        body: payload.params
+      }
       axios
-        .put(`${payload.host}/api/${payload.url}/`, payload.params, {
+        .put(`${payload.host}/api/${payload.url}/`, body, {
           headers: {
               "X-CSRFToken": payload.csrftoken,
               Authorization: `token ${payload.auth}`,
@@ -185,6 +215,17 @@ export default new Vuex.Store({
   actions: {
     getReq({ commit, rootState }, payload) {
       commit("getAxiosCall", {
+        url: payload.url,
+        params: payload.params,
+        auth: payload.auth,
+        csrftoken: payload.csrftoken,
+        callback: payload.callback,
+        host: rootState.HOST,
+      });
+    },
+
+    publicPostReq({ commit, rootState }, payload) {
+      commit("publicPostAxiosCall", {
         url: payload.url,
         params: payload.params,
         auth: payload.auth,

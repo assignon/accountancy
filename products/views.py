@@ -23,7 +23,7 @@ from rest_framework.status import (
 )
 
 from products.serializers import ProductSerializer
-from .models import Products
+from .models import Products, Brands, Profiles, Tires
 
 # Create your views here.
 
@@ -48,6 +48,15 @@ class ProductView(viewsets.ModelViewSet):
 
     @csrf_exempt
     @action(methods=['get'], detail=False)
+    def filter_products(self, request):
+        vehicle = request.query_params.get('vehicle')
+        brands = json.loads(request.query_params.get('brands'))
+        profiles = json.loads(request.query_params.get('profiles'))
+
+        return Response(Products.objects.filter_products(vehicle, brands, profiles))
+
+    @csrf_exempt
+    @action(methods=['get'], detail=False)
     def come_in(self, request):
         """
         get base on the current date the incoming products and the count
@@ -60,6 +69,16 @@ class ProductView(viewsets.ModelViewSet):
         incoming = Products.objects.get_incoming_products(dte)
 
         return Response(incoming)
+
+    @csrf_exempt
+    @action(methods=['get'], detail=False)
+    def brands(self, request):
+        return Response(serializers.serialize('json', Brands.objects.all_brands()))
+
+    @csrf_exempt
+    @action(methods=['get'], detail=False)
+    def profiles(self, request):
+        return Response(serializers.serialize('json', Profiles.objects.all_profiles()))
 
 
 # Create your views here.

@@ -1,6 +1,8 @@
 from django.db import models
+from django.db.models import Q
 # from .models import Tires
 from datetime import datetime
+import json
 
 
 def get_related(obj, parent, obj_id):
@@ -78,3 +80,34 @@ class ProductManager(models.Manager):
         }
 
         return products
+
+    def filter_products(self, vehicle, brands, profiles):
+        from .models import Tires, Vehicule, Brands, Profiles
+        try:
+            vehicle = Vehicule.objects.get(name=vehicle).id
+        except:
+            vehicle = 0
+
+        tires = Tires.objects.filter(
+            Q(brands__in=[Brands.objects.get(name=brand)
+                          for brand in brands['brands']]) &
+            Q(profiles__in=[Profiles.objects.get(name=profile)
+                            for profile in profiles['profiles']]) &
+            Q(vehicule_id=vehicle)
+        )
+
+        return {'tire': tires.values()}
+
+
+class BrandsManager(models.Manager):
+    def all_brands(self):
+        brands = self.get_queryset().all()
+
+        return brands
+
+
+class ProfilesManager(models.Manager):
+    def all_profiles(self):
+        profiles = self.get_queryset().all()
+
+        return profiles

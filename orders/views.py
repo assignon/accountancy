@@ -22,14 +22,14 @@ from rest_framework.status import (
     HTTP_200_OK
 )
 
-from orders.serializers import OrderSerializer, PaymentSerializer
+from orders.serializers import OrderSerializer, PaymentSerializer, CustomerSerializer
 from .models import Customers, Orders, Payment
 
 # Create your views here.
 
 
 class OrderView(viewsets.ModelViewSet):
-    queryset = Customers.objects.all()
+    queryset = Orders.objects.all()
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
 
@@ -43,7 +43,7 @@ class OrderView(viewsets.ModelViewSet):
             request (dict): [request data]
         """
         # dte = request.query_params.get('date')
-        kwargs = {
+        data = {
             # customer data
             'name': request.data['body']['name'],
             'email': request.data['body']['email'],
@@ -59,9 +59,7 @@ class OrderView(viewsets.ModelViewSet):
             'payment_interval': request.data['body']['payment_interval'],
         }
 
-        Orders.objects.create_order(kwargs)
-
-        return Response({'created': True})
+        return Response(Orders.objects.create_order(**data))
 
     @csrf_exempt
     @action(methods=['delete'], detail=False)
@@ -169,3 +167,16 @@ class PaymentView(viewsets.ModelViewSet):
         paymentmethods = Payment.objects.get_payment_methods()
 
         return Response(paymentmethods)
+
+
+class CustomerView(viewsets.ModelViewSet):
+    queryset = Customers.objects.all()
+    serializer_class = CustomerSerializer
+    permission_classes = [IsAuthenticated]
+
+    @csrf_exempt
+    @action(methods=['get'], detail=False)
+    def credentials_form_auto_fill(self, request):
+        email = request.query_params.get('email')
+
+        return Response(Customers.objects.get_credentials_by_email(email))

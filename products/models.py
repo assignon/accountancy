@@ -1,14 +1,22 @@
 from django.db import models
-from .managers import ProductManager
+from .managers import *
 
 # Create your models here.
 
 
 class Brands(models.Model):
     name = models.CharField(max_length=255)
+    objects = BrandsManager()
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        brand = Brands.objects.filter(name=self.name)
+        if brand.count() > 0:
+            # get the existing credential obj
+            raise Exception('This brand already exists')
+        return super().save(*args, **kwargs)
 
 
 class Vehicule(models.Model):
@@ -20,9 +28,17 @@ class Vehicule(models.Model):
 
 class Profiles(models.Model):
     name = models.CharField(max_length=255)
+    objects = ProfilesManager()
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        profile = Profiles.objects.filter(name=self.name)
+        if profile.count() > 0:
+            # get the existing credential obj
+            raise Exception('This profile already exists')
+        return super().save(*args, **kwargs)
 
 
 class Tires(models.Model):

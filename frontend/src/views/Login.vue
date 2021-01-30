@@ -66,7 +66,7 @@ export default {
       let validationErrMsg = document.querySelector('.v-messages__message');
 
       if(!document.body.contains(validationErrMsg) && self.email != null && self.password != null){
-        this.$store.dispatch("postReq", {
+        this.$store.dispatch("publicPostReq", {
           url: "signin",
           params: {
               email: self.email,

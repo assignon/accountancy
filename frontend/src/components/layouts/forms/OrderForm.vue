@@ -2,6 +2,45 @@
     <v-form class="order-form animated" ref="orderForm">
         <p class='order-form-err-msg mb-5'></p>
         <div class='product-chips-container mt-3 mb-5'></div>
+
+         <v-select
+            v-model="$store.state.order.vehicule"
+            :rules="[$store.state.rules.required]"
+            :items="vehiculeItemsArr"
+            label="Choose Vehicle*"
+            outlined
+            style='width: 100%'
+            @change='filteredProducts()'
+        ></v-select>
+
+        <div class='brands-profiles-select'>
+            <v-flex xs12 sm12 md5 lg5 xl5>
+                <v-select
+                    v-model="$store.state.order.brands"
+                    :rules="[$store.state.rules.required]"
+                    :items="brandsItemsArr"
+                    label="Choose Brands*"
+                    outlined
+                    chips
+                    multiple
+                    @change='filteredProducts()'
+                ></v-select>
+            </v-flex>
+
+            <v-flex xs12 sm12 md6 lg6 xl6>
+                <v-select
+                    v-model="$store.state.order.profiles"
+                    :rules="[$store.state.rules.required]"
+                    :items="profileItemsArr"
+                    label="Choose profiles*"
+                    outlined
+                    multiple
+                    chips
+                    @change='filteredProducts()'
+                ></v-select>
+            </v-flex>
+        </div>
+
         <div class='products-fields'>
             <v-flex xs12 sm12 md6 lg6 xl6>
                 <v-select
@@ -78,41 +117,109 @@ export default {
     },
     data(){
         return{
-            selectItemsArr: []
+            selectItemsArr: [],
+            brandsItemsArr: [],
+            vehiculeItemsArr: ['Car', 'Truck'],
+            profileItemsArr: [],
+
         }
     },
     created(){
-        this.allProducts()
+        // this.allProducts()
+        this.allBrands()
+        this.allProfiles()
     },
 
     methods: {
-        allProducts(){
+        filteredProducts(){
             let self = this;
             let store = self.$store;
+          
+            let brandsPayload = {
+                brands: store.state.order.brands
+            }
+            let profilesPayload = {
+                profiles: store.state.order.profiles
+            }
+             self.selectItemsArr = [];
+             store.state.order.product = null
 
-            this.$store.dispatch("getReq", {
-                url: "product/products",
+            if(
+                store.state.order.vehicule != null 
+                && store.state.order.brands.length > 0 
+                && store.state.order.profiles.length > 0
+            ){
+                this.$store.dispatch("getReq", {
+                url: "product/filter_products",
                 params: {
-                    date: null
+                    vehicle: store.state.order.vehicule,
+                    brands: brandsPayload,
+                    profiles: profilesPayload,
                 },
                 auth: self.$session.get('token'),
                 csrftoken: self.$session.get('token'),
                 callback: function(data) {
+                    console.log(data);
                     data.tire.forEach(item => {
                         self.selectItemsArr.push(item.size)
+                        console.log('bllll', self.selectItemsArr);
                     })
-                    store.getters["setData"]([store.state.product.productsArr, [data]]);
+                    store.getters["setData"]([store.state.product.filteredProductsArr, [data]]);
+                    },
+                });
+            }
+        },
+
+         allBrands(){
+            let self = this;
+            let store = self.$store;
+
+            this.$store.dispatch("getReq", {
+                url: "product/brands",
+                params: {
+                },
+                auth: self.$session.get('token'),
+                csrftoken: self.$session.get('token'),
+                callback: function(data) {
+                    // console.log(JSON.parse(data));
+                    JSON.parse(data).forEach(item => {
+                        self.brandsItemsArr.push(item.fields.name)
+                    })
+                    store.getters["setData"]([store.state.product.BrandssArr, JSON.parse(data)]);
                 },
             });
         },
 
-        createChip(name, title, price, entryIndex){
+        allProfiles(){
+            let self = this;
+            let store = self.$store;
+
+            this.$store.dispatch("getReq", {
+                url: "product/profiles",
+                params: {
+                },
+                auth: self.$session.get('token'),
+                csrftoken: self.$session.get('token'),
+                callback: function(data) {
+                    // console.log(JSON.parse(data));
+                    JSON.parse(data).forEach(item => {
+                        self.profileItemsArr.push(item.fields.name)
+                    })
+                    store.getters["setData"]([store.state.product.ProfilesArr, JSON.parse(data)]);
+                },
+            });
+        },
+
+        createChip(name, title, price,vehicule, brands, profiles, entryIndex){
             console.log(name);
             let self = this;
             let productChipsContainer = document.querySelector('.product-chips-container');
             let chip = document.createElement('div');
             let chipTitle = document.createElement('p');
             let chipPrice = document.createElement('p');
+            let chipVehicule = document.createElement('p');
+            let chipBrands = document.createElement('p');
+            let chipProfiles = document.createElement('p');
             let icon = document.createElement('i');
 
             chip.className = `ma-2 pl-3 pr-3 pb-2 pt-2 animated fadeInUp`;
@@ -130,6 +237,24 @@ export default {
             chipTitle.style.margin = 'auto';
             chipTitle.style.color = 'white';
 
+            chipVehicule.textContent = '['+vehicule+']';
+            chipVehicule.style.textAlign = 'center';
+            chipVehicule.style.fontSize = '15px';
+            chipVehicule.style.margin = 'auto';
+            chipVehicule.style.color = 'white';
+
+            chipBrands.textContent = '['+brands+']';
+            chipBrands.style.textAlign = 'center';
+            chipBrands.style.fontSize = '15px';
+            chipBrands.style.margin = 'auto';
+            chipBrands.style.color = 'white';
+
+            chipProfiles.textContent = '['+profiles+']';
+            chipProfiles.style.textAlign = 'center';
+            chipProfiles.style.fontSize = '15px';
+            chipProfiles.style.margin = 'auto';
+            chipProfiles.style.color = 'white';
+
             chipPrice.textContent = ' ( '+price+' ) ';
             chipPrice.style.textAlign = 'center';
             chipPrice.style.fontSize = '15px';
@@ -144,6 +269,9 @@ export default {
             icon.style.color = 'white';
 
             chip.appendChild(chipTitle)
+            chip.appendChild(chipBrands)
+            chip.appendChild(chipVehicule)
+            chip.appendChild(chipProfiles)
             chip.appendChild(chipPrice)
             chip.appendChild(icon)
 
@@ -173,16 +301,65 @@ export default {
             if(store.product != null && store.quantity != null && store.quantity > 0){
                 // check if quality Criteria already exist in $store.state.ls.qualitycriteriaArr
                 let chipExists = self.$store.state.order.productArr.findIndex(x => x.name ==  store.product);
-                if(chipExists == -1){
+                let vehiculeExists = self.$store.state.order.productArr.findIndex(x => x.vehicule ==  store.vehicule);
+                let brandExistsArr = [];
+                let profileExistsArr = [];
+
+                store.brands.forEach(brand => {
+                    let brandExists = self.$store.state.order.productArr.findIndex(x => x.brands ==  brand);
+                    if(brandExists != -1){
+                       brandExistsArr.push(true)
+                    } else{
+                       brandExistsArr.push(false)     
+                    }
+                    
+                })
+                store.profiles.forEach(profile => {
+                    let profileExists = self.$store.state.order.productArr.findIndex(x => x.profiles ==  profile);
+                    if(profileExists != -1){
+                       profileExistsArr.push(true)
+                    } else{
+                       profileExistsArr.push(false)     
+                    }
+                })
+                // one false = add
+                if(
+                    chipExists == -1 || 
+                    brandExistsArr.includes(false) || 
+                    profileExistsArr.includes(false) || 
+                    vehiculeExists == -1
+                ){
                     // push
-                    let currentEntry = {name: store.product, qty: store.quantity};
+                    let currentEntry = {
+                        name: store.product, 
+                        qty: store.quantity, 
+                        brand: [...store.brands], 
+                        profile: [...store.profiles], 
+                        vehicule: store.vehicule
+                    };
                     self.$store.state.order.productArr.push(currentEntry);
                     // create and add new quality Criteria chip
                     let currentEntryIndex = self.$store.state.order.productArr.indexOf(currentEntry);
-                    let chip = self.createChip(randomName, store.product, store.quantity, currentEntryIndex);
-                    console.log( self.$store.state.order.productArr);
+                    let chip = self.createChip(
+                        randomName, 
+                        store.product, 
+                        store.quantity, 
+                        store.vehicule, 
+                        [...store.brands], 
+                        [...store.profiles], 
+                        currentEntryIndex
+                    );
+                    
                     // append chip to the DOM
                     productChipsContainer.appendChild(chip);
+                    // # empy form
+                    // store.brands.length = 0
+                    // store.profiles.length = 0
+                    // store.vehicule = null
+                    // store.product = null
+                    brandExistsArr.length = 0
+                    profileExistsArr.length = 0
+                    console.log( self.$store.state.order.productArr);
                 }else{
                     formErrMsg.innerHTML = "Product already added";
                 }
@@ -246,7 +423,7 @@ export default {
         color: #15141c;
         font-size: 15px;
     }
-    .products-fields{
+    .products-fields, .brands-profiles-select{
         width: 100%;
         height: auto;
         display: flex;

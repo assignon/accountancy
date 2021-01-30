@@ -4,6 +4,15 @@
       <Sidebar v-if="!$route.name.startsWith('Login')" />
       <router-view class="animated fadeIn"></router-view>
       <FormsModal/>
+      <v-dialog
+        v-model="$store.state.pdfDialog"
+        fullscreen
+        hide-overlay
+        transition="dialog-bottom-transition"
+        class='pdf-dialog'
+      >
+        <OrderPdf />
+    </v-dialog>
     </v-main>
   </v-app>
 </template>
@@ -11,6 +20,7 @@
 <script>
 import Sidebar from "./components/layouts/Sidebar";
 import FormsModal from "./components/modals/FormsModal";
+import OrderPdf from "@/components/layouts/OrderPdf.vue";
 
 export default {
   name: "App",
@@ -18,6 +28,7 @@ export default {
   components: {
     Sidebar,
     FormsModal,
+    OrderPdf
   },
 
   data: () => ({

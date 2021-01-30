@@ -92,6 +92,11 @@ class Payment(models.Model):
     def __str__(self):
         return PaymentMethods.objects.get(id=self.method_id).name
 
+    def create(self, *args, **kwargs):
+        if self.pay_in == 'once':
+            self.payment_interval = 'daily'
+        return super().save(*args, **kwargs)
+
 
 class ProductOrdered(models.Model):
     product = models.ForeignKey(
@@ -109,7 +114,7 @@ class ProductOrdered(models.Model):
 
     def save(self, *args, **kwargs):
         # check if quantity > 0
-        if self.quantity <= 0:
+        if int(self.quantity) <= 0:
             raise Exception("Ordered product(s) quantity must be > 0")
         return super().save(*args, **kwargs)
 
@@ -144,7 +149,7 @@ class Orders(models.Model):
 class Credentials(models.Model):
     name = models.CharField(max_length=255)
     email = models.CharField(max_length=255)
-    address = models.CharField(max_length=255, blank=True)
+    address = models.CharField(max_length=255, blank=True, null=True)
     tel_number = models.CharField(max_length=50)
 
     def __str__(self):
@@ -159,7 +164,7 @@ class Credentials(models.Model):
 
 
 class Customers(models.Model):
-    credential = models.ForeignKey(Credentials, on_delete=models.CASCADE)
+    credential = models.ForeignKey(Credentials, on_delete=models.DO_NOTHING)
     order = models.ForeignKey(Orders, on_delete=models.CASCADE)
     payment = models.ForeignKey(Payment, on_delete=models.DO_NOTHING)
     times = models.IntegerField(default=2)

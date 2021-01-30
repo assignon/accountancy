@@ -50,39 +50,46 @@ class OrdersManager(models.Manager):
         # get payment method
         method = PaymentMethods.objects.get(name=kwargs['method'])
         # create order
-        order = self.objects.create()
+        order = self.prefetch_related().create()
         order.save()
         for product in kwargs['ordered_products']:
             # get tire
-            tire = Tires.objects.get(name=product['name'])
+            tire = Tires.objects.get(size=product['name'])
             # create ordered products
-            ordered_products = ProductOrdered.objects.create(
-                procuct=tire, quantity=product['qty'])
-            order.product_ordered.add(ordered_products)
+            try:
+                ordered_products = ProductOrdered.objects.create(
+                    product=tire, quantity=product['qty'])
+                order.product_ordered.add(ordered_products)
+                # update tire quantity
+                # new_quantity = tire.quantity - product['qty']
+                # tire.update(quantity=new_quantity)
+            except Exception:
+                return {'create': False, 'msg': 'ordered product(s) quantity must be > 0'}
 
         # create payment
-        payment = Payment.objects.create(
+        payment_obj = Payment.objects.create(
             method=method,
             pay_in=kwargs['pay_in'],
-            payment_interval=kwargs['payment_interval'],
+            payment_interval=kwargs['payment_interval'] if kwargs['pay_in'] != 'Once' else 'daily',
         )
+        payment_obj.save()
         # create credential
         credentials = Credentials.objects.create(
             name=kwargs['name'],
             email=kwargs['email'],
             address=kwargs['address'],
             tel_number=kwargs['tel_number']
-        )
+        ).save()
         # create customer
-        Customers.onjects.create(
-            credentials=credentials,
+        customer = Customers.objects.create(
+            credential=credentials,
             order=order,
-            payment=payment,
-            times=kwargs['times'],
+            payment=payment_obj,
+            times=kwargs['times'] if kwargs['pay_in'] != 'Once' else 0,
             start=kwargs['start']
         )
 
-        return 'Order placed'
+        return {'created': True, 'msg': 'Order places', 'order_id': customer.pk}
 
     def remove_order(self, order_id):
         from orders.models import Customers
@@ -207,18 +214,18 @@ class PaymentManager(models.Manager):
     def get_payment_methods(self):
         from .models import PaymentMethods
 
-        payments = self.select_related().all()
-        paymentArr = []
+        # payments = self.select_related().all()
+        payment_methods = PaymentMethods.objects.all()
+        payment_methos_arr = []
 
-        for payment in payments.values():
-            payment_method = PaymentMethods.objects.get(
-                id=payment['method_id'])
-            paymentArr.append({
-                'method': payment_method.name,
-                'payment': payment
+        for payment_method in payment_methods.values():
+            # payment_method = PaymentMethods.objects.get(
+            #     id=payment['method_id'])
+            payment_methos_arr.append({
+                'method': payment_method['name'],
             })
 
-        return paymentArr
+        return payment_methos_arr
 
     # def ongoing_payments(self, dte=None):
     #     from .models import PaymentMethods, Payment
@@ -268,6 +275,15 @@ class CustomerManager(models.Manager):
             'address': credentials.address,
             'tel_number': credentials.tel_number,
         }
+
+    def get_credentials_by_email(self, email):
+        from orders.models import Credentials
+
+        credentials = Credentials.objects.filter(email__icontains=email)
+        if credentials.count() > 0:
+            return {'founded': True, 'credentials': credentials.values()}
+        else:
+            return {'founded': False, 'credentials': None}
 
     def customer_orders(self, customerid):
         from products.models import Products, Vehicule, Tires
@@ -371,6 +387,7 @@ class CustomerManager(models.Manager):
                     customer_payments.append(
                         {
                             'id': customer['payment_id'],
+                            'customer_id': customer['id'],
                             'method_id': payment.method_id,
                             'pay_in': payment.pay_in,
                             'payment_interval': payment.payment_interval,
@@ -387,9 +404,7 @@ class CustomerManager(models.Manager):
                     )
 
         return {
-            'customers': credentials,
             'payments': customer_payments,
-            'methods': customer_payment_method,
             'count': len(customer_payments),
         }
 
