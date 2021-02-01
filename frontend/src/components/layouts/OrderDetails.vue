@@ -180,4 +180,12 @@ export default {
         color: white;
         font-weight: bold;
     }
+    ::-webkit-scrollbar {
+         width: 10px;
+    }
+    @media only screen and (max-width: 1500px) {
+         .order-details-core{
+            margin-left: 30px;
+        }
+    }
 </style>

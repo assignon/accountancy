@@ -1,37 +1,40 @@
 <template>
     <div class='sidebar-core'>
         <div class='logo'>
-            <v-img></v-img>
+            <div></div>
             <h3 class='mt-3'>CHICAM</h3>
         </div>
 
         <div class='menu-container'>
             <router-link to="/dashboard" style="text-decoration: none;" class='menu-item'>
+                <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Dashboard"'></span>
                 <v-icon color='white'>fas fa-tachometer-alt</v-icon>
                 <p>Dashboard</p>
             </router-link>
 
             <div class='link-container'>
                 <router-link to="/orders" style="text-decoration: none;" class='menu-item'>
+                    <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Order"'></span>
                     <v-icon color='white'>fas fa-truck-loading</v-icon>
                     <p>Orders</p>
                 </router-link>
                 <v-icon 
                     style='font-size:28px;position:relative;bottom:1px' 
-                    color='#0163d1' class='ml-3' 
+                    color='#0163d1' class='add-icon' 
                     @click='newOrder()'
                 >fas fa-plus-square</v-icon>
             </div>
 
             <div class='link-container'>
                 <router-link to="/products" style="text-decoration: none;" class='menu-item'>
+                    <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Product"'></span>
                     <v-icon color='white'>fas fa-boxes</v-icon>
                     <p>Products</p>
                 </router-link>
                 <v-icon 
                     style='font-size:28px;position:relative;bottom:1px' 
                     color='#0163d1'
-                    class='ml-3'
+                    class='add-icon'
                     @click='addProduct()'
                 >fas fa-plus-square</v-icon>
             </div>
@@ -44,6 +47,7 @@
 
         <div class='setting-logout'>
             <router-link to="/settings" style="text-decoration: none;" class='settings'>
+                <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Settings"'></span>
                 <v-icon color='white'>fas fa-sliders-h</v-icon>
                 <p>Settings</p>
             </router-link>
@@ -66,7 +70,7 @@ export default {
         }
     },
 
-    created(){},
+    created(){console.log(this.$route);},
 
     methods:{
         logout(){
@@ -117,17 +121,25 @@ export default {
         left: 0px;
     }
     .logo{
-        height: auto;
         width: 100%;
+        height: auto;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
+        /* box-shadow: rgba(255, 255, 255, 0.2) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0.9) 0px 0px 0px 1px; */
     }
-    .logo .v-image{
-        width: 70PX;
-        height: 70px;
+    .logo div{
+        border: 1px solid #15141c;
+        border-radius: 15px;
+        background-image: url('../../assets/chicam.jpg');
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        width: 100px;
+        height: 100px;
         border: 1px solid white;
+        background-color: white;
     }
     .logo h3{
         text-align: center;
@@ -170,6 +182,11 @@ export default {
         font-weight: bold;
         font-size: 15px;
         margin-left: 10px;
+        text-align: left;
+        width: 70%;
+    }
+    .add-icon{
+        margin-left: 30px;
     }
     .menu-item .v-icon, .setting-logout .v-icon{
         font-size: 18px;
@@ -191,5 +208,13 @@ export default {
         justify-content: flex-start;
         align-items: flex-start;
         cursor: pointer;
+    }
+    @media only screen and (max-width: 1500px) {
+        /* .sidebar-core{
+            width: 20%;
+        } */
+        .add-icon{
+            margin-left: 40px;
+        }
     }
 </style>

@@ -6,7 +6,7 @@
          </div>
 
          <div class='flex-container'>
-             <v-flex xs12 sm12 md9 lg9 xl9 class='orders-flex'>
+             <v-flex xs12 sm12 md8 lg9 xl9 class='orders-flex'>
                  <v-tabs
                     v-model="tab"
                     background-color="white"
@@ -29,7 +29,9 @@
 
                 <v-tabs-items v-model='tab'>
                     <v-tab-item v-if='orders[0].count > 0' style='width: 1000px;margin-top:50px;' class='ml-5'>
-                        <OrdersTemp :orderArr='orders'/>
+                        <v-flex xs12 sm12 md8 xl10 lg12>
+                            <OrdersTemp :orderArr='orders'/>
+                        </v-flex>
                     </v-tab-item>
                     <v-tab-item v-else>
                         <div class='no-orders' style='width: 900px;margin-top:50px;'>
@@ -39,7 +41,7 @@
                     </v-tab-item>
                      
                     <v-tab-item style='width: 970px;margin-top:50px;' class='ml-5'>
-                        <div  class='payment-container' v-if='customerPayments[0].count > 0'>
+                        <v-flex xs12 sm12 md8 lg10 xl12  class='payment-container' v-if='customerPayments[0].count > 0'>
                             <div class='payments mt-5 ml-5 animated fadeInUp' 
                                 v-for="(payment, i) in customerPayments[0].payments" 
                                 :key='i'
@@ -63,7 +65,7 @@
                                     :paymentDatesArr="payment.payment_dates"
                                 />
                             </div>
-                        </div>
+                        </v-flex>
                         <div class='no-payments' v-else>
                             <v-icon>fas fa-coins</v-icon>
                             <p class='mt-3'>No payment scheduled </p>
@@ -72,7 +74,7 @@
                 </v-tabs-items>
             </v-flex>
 
-            <v-flex xs12 sm12 md3 lg3 xl3 class='calendar-flex mt-5 mr-5'>
+            <v-flex xs12 sm12 md4 lg3 xl3 class='calendar-flex mt-5 mr-5'>
                 <Calendar 
                     @orders='getOrders'
                     @payments='getPayments'
@@ -123,10 +125,11 @@ export default {
   created(){
     this.getOrders(null)
     this.allPayments(0)
-    console.log( this.customerPayments);
-    this.customerPayments[0].payments.forEach((items) => {
-        console.log(items);
-    })
+    // console.log( this.customerPayments);
+    // this.customerPayments[0].payments.forEach((items) => {
+    //     console.log(items);
+    // })
+    this.$store.state.infoDrawer = false
   },
 
   methods: {
@@ -223,7 +226,7 @@ export default {
         align-items: flex-start;
         margin-left: 15%;
         /* background-color: #1e1d2b; */
-        background-color: #fafafa;
+        background-color: #ffffff;
     }
     .order-layout{
         height: auto;
@@ -270,6 +273,7 @@ export default {
         display: flex;
         justify-content: flex-start;
         align-items: flex-start;
+        border: 1px green; 
     }
     .v-tabs-items{
         width: 100%;
@@ -372,5 +376,10 @@ export default {
         color: #1e1d2b;
         font-size: 15px;
         font-weight: bold;
+    }
+    @media only screen and (max-width: 500px) {
+        .order-core, .orders-flex, .v-tabs, .v-tabs-items{
+            margin-left: 20%;
+        }
     }
 </style>

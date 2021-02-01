@@ -1,7 +1,7 @@
 <template>
   <div class="login-core animated fadeIn">
       <div class='logo mb-5'></div>
-      <h2 class='mb-3'>CHIICAM Signin</h2>
+      <h2 class='mb-3'>CHICAM Signin</h2>
       <v-form class='login-form' ref='loginForm'>
         <p class='err-msg mb-2'></p>
         <v-text-field
@@ -47,7 +47,7 @@ export default {
   },
 
   created(){
-    
+    this.$store.state.infoDrawer = false
   },
 
   methods: {
@@ -106,6 +106,12 @@ export default {
     width: 100px;
     height: 100px;
     border: 1px solid #15141c;
+    border-radius: 15px;
+    background-image: url('../assets/chicam.jpg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    box-shadow: rgba(255, 255, 255, 0.2) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0.9) 0px 0px 0px 1px;
   }
   .login-core h2{
     text-align: center;

@@ -2,6 +2,7 @@ from django.db import models
 from datetime import datetime
 from django.core import serializers
 from django.db.models import Q
+from django.core.exceptions import ObjectDoesNotExist
 
 
 def get_related(obj, parent, obj_id):
@@ -56,7 +57,13 @@ class OrdersManager(models.Manager):
         order.save()
         for product in kwargs['ordered_products']:
             # get tire
-            vehicle = Vehicule.objects.get(name=product['vehicule'])
+            try:
+                global vehicle
+                vehicle = Vehicule.objects.get(name=product['vehicule'])
+            except ObjectDoesNotExist:
+                global vehucle
+                vehicle = Vehicule.objects.create(name=product['vehicule'])
+
             brands_arr = ','.join(sorted(product['brand'])) if len(
                 product['brand']) > 0 else "{}".format(sorted(product['brand'][0]))
             profile_arr = ','.join(sorted(product['profile'])) if len(
@@ -277,9 +284,11 @@ class PaymentManager(models.Manager):
 class CustomerManager(models.Manager):
 
     def get_customer(self, **kwargs):
-        customer = self.select_related().get(**kwargs)
-
-        return customer
+        try:
+            customer = self.select_related().get(**kwargs)
+            return customer
+        except ObjectDoesNotExist:
+            return False
 
     def get_credentials(self, **kwargs):
         from orders.models import Credentials
