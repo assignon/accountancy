@@ -34,6 +34,37 @@ class ProductView(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     @csrf_exempt
+    @action(methods=['post'], detail=False)
+    def new_product(self, request):
+        req = request.data['body']
+        data = {
+            'size': req['size'],
+            'vehicle': req['vehicle'],
+            'price': req['price'],
+            'quantity': req['quantity'],
+            'brands': req['brands']['brands'],
+            'profiles': req['profiles']['profiles'],
+        }
+
+        return Response(Products.objects.add_product(**data))
+
+    @csrf_exempt
+    @action(methods=['put'], detail=False)
+    def update_product(self, request):
+        req = request.data['body']
+        data = {
+            'size': req['size'],
+            'vehicle': req['vehicle'],
+            'price': req['price'],
+            'quantity': req['quantity'],
+            'brands': req['brands']['brands'],
+            'profiles': req['profiles']['profiles'],
+            'tire_id': req['tire_id'],
+        }
+
+        return Response(Products.objects.update_product(**data))
+
+    @csrf_exempt
     @action(methods=['get'], detail=False)
     def products(self, request):
         """
@@ -54,6 +85,13 @@ class ProductView(viewsets.ModelViewSet):
         profiles = json.loads(request.query_params.get('profiles'))
 
         return Response(Products.objects.filter_products(vehicle, brands, profiles))
+
+    @csrf_exempt
+    @action(methods=['get'], detail=False)
+    def product_details(self, request):
+        product_id = request.query_params.get('product_id')
+
+        return Response(Products.objects.product_details(product_id))
 
     @csrf_exempt
     @action(methods=['get'], detail=False)

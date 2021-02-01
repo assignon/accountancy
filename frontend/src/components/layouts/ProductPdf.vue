@@ -10,84 +10,29 @@
         <div class='divider'></div>
         <div class='pdf-body'>
             <div class='customer-info-flex'>
-                <h3 class='mb-5'>Customer Information</h3>
-                <div class='info-format'>
-                    <p class='font-weight-bold mb-1'>Name</p>
-                    <p class='mb-3'>{{orderDeteails[0].credential[0].name}}</p>
-                </div>
-                <div class='info-format'>
-                    <p class='font-weight-bold mb-1'>Email</p>
-                    <p class='mb-3'>{{orderDeteails[0].credential[0].email}}</p>
-                </div>
-                <div class='info-format' v-if='orderDeteails[0].credential[0].address'>
-                    <p class='font-weight-bold mb-1'>Address</p>
-                    <p class='mb-3'>{{orderDeteails[0].credential[0].address}}</p>
-                </div>
-                <div class='info-format'>
-                    <p class='font-weight-bold mb-1'>Tel. Number</p>
-                    <p class='mb-3'>{{orderDeteails[0].credential[0].tel_number}}</p>
-                </div>
+                <h3>Product</h3>
+                <p>Size: {{productDetails[0].products[0].tire[0].size}}</p>
+                <p>Price: {{productDetails[0].products[0].tire[0].price}}</p>
+                <p>Add on: {{productDetails[0].products[0].add_on}}</p>
+                <p>Quantity: {{productDetails[0].products[0].tire[0].quantity}}</p>
+                <p>Vehicule: {{productDetails[0].products[0].vehicle}}</p>
             </div>
 
             <div class='payment-flex'>
-                <h3 class='mb-5'>Payments Method</h3>
-                <div class='info-format'>
-                    <p class='font-weight-bold mb-1'>Start Date</p>
-                    <p class='mb-3'>{{orderDeteails[0].customer[0].start}}</p>
-                </div>
-                <div class='info-format'>
-                    <p class='font-weight-bold mb-1'>Pay In</p>
-                    <p class='mb-3'>{{orderDeteails[0].payment[0].pay_in}}</p>
-                </div>
-                <div class='info-format'>
-                    <p class='font-weight-bold mb-1'>Payment Interval</p>
-                    <p class='mb-3'>{{orderDeteails[0].payment[0].payment_interval}}</p>
-                </div>
-                <div class='info-format'>
-                    <p class='font-weight-bold' mb-1>Method</p>
-                    <p class='mb-3'>{{orderDeteails[0].method[0].name}}</p>
+                <h3>Brands</h3>
+                <div class='brands'>
+                    <p v-for='(brand, b) in productDetails[0].products[0].brands' :key="b">{{brand.name}}<span class='ml-2'></span></p>
                 </div>
             </div>
         </div>
         <div class='divider'></div>
         <div class='pdf-footer'>
-            <h3 class='mb-5 mt-5'>Orders</h3>
-            <div class='info-format'>
-                <p class='font-weight-bold'>Order Place on</p>
-                <p>{{parseDate(orderDeteails[0].order.order_on)}}</p>
+             <h3>Profiles</h3>
+            <div class='profiles'>
+                <p v-for='(profile, p) in productDetails[0].products[0].profiles' :key="p">{{profile.name}}<span class='ml-2'></span></p>
             </div>
-            <table class='order-table mt-5'>
-                <tr>
-                    <th>Size</th>
-                    <th>Brands</th>
-                    <th>Vehical</th>
-                    <th>Profiles</th>
-                    <th>Price</th>
-                    <th>Quantity</th>
-                </tr>
-                <tr v-for="(product,i) in orderDeteails[0].products" :key="i" >
-                    <td>{{product.products[0].size}}</td>
-                    <td>
-                        <p v-for="(brand, b) in product.brands" :key="b">{{brand.name}}</p>
-                    </td>
-                    <td>{{product.vehicule[0].name}}</td>
-                    <td>
-                        <p v-for="(profile, p) in product.profiles" :key="p">{{profile.name}}</p>
-                    </td>
-                    <td>{{product.products[0].price}}</td>
-                    <td>{{product.ordered_product.quantity}}</td>
-                </tr>
-            </table>
-
             <div class='total-price'>
                 <v-btn large color='#1976d2' style='position:relative;top:70px;color:white;text-transform:capitalize;font-weight:bold;' @click='printOrder()'>Print PDF</v-btn>
-                <h3>
-                    <!-- <span>
-                        {{orderDeteails[0].payment_helper.paying_in_terms}} / 
-                        {{orderDeteails[0].payment[0].payment_interval}}
-                    </span><br> -->
-                    <span style='color: #1976d2;'>Total Price: {{orderDeteails[0].paying}}</span>
-                </h3>
             </div>
         </div>
     </div>
@@ -100,12 +45,11 @@ export default {
 
     computed: {
         ...mapGetters({
-            orderDeteails: 'order/getCustomerOrder',
+            productDetails: 'product/getProductDetails',
         }),
     },
 
     created(){
-        console.log('order details', self.orderDeteails);
     },
 
     methods: {
@@ -128,6 +72,7 @@ export default {
 <style scoped>
     .pdf-core{
         width: 100%;
+        min-height: 100vh;
         height: auto;
         overflow: hidden;
         padding: 30px;

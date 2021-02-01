@@ -36,10 +36,10 @@
                 >fas fa-plus-square</v-icon>
             </div>
 
-            <div class='menu-item' v-if="!$route.name.startsWith('Dashboard')">
+            <!-- <div class='menu-item' v-if="!$route.name.startsWith('Dashboard')">
                 <v-icon color='white'>fas fa-sort-amount-down-alt</v-icon>
                 <p>Filters</p>
-            </div>
+            </div> -->
         </div>
 
         <div class='setting-logout'>
@@ -95,8 +95,9 @@ export default {
 
         addProduct(){
             this.$store.state.formsDialog = true;
-            this.$store.state.formName = 'Product';
-            // this.$store.state.formsTemp = 'OrderStepper';
+            this.$store.state.product.addProductForm = true;
+            this.$store.state.formName = 'New Product';
+            this.$store.state.formsTemp = 'ProductForm';
         }
     }
 }

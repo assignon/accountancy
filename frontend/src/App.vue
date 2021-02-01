@@ -11,7 +11,8 @@
         transition="dialog-bottom-transition"
         class='pdf-dialog'
       >
-        <OrderPdf />
+        <!-- <OrderPdf /> -->
+        <component :is="$store.state.pdfTemp"></component>
     </v-dialog>
     </v-main>
   </v-app>
@@ -21,6 +22,7 @@
 import Sidebar from "./components/layouts/Sidebar";
 import FormsModal from "./components/modals/FormsModal";
 import OrderPdf from "@/components/layouts/OrderPdf.vue";
+import ProductPdf from "@/components/layouts/ProductPdf.vue";
 
 export default {
   name: "App",
@@ -28,7 +30,8 @@ export default {
   components: {
     Sidebar,
     FormsModal,
-    OrderPdf
+    OrderPdf, 
+    ProductPdf,
   },
 
   data: () => ({

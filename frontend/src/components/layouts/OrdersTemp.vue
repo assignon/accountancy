@@ -40,10 +40,6 @@
                 </p>
             </v-flex>
 
-            <!-- <v-flex xs12 sm12 md1 lg1 xl1 class='payment-method'>
-                <v-icon small color='#ce2b58' class=''>fas fa-trash-alt</v-icon>
-            </v-flex> -->
-
         </v-layout>
     </div>
 </template>
@@ -64,7 +60,7 @@ export default {
     },
 
     created(){
-        
+        console.log(this.orderArr[0].order);
     },
 
     methods: {

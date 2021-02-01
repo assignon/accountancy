@@ -77,6 +77,51 @@ class DashboardView(viewsets.ModelViewSet):
     serializer_class = DashboardSerializer
     permission_classes = [IsAuthenticated]
 
+    @csrf_exempt
+    @action(methods=['get'], detail=False)
+    def get_user_data(self, request):
+        user_id = request.query_params.get('user_id')
+
+        user = User.objects.get(id=user_id)
+
+        return Response({
+            'email': user.email,
+            'name': user.username
+        })
+
+    @csrf_exempt
+    @action(methods=['put'], detail=False)
+    def update_user_data(self, request):
+        user_id = request.data['body']['user_id']
+        email = request.data['body']['email']
+        name = request.data['body']['name']
+        current_password = request.data['body']['current_password']
+        password = request.data['body']['password']
+
+        user = User.objects.filter(id=user_id)
+
+        if password == None:
+            if User.objects.get(id=user_id).check_password(current_password):
+                user.update(
+                    username=name,
+                    email=email,
+                )
+
+                return Response({'updated': True, 'msg': 'Email and name updated', 'user_id': user.values()[0]['id']})
+            else:
+                return Response({'updated': False, 'msg': 'Wrong password', 'user_id': user.values()[0]['id']})
+        else:
+            if user.check_password(current_password):
+                user.update(
+                    username=name,
+                    email=email,
+                )
+                user.set_password(password)
+
+                return Response({'updated': True, 'msg': 'Email and name updated', 'user_id': user.id})
+            else:
+                return Response({'updated': False, 'msg': 'Wrong password', 'user_id': user.id})
+
     @action(methods=['get'], detail=False)
     def signout(self, request):
         logout(request)

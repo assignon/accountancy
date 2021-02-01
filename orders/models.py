@@ -168,7 +168,7 @@ class Customers(models.Model):
     order = models.ForeignKey(Orders, on_delete=models.CASCADE)
     payment = models.ForeignKey(Payment, on_delete=models.DO_NOTHING)
     times = models.IntegerField()
-    start = models.DateField(default=timezone.now())
+    start = models.DateField()
     objects = CustomerManager()
 
     @staticmethod
