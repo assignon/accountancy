@@ -25,10 +25,18 @@
                             <h3 class='display-3 mt-3 font-weight-bold'>{{product.tire.quantity}}</h3>
                         </div>
                         <div class='brands'>
-                            <p v-for='(brand, b) in product.brands' :key="b">{{brand.name}}<span class='ml-2'></span></p>
+                            <p v-for='(brand, b) in product.brands' :key="b">
+                                <v-chip :ripple="false" small>
+                                    {{brand.name}}<span class='ml-2'></span>
+                                </v-chip>
+                            </p>
                         </div>
                         <div class='profiles'>
-                            <p v-for='(profile, p) in product.profiles' :key="p">{{profile.name}}<span class='ml-2'></span></p>
+                            <p v-for='(profile, p) in product.profiles' :key="p">
+                                <v-chip :ripple="false" small>
+                                    {{profile.name}}<span class='ml-2'></span>
+                                </v-chip>
+                            </p>
                         </div>
                         </div>
                 </v-flex>
@@ -66,6 +74,7 @@ export default {
 
   created(){
       this.allProducts()
+      this.$store.state.infoDrawer = false
     //   let self = this;
     //   console.log(self.$store.state.product.productsArr.products);
   },
@@ -180,22 +189,24 @@ export default {
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
-        justify-content: space-around;
+        justify-content: center;
         align-items: flex-start;
         margin-top: 60px;
     }
     .prduct-flex{
+        width: 250px;
         height: 300px;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         cursor: pointer;
+        margin: 20px;
          /* box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px; */
     }
     .product-inner-container{
         height: 90%;
-        width: 300px;
+        width: 100%;
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
@@ -205,8 +216,9 @@ export default {
         border-radius: 10px;
         background-color: #ebf0f7;
          padding: 30px;
-        box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;
-        /* box-shadow: rgba(255, 255, 255, 0.2) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0.9) 0px 0px 0px 1px; */
+          margin: 20px;
+        /* box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px; */
+        box-shadow: rgba(255, 255, 255, 0.2) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0.9) 0px 0px 0px 1px;
     }
     .size{
         height: auto;

@@ -1,5 +1,5 @@
 <template>
-    <div class='dash-core animated fadeIn' v-if="this.$session.has('authenticated') && this.$session.get('authenticated')">
+    <div class='dash-core animated fadeIn pb-5' v-if="this.$session.has('authenticated') && this.$session.get('authenticated')">
         <v-layout class="dash-layout">
 
             <v-flex xs12 sm12 md8 lg8 xl8 class='left-side'>
@@ -72,7 +72,7 @@
                         <div class='payment-header'>
                             <p>
                                 <v-icon color='#15141c' medium>fas fa-coins</v-icon>
-                                <span>Pyaments for {{paymentDate}}</span>
+                                <span>Schedulded Pyaments</span>
                             </p>
                         </div>
                         <div class='payments mt-5 ml-5 animated fadeInUp' 
@@ -80,7 +80,7 @@
                             :key='i'
                             @click='$store.state.infoDrawer=true, paymentDetails(payment.customer[0].id)'
                         >
-                            <p>
+                            <p class='user-info'>
                                 <v-icon class='mr-2' color='#1e1d2b'>fas fa-user-circle</v-icon>
                                 <span>{{payment.customer[0].name}}</span>
                                 <span class='ml-3'>({{payment.payment_interval}})</span>
@@ -154,7 +154,7 @@ export default {
         // orders
         this.getPayments(null)
         this.getOrders(null)
-        console.log('halllooo',this.customerPayments);
+        this.$store.state.infoDrawer = false
     },
 
     methods: {
@@ -256,7 +256,8 @@ export default {
 
 <style scoped>
     .dash-core{
-        height: 100vh;
+        min-height: 100vh;
+        height: auto;
         width: auto;
         display: flex;
         justify-content: center;
@@ -428,6 +429,9 @@ export default {
         overflow-y: scroll;
         overflow-x: hidden;
     }
+    ::-webkit-scrollbar {
+         width: 10px;
+    }
     .payment-header, .orders-header{
         width: 90%;
         height: auto;
@@ -485,5 +489,16 @@ export default {
         color: #1e1d2b;
         font-size: 15px;
         font-weight: bold;
+    }
+    @media only screen and (max-width: 1500px) {
+        /* .dash-core{
+            margin-left: 20%;
+        } */
+        .user-info{
+            display: flex;
+            flex-direction: column;
+            justify-content:center;
+            align-items: center;
+        }
     }
 </style>

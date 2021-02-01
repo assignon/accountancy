@@ -19,7 +19,7 @@
                     <span class='ml-2' v-if='order.ordered_products.length>=2'>[ +{{order.ordered_products.length-1}} ]</span></p>
             </v-flex>
 
-            <v-flex xs12 sm12 md3 lg3 xl3 class='date'>
+            <v-flex xs12 sm12 md4 lg3 xl3 class='date'>
                 <p>
                     <v-icon small color='#1e1d2b' class='mr-1'>fas fa-calendar-alt</v-icon>
                     {{parseDate(order.order.order_on)}}kglkj
@@ -33,7 +33,7 @@
                 </p>
             </v-flex>
 
-            <v-flex xs12 sm12 md3 lg3 xl3 class='payment-method'>
+            <v-flex xs12 sm12 md3 lg3 xl3 class='payment-method nav-layout hidden-md-and-down'>
                 <p>
                     <v-icon small color='#1e1d2b' class='mr-1'>fas fa-credit-card</v-icon>
                     {{order.payment.method[0].name}}

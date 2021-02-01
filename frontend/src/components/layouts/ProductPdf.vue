@@ -54,8 +54,8 @@ export default {
 
     methods: {
         printOrder(){
-            // this.$emit('printOrder')
             window.print();
+            window.location.reload()
             window.addEventListener('onafterprint', function(){
                 window.location.reload()
             }) 
@@ -75,13 +75,16 @@ export default {
         min-height: 100vh;
         min-height: 100vh;
         height: 100vh;
-        overflow: scroll;
+        /* overflow: scroll; */
         padding: 30px;
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
         align-items: center;
         background-color: #fff;
+    }
+    ::-webkit-scrollbar {
+         width: 10px;
     }
     .pdf-header{
         height: auto;

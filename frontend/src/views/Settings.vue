@@ -88,6 +88,7 @@ export default {
 
     created(){
         this.getUserData(this.$session.get('userId'))
+        this.$store.state.infoDrawer = false
     },
 
     methods: {
@@ -170,6 +171,12 @@ export default {
         height: 200px;
         margin-bottom: 30px;
         border-radius: 15px;
+        border: 1px solid #15141c;
+        border-radius: 15px;
+        background-image: url('../assets/chicam.jpg');
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
         box-shadow: rgba(255, 255, 255, 0.2) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0.9) 0px 0px 0px 1px;
     }
     .user-data{

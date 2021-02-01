@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import Q, Sum, Count
+from django.core.exceptions import ObjectDoesNotExist
 # from .models import Tires
 from datetime import datetime
 import json
@@ -35,7 +36,13 @@ class ProductManager(models.Manager):
     def add_product(self, **kwargs):
         from products.models import Products, Tires, Brands, Profiles, Vehicule
 
-        vehicle = Vehicule.objects.get(name=kwargs['vehicle'])
+        try:
+            global vehicle
+            vehicle = Vehicule.objects.get(name=kwargs['vehicle'])
+        except ObjectDoesNotExist:
+            global vehucle
+            vehicle = Vehicule.objects.create(name=kwargs['vehicle'])
+
         brands_arr = ','.join(sorted(kwargs['brands'])) if len(
             kwargs['brands']) > 0 else "{}".format(sorted(kwargs['brands'][0]))
         profile_arr = ','.join(sorted(kwargs['profiles'])) if len(
@@ -47,8 +54,6 @@ class ProductManager(models.Manager):
             Q(brands_str=brands_arr) &
             Q(price=kwargs['price'])
         )
-
-        print(','.join(sorted(kwargs['profiles'])))
 
         if this_tire.count() == 0:
             # add tire

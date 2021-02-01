@@ -4,7 +4,7 @@
       fixed
       height='100vh'
       right
-      width='40%'
+      width='50%'
       :overlay='false'
       class='info-drawer'
       :style="{backgroundColor: bColor,border: border}"
@@ -72,5 +72,10 @@ export default {
     }
     .v-navigation-drawer__content{
         width:100%;
+    }
+     @media only screen and (max-width: 1500px) {
+        .info-drawer{
+            width: 80%;
+        }
     }
 </style>
