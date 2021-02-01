@@ -78,16 +78,11 @@ class OrdersManager(models.Manager):
                 Q(profiles_str=profile_arr) &
                 Q(brands_str=brands_arr)
             )
-<<<<<<< HEAD
-            new_quantity = int(tire.quantity) - int(product['qty'])
-            tire_update.update(quantity=new_quantity)
-=======
             if int(tire.quantity) > 0:
                 new_quantity = int(tire.quantity) - int(product['qty'])
                 tire_update.update(quantity=new_quantity)
             else:
                 tire_update.update(quantity=0)
->>>>>>> b825a5457d8901bba6b0afb18072d09810a73bd4
             # except Exception:
             #     return {'create': False, 'msg': 'ordered product(s) quantity must be > 0'}
 

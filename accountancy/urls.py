@@ -37,6 +37,8 @@ urlpatterns = [
     path('', views.login, name='Login'),
     path('orders/', views.orders, name='orders'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('products/', views.products, name='products'),
+    path('settings/', views.settings, name='settings'),
     # path('products/', views.products, name='products'),
 
 ] + static(
