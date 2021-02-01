@@ -8,6 +8,8 @@ export default {
         addedProductsArr: [],
         BrandssArr: [],
         filteredProductsArr: [],
+        productDetailsArr: [],
+        addProductForm: true,
     },
 
     getters: {
@@ -22,6 +24,9 @@ export default {
         },
         getProfiles: (state) => {
             return state.filteredProductsArr
+        },
+        getProductDetails: (state) => {
+            return state.productDetailsArr
         }
     },
 

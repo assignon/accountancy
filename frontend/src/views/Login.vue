@@ -77,7 +77,7 @@ export default {
           callback: function(data) {
               console.log(data);
               if(data.authenticate){
-                self.startSession(data.token, data.user_id)
+                self.startSession(data.token, data.id)
                 self.$router.push({name: "Dashboard"})
               }else{
                  formErrMsg.innerHTML = data.msg

@@ -61,8 +61,8 @@ class OrdersManager(models.Manager):
                     product=tire, quantity=product['qty'])
                 order.product_ordered.add(ordered_products)
                 # update tire quantity
-                # new_quantity = tire.quantity - product['qty']
-                # tire.update(quantity=new_quantity)
+                new_quantity = tire.quantity - product['qty']
+                tire.update(quantity=new_quantity)
             except Exception:
                 return {'create': False, 'msg': 'ordered product(s) quantity must be > 0'}
 

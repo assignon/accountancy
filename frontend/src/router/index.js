@@ -4,6 +4,7 @@ import Login from "../views/Login.vue";
 import Dashboard from "../views/Dashboard.vue";
 import Order from "../views/Order.vue";
 import Product from "../views/Product.vue";
+import Settings from "../views/Settings.vue";
 // import NotAuthorize from "../views/dashboard/NotAuthorize.vue";
 
 Vue.use(VueRouter);
@@ -28,6 +29,11 @@ const routes = [
     path: "/products",
     name: "Product",
     component: Product
+  },
+  {
+    path: "/settings",
+    name: "Settings",
+    component: Settings
   },
   // {
   //   path: "/notAuthorize",

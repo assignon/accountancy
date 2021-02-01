@@ -34,6 +34,7 @@ export default new Vuex.Store({
     infoDrawer: false,
     infoTempName: null, // vue dynamic template name
     formsTemp: null, 
+    pdfTemp: null,
     formName: null,
     formsDialog: false,
     pdfDialog: false,

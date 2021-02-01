@@ -2,9 +2,16 @@
 
 export default {
     namespaced: true,
-    state: {},
 
-    getters: {},
+    state: {
+        userDataArr: [],
+    },
+
+    getters: {
+        getUserData(state) {
+            return state.userDataArr
+        }
+    },
 
     mutations: {
     

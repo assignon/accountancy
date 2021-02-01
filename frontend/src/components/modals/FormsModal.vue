@@ -15,7 +15,7 @@
             <v-btn
                 icon
                 dark
-                @click="$store.state.formsDialog = false"
+                @click="$store.state.formsDialog = false, reloadPage()"
             >
                 <v-icon color='white'>mdi-close</v-icon>
             </v-btn>
@@ -35,6 +35,7 @@
 
 <script>
 import OrderStepper from "@/components/layouts/forms/OrderStepper.vue";
+import ProductForm from "@/components/layouts/forms/ProductForm.vue";
 import { mapGetters } from 'vuex';
 export default {
   name: "Order",
@@ -43,6 +44,7 @@ export default {
   
     components: {
         OrderStepper,
+        ProductForm,
     },
 
     computed: {
@@ -61,7 +63,9 @@ export default {
   },
 
   methods: {
-       
+       reloadPage(){
+           window.location.reload()
+       }
   }
 };
 </script>

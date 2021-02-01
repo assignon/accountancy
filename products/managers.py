@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Sum, Count
 # from .models import Tires
 from datetime import datetime
 import json
@@ -31,6 +31,74 @@ class ProductManager(models.Manager):
 
     # def __init__(self, tires_model):
     #     self.tires = tires_model
+
+    def add_product(self, **kwargs):
+        from products.models import Products, Tires, Brands, Profiles, Vehicule
+
+        vehicle = Vehicule.objects.get(name=kwargs['vehicle'])
+        brands_arr = ','.join(sorted(kwargs['brands'])) if len(
+            kwargs['brands']) > 0 else "{}".format(sorted(kwargs['brands'][0]))
+        profile_arr = ','.join(sorted(kwargs['profiles'])) if len(
+            kwargs['profiles']) > 0 else '{}'.format(sorted(kwargs['profiles'][0]))
+
+        this_tire = Tires.objects.filter(
+            Q(size=kwargs['size']) &
+            Q(profiles_str=profile_arr) &
+            Q(brands_str=brands_arr) &
+            Q(price=kwargs['price'])
+        )
+
+        print(','.join(sorted(kwargs['profiles'])))
+
+        if this_tire.count() == 0:
+            # add tire
+            tire = Tires.objects.create(
+                size=kwargs['size'],
+                price=kwargs['price'],
+                quantity=kwargs['quantity'],
+                vehicule=vehicle,
+                profiles_str=profile_arr,
+                brands_str=brands_arr
+            )
+            tire.save()
+            # get brands
+            for brand in kwargs['brands']:
+                tire.brands.add(Brands.objects.get(name=brand))
+            # get profiles
+            for profile in kwargs['profiles']:
+                tire.profiles.add(Profiles.objects.get(name=profile))
+            # add tire to product
+            product = Products.objects.create(tire=tire)
+
+            return {'created': True, 'product_id': product.id}
+        else:
+            updated_qty = int(this_tire.values()[
+                0]['quantity']) + int(kwargs['quantity'])
+            # update quantity
+            this_tire.update(quantity=updated_qty)
+
+            return {'created': True, 'product_id': Products.objects.get(tire_id=this_tire.values()[0]['id']).id}
+
+    def update_product(self, **kwargs):
+        from products.models import Products, Tires, Brands, Profiles, Vehicule
+
+        vehicle = Vehicule.objects.get(name=kwargs['vehicle'])
+        brands_arr = ','.join(sorted(kwargs['brands'])) if len(
+            kwargs['brands']) > 0 else "{}".format(sorted(kwargs['brands'][0]))
+        profile_arr = ','.join(sorted(kwargs['profiles'])) if len(
+            kwargs['profiles']) > 0 else '{}'.format(sorted(kwargs['profiles'][0]))
+
+        tire = Tires.objects.filter(id=kwargs['tire_id'])
+        tire.update(
+            size=kwargs['size'],
+            price=kwargs['price'],
+            quantity=kwargs['quantity'],
+            vehicule=vehicle,
+            profiles_str=profile_arr,
+            brands_str=brands_arr
+        )
+
+        return {'updated': True, 'product_id': Products.objects.get(tire_id=tire.values()[0]['id']).id}
 
     def get_incoming_products(self, dte=None):
         from .models import Tires
@@ -70,16 +138,52 @@ class ProductManager(models.Manager):
     def all_products(self):
         from .models import Tires
         products = None
+        productsArr = []
 
         product_obj = self.select_related().all()
 
+        for product in Tires.objects.all().values():
+            productsArr.append(
+                {
+                    # 'add_at': product['add_at'],
+                    # 'add_on': product['add_on'],
+                    # 'id': product['id'],
+                    'tire': product,
+                    'id': self.get_queryset().get(tire_id=product['id']).id,
+                    'brands': Tires.objects.get(id=product['id']).brands.all().values(),
+                    'profiles': Tires.objects.get(id=product['id']).profiles.all().values(),
+                    'vehicle': Tires.objects.get(id=product['id']).vehicule.name
+                }
+            )
+            # products = Tires.objects.values('size').annotate(Sum('quantity'))
+
         products = {
-            'products': product_obj.values(),
-            'tire': get_related(Tires, product_obj, 'tire_id'),
+            'products': productsArr,
             'count': product_obj.count()
         }
 
         return products
+
+    def product_details(self, product_id):
+        from .models import Tires
+
+        productsArr = []
+        product_obj = self.select_related().filter(id=product_id)
+
+        for product in product_obj.values():
+            productsArr.append(
+                {
+                    'add_at': product['add_at'],
+                    'add_on': product['add_on'],
+                    'id': product['id'],
+                    'tire': get_related(Tires, product_obj, 'tire_id'),
+                    'brands': Tires.objects.get(id=product['tire_id']).brands.all().values(),
+                    'profiles': Tires.objects.get(id=product['tire_id']).profiles.all().values(),
+                    'vehicle': Tires.objects.get(id=product['tire_id']).vehicule.name
+                }
+            )
+
+        return {'products': productsArr}
 
     def filter_products(self, vehicle, brands, profiles):
         from .models import Tires, Vehicule, Brands, Profiles

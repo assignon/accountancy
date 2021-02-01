@@ -117,6 +117,7 @@ export default {
                     if(data.created){
                         // window.location.reload();
                         self.customerOrder(data.order_id)
+                        self.$store.state.pdfTemp = 'OrderPdf';
                         self.$store.state.pdfDialog = true;
                     }
                 },
@@ -129,9 +130,12 @@ export default {
 <style scoped>
     .order-stepper{
       width: 100%;
-      height: 94%;
-      overflow: hidden;
+      height: auto;
+      min-height: 94%;
+      overflow-y: scroll;
+      overflow-x: hidden;
       margin: auto;
+      padding-bottom: 10px;
     }
     .v-stepper{
         box-shadow: none;

@@ -123,7 +123,7 @@ export default {
   created(){
     this.getOrders(null)
     this.allPayments(0)
-    console.log( this.customerPayments.payments);
+    console.log( this.customerPayments);
     this.customerPayments[0].payments.forEach((items) => {
         console.log(items);
     })
