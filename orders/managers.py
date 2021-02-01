@@ -56,15 +56,15 @@ class OrdersManager(models.Manager):
             # get tire
             tire = Tires.objects.get(size=product['name'])
             # create ordered products
-            try:
-                ordered_products = ProductOrdered.objects.create(
-                    product=tire, quantity=product['qty'])
-                order.product_ordered.add(ordered_products)
-                # update tire quantity
-                new_quantity = tire.quantity - product['qty']
-                tire.update(quantity=new_quantity)
-            except Exception:
-                return {'create': False, 'msg': 'ordered product(s) quantity must be > 0'}
+            # try:
+            ordered_products = ProductOrdered.objects.create(
+                product=tire, quantity=product['qty'])
+            order.product_ordered.add(ordered_products)
+            # update tire quantity
+            new_quantity = int(tire.quantity) - int(product['qty'])
+            tire.update(quantity=new_quantity)
+            # except Exception:
+            #     return {'create': False, 'msg': 'ordered product(s) quantity must be > 0'}
 
         # create payment
         payment_obj = Payment.objects.create(

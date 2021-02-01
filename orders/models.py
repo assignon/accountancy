@@ -112,11 +112,11 @@ class ProductOrdered(models.Model):
 
         return product.price*p_o.quantity
 
-    def save(self, *args, **kwargs):
-        # check if quantity > 0
-        if int(self.quantity) <= 0:
-            raise Exception("Ordered product(s) quantity must be > 0")
-        return super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     # check if quantity > 0
+    #     if int(self.quantity) <= 0:
+    #         raise Exception("Ordered product(s) quantity must be > 0")
+    #     return super().save(*args, **kwargs)
 
 
 class Orders(models.Model):
