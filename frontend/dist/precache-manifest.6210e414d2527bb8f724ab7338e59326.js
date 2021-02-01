@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "5e93c5afeefcf093216e7ba7d1bdac75",
+    "revision": "89c4b2ed2a506861ed3507364a0500d8",
     "url": "/index.html"
   },
   {
@@ -12,12 +12,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/robots.txt"
   },
   {
-    "revision": "1250c28c5c2558d2f5db",
-    "url": "/static/css/app.e12f9ca0.css"
+    "revision": "d9f75b1acea5d29d2d4b",
+    "url": "/static/css/app.2d91756f.css"
   },
   {
-    "revision": "317dc918c3f710157ae9",
-    "url": "/static/css/chunk-vendors.839c433a.css"
+    "revision": "6df8661e2797a45b2f81",
+    "url": "/static/css/chunk-vendors.c46b8648.css"
   },
   {
     "revision": "2a61b00fcc9b1afbf99be145777b1b72",
@@ -84,6 +84,10 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/static/fonts/fa-solid-900.9ae050d1.woff2"
   },
   {
+    "revision": "3bcf46897202da51c39ec8c9cafa5e9b",
+    "url": "/static/img/chicam.3bcf4689.jpg"
+  },
+  {
     "revision": "5d10d00980077f67990f73b1961bc46e",
     "url": "/static/img/fa-brands-400.5d10d009.svg"
   },
@@ -96,11 +100,11 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/static/img/fa-solid-900.2306f642.svg"
   },
   {
-    "revision": "1250c28c5c2558d2f5db",
-    "url": "/static/js/app.e4361b82.js"
+    "revision": "d9f75b1acea5d29d2d4b",
+    "url": "/static/js/app.440da126.js"
   },
   {
-    "revision": "317dc918c3f710157ae9",
-    "url": "/static/js/chunk-vendors.2041df50.js"
+    "revision": "6df8661e2797a45b2f81",
+    "url": "/static/js/chunk-vendors.7877e44c.js"
   }
 ]);
