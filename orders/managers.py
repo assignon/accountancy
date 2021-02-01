@@ -1,6 +1,7 @@
 from django.db import models
 from datetime import datetime
 from django.core import serializers
+from django.db.models import Q
 
 
 def get_related(obj, parent, obj_id):
@@ -46,6 +47,7 @@ def get_prefetch_related(parent):
 class OrdersManager(models.Manager):
     def create_order(self, **kwargs):
         from orders.models import Customers, Payment, PaymentMethods, ProductOrdered, Tires, Credentials
+        from products.models import Vehicule
 
         # get payment method
         method = PaymentMethods.objects.get(name=kwargs['method'])
@@ -54,15 +56,30 @@ class OrdersManager(models.Manager):
         order.save()
         for product in kwargs['ordered_products']:
             # get tire
-            tire = Tires.objects.get(size=product['name'])
+            vehicle = Vehicule.objects.get(name=product['vehicule'])
+            brands_arr = ','.join(sorted(product['brand'])) if len(
+                product['brand']) > 0 else "{}".format(sorted(product['brand'][0]))
+            profile_arr = ','.join(sorted(product['profile'])) if len(
+                product['profile']) > 0 else '{}'.format(sorted(product['profile'][0]))
+
+            tire = Tires.objects.get(
+                Q(size=product['name']) &
+                Q(profiles_str=profile_arr) &
+                Q(brands_str=brands_arr)
+            )
             # create ordered products
             # try:
             ordered_products = ProductOrdered.objects.create(
                 product=tire, quantity=product['qty'])
             order.product_ordered.add(ordered_products)
             # update tire quantity
+            tire_update = Tires.objects.filter(
+                Q(size=product['name']) &
+                Q(profiles_str=profile_arr) &
+                Q(brands_str=brands_arr)
+            )
             new_quantity = int(tire.quantity) - int(product['qty'])
-            tire.update(quantity=new_quantity)
+            tire_update.update(quantity=new_quantity)
             # except Exception:
             #     return {'create': False, 'msg': 'ordered product(s) quantity must be > 0'}
 

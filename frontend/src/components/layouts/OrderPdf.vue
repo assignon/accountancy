@@ -128,14 +128,14 @@ export default {
 <style scoped>
     .pdf-core{
         width: 100%;
+        min-height: 100vh;
         height: auto;
-        overflow: hidden;
         padding: 30px;
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
         align-items: center;
-        background-color: #fff;
+        background-color: red;
     }
     .pdf-header{
         height: auto;
