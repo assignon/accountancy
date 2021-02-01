@@ -42,10 +42,10 @@ class Payment(models.Model):
         order_date = datetime.now().date()
         payment_dates = []
 
-        if self.pay_in == 'once':
+        if self.pay_in.lower() == 'once':
             return customer.start
         else:
-            if self.payment_interval == 'daily':
+            if self.payment_interval.lower() == 'daily':
                 for count in range(customer.times):
                     payment_dates.append(
                         customer.start + timedelta(days=count))
@@ -53,7 +53,7 @@ class Payment(models.Model):
                 end_date = customer.start + timedelta(days=times)
 
                 return {'paying_dates': payment_dates, 'end': end_date}
-            elif self.payment_interval == 'weekly':
+            elif self.payment_interval.lower() == 'weekly':
                 for count in range(customer.times):
                     payment_dates.append(
                         customer.start + timedelta(days=count*7))
@@ -79,8 +79,8 @@ class Payment(models.Model):
         # amount of money pay by term
         customer = Customers.objects.get(id=customer_id)
         self = Payment.objects.get(id=customer.payment_id)
-        if self.pay_in == 'terms':
-            return int(Orders.paying(customer.order_id))/int(customer.times)
+        if self.pay_in.lower() == 'terms':
+            return round(int(Orders.paying(customer.order_id))/int(customer.times))
 
     @staticmethod
     def completed(customer_id):
@@ -93,8 +93,9 @@ class Payment(models.Model):
         return PaymentMethods.objects.get(id=self.method_id).name
 
     def create(self, *args, **kwargs):
-        if self.pay_in == 'once':
+        if self.pay_in.lower() == 'once':
             self.payment_interval = 'daily'
+
         return super().save(*args, **kwargs)
 
 

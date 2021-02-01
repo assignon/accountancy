@@ -1,6 +1,7 @@
 from django.db import models
 from datetime import datetime
 from django.core import serializers
+from django.db.models import Q
 
 
 def get_related(obj, parent, obj_id):
@@ -46,6 +47,7 @@ def get_prefetch_related(parent):
 class OrdersManager(models.Manager):
     def create_order(self, **kwargs):
         from orders.models import Customers, Payment, PaymentMethods, ProductOrdered, Tires, Credentials
+        from products.models import Vehicule
 
         # get payment method
         method = PaymentMethods.objects.get(name=kwargs['method'])
@@ -54,17 +56,35 @@ class OrdersManager(models.Manager):
         order.save()
         for product in kwargs['ordered_products']:
             # get tire
-            tire = Tires.objects.get(size=product['name'])
+            vehicle = Vehicule.objects.get(name=product['vehicule'])
+            brands_arr = ','.join(sorted(product['brand'])) if len(
+                product['brand']) > 0 else "{}".format(sorted(product['brand'][0]))
+            profile_arr = ','.join(sorted(product['profile'])) if len(
+                product['profile']) > 0 else '{}'.format(sorted(product['profile'][0]))
+
+            tire = Tires.objects.get(
+                Q(size=product['name']) &
+                Q(profiles_str=profile_arr) &
+                Q(brands_str=brands_arr)
+            )
             # create ordered products
-            try:
-                ordered_products = ProductOrdered.objects.create(
-                    product=tire, quantity=product['qty'])
-                order.product_ordered.add(ordered_products)
-                # update tire quantity
-                new_quantity = tire.quantity - product['qty']
-                tire.update(quantity=new_quantity)
-            except Exception:
-                return {'create': False, 'msg': 'ordered product(s) quantity must be > 0'}
+            # try:
+            ordered_products = ProductOrdered.objects.create(
+                product=tire, quantity=product['qty'])
+            order.product_ordered.add(ordered_products)
+            # update tire quantity
+            tire_update = Tires.objects.filter(
+                Q(size=product['name']) &
+                Q(profiles_str=profile_arr) &
+                Q(brands_str=brands_arr)
+            )
+            if int(tire.quantity) > 0:
+                new_quantity = int(tire.quantity) - int(product['qty'])
+                tire_update.update(quantity=new_quantity)
+            else:
+                tire_update.update(quantity=0)
+            # except Exception:
+            #     return {'create': False, 'msg': 'ordered product(s) quantity must be > 0'}
 
         # create payment
         payment_obj = Payment.objects.create(
@@ -342,7 +362,8 @@ class CustomerManager(models.Manager):
     def customer_ongoing_payment(self, customerid):
         from .models import Credentials, Payment, PaymentMethods, Orders
         # querysets
-        customers = self.select_related().filter(id=customerid)
+        customers = self.select_related().filter(credential_id=customerid)
+        print('cuussst', customers.values()[0]['order_id'])
         order = Orders.objects.get(id=customers.values()[0]['order_id'])
         credential = get_related(Credentials, customers, 'credential_id')
         payments = get_related(Payment, customers, 'payment_id')
@@ -354,9 +375,9 @@ class CustomerManager(models.Manager):
             'credentials': credential,
             'payments': payments,
             'methods': payment_methods.values(),
-            'paying_term': Payment.paying_in_terms(customerid),
+            'paying_term': Payment.paying_in_terms(customers.values()[0]['id']),
             'paying': Orders.paying(order.id),
-            'payment_dates': Payment.paymentDates_end(customerid)
+            'payment_dates': Payment.paymentDates_end(customers.values()[0]['id'])
         }
 
     def ongoing_payments(self, dte, limit):
@@ -398,8 +419,7 @@ class CustomerManager(models.Manager):
                             'methods': get_related(
                                 PaymentMethods, payment_method, 'method_id'),
                             # get customer credentials
-                            'customer': get_related(
-                                Credentials, customers, 'credential_id')
+                            'customer': Credentials.objects.filter(id=customer['credential_id']).values()
                         }
                     )
 
