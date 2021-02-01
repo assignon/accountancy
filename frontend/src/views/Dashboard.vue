@@ -78,7 +78,7 @@
                         <div class='payments mt-5 ml-5 animated fadeInUp' 
                             v-for="(payment, i) in customerPayments[0].payments" 
                             :key='i'
-                            @click='$store.state.infoDrawer=true, paymentDetails(payment.customer_id)'
+                            @click='$store.state.infoDrawer=true, paymentDetails(payment.customer[0].id)'
                         >
                             <p>
                                 <v-icon class='mr-2' color='#1e1d2b'>fas fa-user-circle</v-icon>
@@ -154,6 +154,7 @@ export default {
         // orders
         this.getPayments(null)
         this.getOrders(null)
+        console.log('halllooo',this.customerPayments);
     },
 
     methods: {

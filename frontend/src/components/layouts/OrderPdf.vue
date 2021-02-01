@@ -79,7 +79,7 @@
                 </tr>
             </table>
 
-            <div class='total-price'>
+            <div class='total-price pb-3'>
                 <v-btn large color='#1976d2' style='position:relative;top:70px;color:white;text-transform:capitalize;font-weight:bold;' @click='printOrder()'>Print PDF</v-btn>
                 <h3>
                     <!-- <span>
@@ -129,8 +129,9 @@ export default {
     .pdf-core{
         width: 100%;
         min-height: 100vh;
-        height: auto;
-        padding: 30px;
+        height: 100vh;
+        overflow: scroll;
+        padding: 20px;
         display: flex;
         flex-direction: column;
         justify-content: flex-start;

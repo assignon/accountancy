@@ -73,8 +73,9 @@ export default {
     .pdf-core{
         width: 100%;
         min-height: 100vh;
-        height: auto;
-        overflow: hidden;
+        min-height: 100vh;
+        height: 100vh;
+        overflow: scroll;
         padding: 30px;
         display: flex;
         flex-direction: column;

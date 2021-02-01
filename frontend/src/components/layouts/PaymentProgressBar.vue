@@ -25,7 +25,7 @@ export default {
             let dateIndexArr = []
 
             this.paymentDatesArr.forEach(date => {
-                if (currentDate > date){
+                if (currentDate >= date){
                     dateIndexArr = []
                     dateIndexArr.push(this.paymentDatesArr.indexOf(date)+1)
                 }
