@@ -198,9 +198,9 @@ class ProductManager(models.Manager):
             vehicle = 0
 
         tires = Tires.objects.filter(
-            Q(brands__in=[Brands.objects.get(name=brand)
+            Q(brands_str=[Brands.objects.get(name=brand)
                           for brand in brands['brands']]) &
-            Q(profiles__in=[Profiles.objects.get(name=profile)
+            Q(profiles_str=[Profiles.objects.get(name=profile)
                             for profile in profiles['profiles']]) &
             Q(vehicule_id=vehicle)
         )

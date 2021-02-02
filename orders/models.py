@@ -43,7 +43,7 @@ class Payment(models.Model):
         payment_dates = []
 
         if self.pay_in.lower() == 'once':
-            return customer.start
+            return {'paying_dates': [customer.start], 'end': customer.start}
         else:
             if self.payment_interval.lower() == 'daily':
                 for count in range(customer.times):
