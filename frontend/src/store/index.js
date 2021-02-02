@@ -250,7 +250,7 @@ export default new Vuex.Store({
     putReq({ commit, rootState }, payload) {
       commit("putAxiosCall", {
         url: payload.url,
-        body: payload.params,
+        params: payload.params,
         auth: payload.auth,
         csrftoken: payload.csrftoken,
         callback: payload.callback,
