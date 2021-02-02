@@ -80,13 +80,14 @@
             </table>
 
             <div class='total-price pb-3'>
+                <v-btn large color='#1976d2' style='position:relative;top:70px;color:white;text-transform:capitalize;font-weight:bold;' @click='reloadPAge()'>Back</v-btn>
                 <v-btn large color='#1976d2' style='position:relative;top:70px;color:white;text-transform:capitalize;font-weight:bold;' @click='printOrder()'>Print PDF</v-btn>
                 <h3>
                     <!-- <span>
                         {{orderDeteails[0].payment_helper.paying_in_terms}} / 
                         {{orderDeteails[0].payment[0].payment_interval}}
                     </span><br> -->
-                    <span style='color: #1976d2;'>Total Price: {{orderDeteails[0].paying}}</span>
+                    <span style='color: #1976d2;'>Total Price: {{formatPrice(orderDeteails[0].paying)}}FRS</span>
                 </h3>
             </div>
         </div>
@@ -115,6 +116,15 @@ export default {
             window.addEventListener('onafterprint', function(){
                 window.location.reload()
             }) 
+        },
+
+        formatPrice(value) {
+            let val = (value/1).toFixed(0).replace('.', ',')
+            return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+        },
+
+        reloadPAge(){
+            window.location.reload()
         },
 
         parseDate(date){

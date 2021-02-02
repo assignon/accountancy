@@ -4,7 +4,8 @@
             <div class='customer'>
                 <h3>Customer Details</h3>
                 <p>Name: {{orderDeteails[0].credential[0].name}}</p>
-                <p>Email: {{orderDeteails[0].credential[0].email}}</p>
+                <p v-if='orderDeteails[0].credential[0].email'>Email: {{orderDeteails[0].credential[0].email}}</p>
+                <p v-else>Email: None</p>
                 <p v-if='orderDeteails[0].credential[0].address'>Address: {{orderDeteails[0].credential[0].address}}</p>
                 <p>Tel.number{{orderDeteails[0].credential[0].tel_number}}</p>
             </div>
@@ -30,7 +31,7 @@
                         <td>
                             <p v-for="(profile, p) in product.profiles" :key="p">{{profile.name}}</p>
                         </td>
-                        <td>{{product.products[0].price}}</td>
+                        <td>{{formatPrice(product.products[0].price)}}FRS</td>
                         <td>{{product.ordered_product.quantity}}</td>
                     </tr>
                 </table>
@@ -41,9 +42,9 @@
                     <span style='color:' v-if='orderDeteails[0].payment_helper.completed'>[Payed]</span>
                     <span style='color:magenta' v-else>[Ongoing]</span>
                 </h3>
-                <p>Paying: {{orderDeteails[0].paying}}</p>
+                <p>Paying: {{formatPrice(orderDeteails[0].paying)}}FRS</p>
                 <p>Method: {{orderDeteails[0].method[0].name}}</p>
-                <p>Pay by terms: {{orderDeteails[0].payment_helper.paying_in_terms}}</p>
+                <p>Pay by terms: {{formatPrice(orderDeteails[0].payment_helper.paying_in_terms)}}FRS</p>
                 <p>Pay in: {{orderDeteails[0].payment[0].pay_in}}</p>
                 <p>Payment Interval: {{orderDeteails[0].payment[0].payment_interval}}</p>
                 <p>Start Date: {{orderDeteails[0].customer[0].start}}</p>
@@ -92,6 +93,11 @@ export default {
     methods: {
          parseDate(date){
             return new Date(date).toDateString()
+        },
+
+        formatPrice(value) {
+            let val = (value/1).toFixed(0).replace('.', ',')
+            return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
         },
 
         removeOrder(){

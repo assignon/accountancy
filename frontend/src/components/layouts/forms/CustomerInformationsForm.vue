@@ -4,8 +4,7 @@
         <div class='customer-founded-container'>
             <v-text-field
                 v-model="$store.state.order.email"
-                :rules="[$store.state.rules.required]"
-                label="Email*"
+                label="Email"
                 required
                 outlined
                 type="email"
@@ -76,7 +75,7 @@ export default {
             let formErrMsg = document.querySelector(".form-err-msg");
             let validationErrMsg = document.querySelector('.v-messages__message');
 
-            if (store.email != null && store.name != null && store.telNumber != null) {
+            if (store.name != null && store.telNumber != null) {
                 if(!document.body.contains(validationErrMsg)){
                     this.$emit('updatestep', stepNum)
                 }else{
@@ -94,27 +93,29 @@ export default {
             let customerFounded = document.querySelector('.customer-founded')
             let store = this.$store.state.order
 
-            if(regexEmail.test(email)){
+            if(email != null){
+                if(regexEmail.test(email)){
 
-                this.$store.dispatch("getReq", {
-                    url: "customer/credentials_form_auto_fill",
-                    params: {
-                        email: email
-                    },
-                    auth: self.$session.get('token'),
-                    csrftoken: self.$session.get('token'),
-                    callback: function(data) {
-                        console.log(data);
-                        if(data.founded){
-                            customerFounded.innerHTML = 'Email credentials founds'
-                            store.email = data.credentials[0].email;
-                            store.name = data.credentials[0].name;
-                            store.address = data.credentials[0].address;
-                            store.telNumber = data.credentials[0].tel_number;
-                        }
-                        // store.getters["setData"]([store.state.product.productsArr, [data]]);
-                    },
-                });
+                    this.$store.dispatch("getReq", {
+                        url: "customer/credentials_form_auto_fill",
+                        params: {
+                            email: email
+                        },
+                        auth: self.$session.get('token'),
+                        csrftoken: self.$session.get('token'),
+                        callback: function(data) {
+                            console.log(data);
+                            if(data.founded){
+                                customerFounded.innerHTML = 'Email credentials founds'
+                                store.email = data.credentials[0].email;
+                                store.name = data.credentials[0].name;
+                                store.address = data.credentials[0].address;
+                                store.telNumber = data.credentials[0].tel_number;
+                            }
+                            // store.getters["setData"]([store.state.product.productsArr, [data]]);
+                        },
+                    });
+                }
             }
         }
     },

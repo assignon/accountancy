@@ -22,14 +22,14 @@
             <v-flex xs12 sm12 md4 lg3 xl3 class='date'>
                 <p>
                     <v-icon small color='#1e1d2b' class='mr-1'>fas fa-calendar-alt</v-icon>
-                    {{parseDate(order.order.order_on)}}kglkj
+                    {{parseDate(order.order.order_on)}}
                 </p>
             </v-flex>
 
             <v-flex xs12 sm12 md2 lg2 xl2 class='price'>
                 <p>
                     <v-icon small color='#1e1d2b' class='mr-1'>fas fa-coins</v-icon>
-                    {{order.paying}}
+                    {{formatPrice(order.paying)}}FRS
                 </p>
             </v-flex>
 
@@ -66,6 +66,11 @@ export default {
     methods: {
         parseDate(date){
             return new Date(date).toDateString()
+        },
+
+        formatPrice(value) {
+            let val = (value/1).toFixed(0).replace('.', ',')
+            return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
         },
 
         customerOrder(customerID){

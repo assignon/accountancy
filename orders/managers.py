@@ -368,10 +368,11 @@ class CustomerManager(models.Manager):
             }
         }
 
-    def customer_ongoing_payment(self, customerid):
+    def customer_ongoing_payment(self, paymentid):
         from .models import Credentials, Payment, PaymentMethods, Orders
         # querysets
-        customers = self.select_related().filter(credential_id=customerid)
+        # customers = self.select_related().filter(credential_id=paymentid)
+        customers = self.select_related().filter(payment_id=paymentid)
         print('cuussst', customers.values()[0]['order_id'])
         order = Orders.objects.get(id=customers.values()[0]['order_id'])
         credential = get_related(Credentials, customers, 'credential_id')
@@ -449,6 +450,7 @@ class CustomerManager(models.Manager):
             payments_dates = Payment.paymentDates_end(customer['id'])
             payment_method = Payment.objects.filter(id=customer['payment_id'])
             payment = Payment.objects.get(id=customer['payment_id'])
+            print('payyy', payment.pay_interval)
 
             customer_payments.append(
                 {

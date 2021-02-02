@@ -149,7 +149,8 @@ class Orders(models.Model):
 
 class Credentials(models.Model):
     name = models.CharField(max_length=255)
-    email = models.CharField(max_length=255)
+    email = models.CharField(
+        max_length=255, default='None', null=True, blank=True)
     address = models.CharField(max_length=255, blank=True, null=True)
     tel_number = models.CharField(max_length=50)
 

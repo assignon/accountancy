@@ -32,6 +32,7 @@
                 <p v-for='(profile, p) in productDetails[0].products[0].profiles' :key="p">{{profile.name}}<span class='ml-2'></span></p>
             </div>
             <div class='total-price'>
+                <v-btn large color='#1976d2' style='position:relative;top:70px;color:white;text-transform:capitalize;font-weight:bold;' @click='reloadPAge()'>Back</v-btn>
                 <v-btn large color='#1976d2' style='position:relative;top:70px;color:white;text-transform:capitalize;font-weight:bold;' @click='printOrder()'>Print PDF</v-btn>
             </div>
         </div>
@@ -59,6 +60,10 @@ export default {
             window.addEventListener('onafterprint', function(){
                 window.location.reload()
             }) 
+        },
+
+        reloadPAge(){
+            window.location.reload()
         },
 
         parseDate(date){
