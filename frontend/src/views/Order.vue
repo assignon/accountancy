@@ -29,7 +29,7 @@
 
                 <v-tabs-items v-model='tab'>
                     <v-tab-item v-if='orders[0].count > 0' style='width: 1000px;margin-top:50px;' class='ml-5'>
-                        <v-flex xs12 sm12 md8 xl10 lg12>
+                        <v-flex xs12 sm12 md8 xl8 lg12>
                             <OrdersTemp :orderArr='orders'/>
                         </v-flex>
                     </v-tab-item>
@@ -45,7 +45,7 @@
                             <div class='payments mt-5 ml-5 animated fadeInUp' 
                                 v-for="(payment, i) in customerPayments[0].payments" 
                                 :key='i'
-                                @click='$store.state.infoDrawer=true, paymentDetails(payment.customer[0].id)'
+                                @click='$store.state.infoDrawer=true, paymentDetails(payment.id)'
                             >
                                 <p>
                                     <v-icon class='mr-2' color='#15141c'>fas fa-user-circle</v-icon>
@@ -189,13 +189,13 @@ export default {
             });
         },
 
-        paymentDetails(customerid){
+        paymentDetails(paymentid){
             let self = this;
 
             this.$store.dispatch('order/getPaymentDetails', {
                 url: 'order/payment_details',
                 params: {
-                    customerId: customerid
+                    customerId: paymentid
                 },
                 auth: self.$session.get('token'),
                 csrftoken: self.$session.get('token'),

@@ -103,6 +103,26 @@ class ProductManager(models.Manager):
             brands_str=brands_arr
         )
 
+        # update brands
+        tire[0].brands.all().delete()
+        for brand in kwargs['brands']:
+            try:
+                b = Brands.objects.get(name=brand)
+            except ObjectDoesNotExist:
+                b = Brands.objects.create(name=brand)
+
+            tire[0].brands.add(b)
+
+        # update profiles
+        tire[0].profiles.all().delete()
+        for profile in kwargs['profiles']:
+            try:
+                p = Profiles.objects.get(name=profile)
+            except ObjectDoesNotExist:
+                p = Profiles.objects.create(name=profile)
+
+            tire[0].profiles.add(p)
+
         return {'updated': True, 'product_id': Products.objects.get(tire_id=tire.values()[0]['id']).id}
 
     def get_incoming_products(self, dte=None):
@@ -197,13 +217,22 @@ class ProductManager(models.Manager):
         except:
             vehicle = 0
 
+        # tires = Tires.objects.filter(
+        #     Q(brands__in=[Brands.objects.get(name=brand)
+        #                   for brand in brands['brands']]) &
+        #     Q(profiles__in=[Profiles.objects.get(name=profile)
+        #                     for profile in profiles['profiles']]) &
+        #     Q(vehicule_id=vehicle)
+        # )
+
         tires = Tires.objects.filter(
-            Q(brands__in=[Brands.objects.get(name=brand)
-                          for brand in brands['brands']]) &
-            Q(profiles__in=[Profiles.objects.get(name=profile)
-                            for profile in profiles['profiles']]) &
+            Q(brands_str=','.join(sorted(brands['brands']))) &
+            Q(profiles_str=','.join(sorted(profiles['profiles']))) &
             Q(vehicule_id=vehicle)
         )
+
+        print('brannnddd', ','.join(sorted(brands['brands'])))
+        print('prooofffill', ','.join(sorted(profiles['profiles'])))
 
         return {'tire': tires.values()}
 

@@ -43,7 +43,7 @@ class Payment(models.Model):
         payment_dates = []
 
         if self.pay_in.lower() == 'once':
-            return customer.start
+            return {'paying_dates': [customer.start], 'end': customer.start}
         else:
             if self.payment_interval.lower() == 'daily':
                 for count in range(customer.times):
@@ -149,7 +149,8 @@ class Orders(models.Model):
 
 class Credentials(models.Model):
     name = models.CharField(max_length=255)
-    email = models.CharField(max_length=255)
+    email = models.CharField(
+        max_length=255, default='None', null=True, blank=True)
     address = models.CharField(max_length=255, blank=True, null=True)
     tel_number = models.CharField(max_length=50)
 

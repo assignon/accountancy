@@ -4,7 +4,7 @@
             <div class='product-details'>
                 <h3>Product</h3>
                 <p>Size: {{productDetails[0].products[0].tire[0].size}}</p>
-                <p>Price: {{productDetails[0].products[0].tire[0].price}}</p>
+                <p>Price: {{formatPrice(productDetails[0].products[0].tire[0].price)}}FRS</p>
                 <p>Add on: {{productDetails[0].products[0].add_on}}</p>
                 <p>Quantity: {{productDetails[0].products[0].tire[0].quantity}}</p>
                 <p>Vehicule: {{productDetails[0].products[0].vehicle}}</p>
@@ -45,7 +45,12 @@ export default {
     created() {
     },
 
-    methods: {}
+    methods: {
+        formatPrice(value) {
+            let val = (value/1).toFixed(0).replace('.', ',')
+            return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") 
+        },
+    }
 }
 </script>
 

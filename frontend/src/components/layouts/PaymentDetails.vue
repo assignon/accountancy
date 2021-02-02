@@ -4,7 +4,8 @@
             <div class='customer'>
                 <h3>Customer Details</h3>
                 <p>Name: {{paymentDetails[0].credentials[0].name}}</p>
-                <p>Email: {{paymentDetails[0].credentials[0].email}}</p>
+                <p v-if='paymentDetails[0].credentials[0].email'>Email: {{paymentDetails[0].credentials[0].email}}</p>
+                <p v-lsee>Email: None</p>
                 <p v-if='paymentDetails[0].credentials[0].address'>Address: {{paymentDetails[0].credentials[0].address}}</p>
                 <p>Tel.number: {{paymentDetails[0].credentials[0].tel_number}}</p>
             </div>
@@ -13,8 +14,8 @@
                     <!-- <span style='color:' v-if='paymentDetails[0].payment_helper.completed'>[Payed]</span> -->
                     <!-- <span style='color:magenta' v-else>[Ongoing]</span> -->
                 </h3>
-                <p>Paying: {{paymentDetails[0].paying}}</p>
-                <p>Pay by terms: {{paymentDetails[0].paying_term}}</p>
+                <p>Paying: {{formatPrice(paymentDetails[0].paying)}}FRS</p>
+                <p>Pay by terms: {{formatPrice(paymentDetails[0].paying_term)}}FRS</p>
 
                 <p>Method: {{paymentDetails[0].methods[0].name}}</p>
                 <p>Pay in: {{paymentDetails[0].payments[0].pay_in}}</p>
@@ -77,6 +78,11 @@ export default {
                 }
             })
             return dates_arr[dateIndexArr[0]+1]
+        },
+
+        formatPrice(value) {
+            let val = (value/1).toFixed(0).replace('.', ',')
+            return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
         },
 
         removePayment(){
