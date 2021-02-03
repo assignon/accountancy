@@ -69,6 +69,7 @@
                     width="100%"
                     class="fot-weight-bold white--text mr-2"
                     color="#1976d2"
+                    v-if='$store.state.order.product != null'
                     @click="addProduct()"
                 >
                     Add product
@@ -94,6 +95,7 @@
             width="20%"
             class="fot-weight-bold white--text"
             color="#1976d2"
+            :disabled='productNotAdded'
             @click="updateStep(orderStep)"
           >
             <p style='font-size:17px;margin:auto;'>Next</p>
@@ -121,7 +123,8 @@ export default {
             brandsItemsArr: [],
             vehiculeItemsArr: ['Car', 'Truck'],
             profileItemsArr: [],
-
+            productNotAdded: true,
+            productIsNull: true,
         }
     },
     created(){
@@ -296,16 +299,19 @@ export default {
             let self = this;
             let store = self.$store.state.order;
             let randomName = self.$store.getters["getRandomString"](5);
+            let brandExistsArr = [];
+            let profileExistsArr = [];
 
             if(store.product != null && store.quantity != null && store.quantity > 0){
+                let productSize = store.product.split('-')
                 // check if quality Criteria already exist in $store.state.ls.qualitycriteriaArr
-                let chipExists = self.$store.state.order.productArr.findIndex(x => x.name ==  store.product);
-                let vehiculeExists = self.$store.state.order.productArr.findIndex(x => x.vehicule ==  store.vehicule);
-                let brandExistsArr = [];
-                let profileExistsArr = [];
+                let chipExists = self.$store.state.order.productArr.findIndex(x => x.name ==  productSize[0]);
+                // let chiQtypExists = self.$store.state.order.productArr.findIndex(x => x.qty ==  store.quantity);
 
-                store.brands.forEach(brand => {
-                    let brandExists = self.$store.state.order.productArr.findIndex(x => x.brands ==  brand);
+                let vehiculeExists = self.$store.state.order.productArr.findIndex(x => x.vehicule ==  store.vehicule);
+        
+                store.brands.forEach(b => {
+                    let brandExists = self.$store.state.order.productArr.findIndex(x => x.brand ==  b);
                     if(brandExists != -1){
                        brandExistsArr.push(true)
                     } else{
@@ -313,21 +319,22 @@ export default {
                     }
                     
                 })
-                store.profiles.forEach(profile => {
-                    let profileExists = self.$store.state.order.productArr.findIndex(x => x.profiles ==  profile);
+                store.profiles.forEach(p => {
+                    let profileExists = self.$store.state.order.productArr.findIndex(x => x.profile ==  p);
                     if(profileExists != -1){
                        profileExistsArr.push(true)
                     } else{
                        profileExistsArr.push(false)     
                     }
                 })
+                console.log(brandExistsArr);
                 // one false = add
-                let productSize = store.product.split('-')
                 if(
-                    chipExists == -1 || 
-                    brandExistsArr.includes(false) || 
+                    chipExists == -1 
+                    || 
+                    brandExistsArr.includes(false) ||
                     profileExistsArr.includes(false) || 
-                    vehiculeExists == -1
+                    vehiculeExists == -1 
                 ){
                     // push
                     let currentEntry = {
@@ -353,6 +360,7 @@ export default {
                     
                     // append chip to the DOM
                     productChipsContainer.appendChild(chip);
+                    self.productNotAdded = false
                     // # empy form
                     // store.brands.length = 0
                     // store.profiles.length = 0
@@ -360,7 +368,7 @@ export default {
                     // store.product = null
                     brandExistsArr.length = 0
                     profileExistsArr.length = 0
-                    console.log( self.$store.state.order.productArr);
+                    // console.log( self.$store.state.order.productArr);
                 }else{
                     formErrMsg.innerHTML = "Product already added";
                 }
