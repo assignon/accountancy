@@ -164,10 +164,12 @@ class ProductManager(models.Manager):
         from .models import Tires
         products = None
         productsArr = []
+        qty = 0  # tire quantity
 
         product_obj = self.select_related().all()
 
         for product in Tires.objects.all().values():
+            qty += product['quantity']
             productsArr.append(
                 {
                     # 'add_at': product['add_at'],
@@ -184,7 +186,7 @@ class ProductManager(models.Manager):
 
         products = {
             'products': productsArr,
-            'count': product_obj.count()
+            'count': qty
         }
 
         return products

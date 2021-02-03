@@ -161,8 +161,7 @@ export default {
                 callback: function(data) {
                     console.log(data);
                     data.tire.forEach(item => {
-                        self.selectItemsArr.push(item.size)
-                        console.log('bllll', self.selectItemsArr);
+                        self.selectItemsArr.push(item.size+'-'+item.quantity)
                     })
                     store.getters["setData"]([store.state.product.filteredProductsArr, [data]]);
                     },
@@ -323,6 +322,7 @@ export default {
                     }
                 })
                 // one false = add
+                let productSize = store.product.split('-')
                 if(
                     chipExists == -1 || 
                     brandExistsArr.includes(false) || 
@@ -331,7 +331,7 @@ export default {
                 ){
                     // push
                     let currentEntry = {
-                        name: store.product, 
+                        name: productSize[0], 
                         qty: store.quantity, 
                         brand: [...store.brands], 
                         profile: [...store.profiles], 
@@ -340,9 +340,10 @@ export default {
                     self.$store.state.order.productArr.push(currentEntry);
                     // create and add new quality Criteria chip
                     let currentEntryIndex = self.$store.state.order.productArr.indexOf(currentEntry);
+                    
                     let chip = self.createChip(
                         randomName, 
-                        store.product, 
+                        productSize[0], 
                         store.quantity, 
                         store.vehicule, 
                         [...store.brands], 
@@ -373,11 +374,18 @@ export default {
             let store = self.$store.state.order;
             let formErrMsg = document.querySelector(".order-form-err-msg");
             let validationErrMsg = document.querySelector('.v-messages__message');
-            if (store.product != null) {
-                if(!document.body.contains(validationErrMsg)){
-                    this.$emit('updatestep', stepNum)
+            if (store.product != null && store.quantity > 0) {
+                let productSize = store.product.split('-')
+                store.product  = productSize[0]
+                let productEnough = Number(productSize[1]) > Number(store.quantity)
+                if(productEnough){
+                    if(!document.body.contains(validationErrMsg)){
+                        this.$emit('updatestep', stepNum)
+                    }else{
+                        formErrMsg.innerHTML = validationErrMsg.textContent;
+                    }
                 }else{
-                    formErrMsg.innerHTML = validationErrMsg.textContent;
+                    alert(`The quantity ordered (${store.quantity}) is greater than the quantity of product in stock (${productSize[1]})`)
                 }
             } else {
                 formErrMsg.innerHTML = "Fields are empty";
