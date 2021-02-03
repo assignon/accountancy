@@ -94,6 +94,7 @@
             width="20%"
             class="fot-weight-bold white--text"
             color="#1976d2"
+            :disabled='productAdded'
             @click="updateStep(orderStep)"
           >
             <p style='font-size:17px;margin:auto;'>Next</p>
@@ -121,6 +122,7 @@ export default {
             brandsItemsArr: [],
             vehiculeItemsArr: ['Car', 'Truck'],
             profileItemsArr: [],
+            productAdded: false,
 
         }
     },
@@ -353,6 +355,7 @@ export default {
                     
                     // append chip to the DOM
                     productChipsContainer.appendChild(chip);
+                    self.productAdded = true
                     // # empy form
                     // store.brands.length = 0
                     // store.profiles.length = 0
