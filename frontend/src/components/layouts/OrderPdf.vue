@@ -147,7 +147,7 @@ export default {
         flex-direction: column;
         justify-content: flex-start;
         align-items: center;
-        background-color: red;
+        background-color: white;
     }
     ::-webkit-scrollbar {
          width: 10px;
