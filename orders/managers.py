@@ -61,7 +61,7 @@ class OrdersManager(models.Manager):
                 global vehicle
                 vehicle = Vehicule.objects.get(name=product['vehicule'])
             except ObjectDoesNotExist:
-                global vehucle
+                # global vehicle
                 vehicle = Vehicule.objects.create(name=product['vehicule'])
 
             brands_arr = ','.join(sorted(product['brand'])) if len(
@@ -373,7 +373,7 @@ class CustomerManager(models.Manager):
         # querysets
         # customers = self.select_related().filter(credential_id=paymentid)
         customers = self.select_related().filter(payment_id=paymentid)
-        print('cuussst', customers.values()[0]['order_id'])
+        print('cuussst', customers.values())
         order = Orders.objects.get(id=customers.values()[0]['order_id'])
         credential = get_related(Credentials, customers, 'credential_id')
         payments = get_related(Payment, customers, 'payment_id')

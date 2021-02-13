@@ -48,6 +48,7 @@ export default {
           this.$emit('orders', date)
           this.$emit('payments', date)
           this.$emit('addedProducts', date)
+          this.$emit('expenses', date)
       }
     },
 }

@@ -152,7 +152,8 @@ class Credentials(models.Model):
     email = models.CharField(
         max_length=255, default='None', null=True, blank=True)
     address = models.CharField(max_length=255, blank=True, null=True)
-    tel_number = models.CharField(max_length=50)
+    tel_number = models.CharField(
+        max_length=50, default='None', null=True, blank=True)
 
     def __str__(self):
         return self.name

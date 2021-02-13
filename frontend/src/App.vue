@@ -57,7 +57,7 @@ export default {
         this.$session.set("auth", false);
       }
       this.$store.state.AUTHENTICATED = this.$session.get("auth");
-      console.log(this.$store.state.AUTHENTICATED);
+      // console.log(this.$store.state.AUTHENTICATED);
     },
   }
 };

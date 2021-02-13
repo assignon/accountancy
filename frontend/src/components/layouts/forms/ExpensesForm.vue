@@ -56,7 +56,35 @@ export default {
 
     methods: {
         addExpense(){
+            let self = this;
+            let body = {
+                name: self.$store.state.expenses.name,
+                price: self.$store.state.expenses.price,
+            }
+            let formErrMsg = document.querySelector(".expenses-err");
+            let validationErrMsg = document.querySelector('.v-messages__message');
 
+            if(body.name != null && body.price != null && body.price >= 0 && !document.body.contains(validationErrMsg)){
+                self.$store.dispatch("postReq", {
+                    url: "expense/new_expense",
+                    params: body,
+                    auth: self.$session.get('token'),
+                    csrftoken: self.$session.get('token'),
+                    callback: function(data) {
+                        console.log(data);
+                        if(data.added){
+                            formErrMsg.innerHTML = 'Expense added'
+                            document.querySelector('.expenses-form').reset()
+                            //close dialog after 2sec
+                            setTimeout(() => {self.$store.state.expenses.expensesDialog = false, formErrMsg.innerHTML = ''}, 2000)
+                        }else{
+                            formErrMsg.innerHTML = 'Something went wrong'
+                        }
+                    },
+                });
+            }else{
+                formErrMsg.innerHTML = 'Enter the expense name and price'
+            }
         }
     }
 }

@@ -78,7 +78,7 @@
                         <div class='payments mt-5 ml-5 animated fadeInUp' 
                             v-for="(payment, i) in customerPayments[0].payments" 
                             :key='i'
-                            @click='$store.state.infoDrawer=true, paymentDetails(payment.customer[0].id)'
+                            @click='$store.state.infoDrawer=true, paymentDetails(payment.id)'
                         >
                             <p class='user-info'>
                                 <v-icon class='mr-2' color='#1e1d2b'>fas fa-user-circle</v-icon>

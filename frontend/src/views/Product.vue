@@ -14,7 +14,8 @@
                 >
                     <div class='product-inner-container'>
                         <div class='size'>
-                        <h3>{{product.tire.size}} ({{formatPrice(product.tire.price)}}FRS)</h3>
+                        <!-- <h3>{{product.tire.size}} ({{formatPrice(product.tire.price)}}FRS)</h3> -->
+                        <h3>{{product.tire.size}}</h3>
                          <v-icon  
                             large
                             color='#0163d1' class='ml-3' 

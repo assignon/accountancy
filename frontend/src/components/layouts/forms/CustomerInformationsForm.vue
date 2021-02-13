@@ -21,9 +21,7 @@
         ></v-text-field>
          <v-text-field
           v-model="$store.state.order.telNumber"
-          :rules="[$store.state.rules.required]"
-          label="TelNumber*"
-          required
+          label="TelNumber"
           outlined
         ></v-text-field>
         <v-text-field
@@ -75,7 +73,7 @@ export default {
             let formErrMsg = document.querySelector(".form-err-msg");
             let validationErrMsg = document.querySelector('.v-messages__message');
 
-            if (store.name != null && store.telNumber != null) {
+            if (store.name != null) {
                 if(!document.body.contains(validationErrMsg)){
                     this.$emit('updatestep', stepNum)
                 }else{

@@ -6,13 +6,14 @@ export default {
     state: {
         name: null,
         price: null,
-        expensesDialog: false
+        expensesDialog: false,
+        expensesArr: [],
     },
 
     getters: {
-        // getProducts: (state) => {
-        //     return state.productsArr
-        // },
+        getExpenses: (state) => {
+            return state.expensesArr
+        },
         
     },
 
