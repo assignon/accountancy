@@ -133,86 +133,86 @@ export default {
   },
 
   methods: {
-        getOrders(date){
-            let self = this;
-            let store = self.$store;
+    getOrders(date){
+        let self = this;
+        let store = self.$store;
 
-            this.$store.dispatch("getReq", {
-                url: "order/orders",
-                params: {
-                    date: date,
-                    limit: 0,
-                },
-                auth: self.$session.get('token'),
-                csrftoken: self.$session.get('token'),
-                callback: function(data) {
-                    // console.log('orders',data);
-                    store.getters["setData"]([store.state.order.ordersArr, [data]]);
-                },
-            });
-        },
+        this.$store.dispatch("getReq", {
+            url: "order/orders",
+            params: {
+                date: date,
+                limit: 0,
+            },
+            auth: self.$session.get('token'),
+            csrftoken: self.$session.get('token'),
+            callback: function(data) {
+                // console.log('orders',data);
+                store.getters["setData"]([store.state.order.ordersArr, [data]]);
+            },
+        });
+    },
 
-        allPayments(limit){
-            let self = this;
-            let store = self.$store;
+    allPayments(limit){
+        let self = this;
+        let store = self.$store;
 
-            this.$store.dispatch("getReq", {
-                url: "order/payments",
-                params: {
-                    limit: limit,
-                },
-                auth: self.$session.get('token'),
-                csrftoken: self.$session.get('token'),
-                callback: function(data) {
-                    // console.log('payments',data);
-                    store.getters["setData"]([store.state.order.paymentsArr, [data]]);
-                },
-            });
-        },
+        this.$store.dispatch("getReq", {
+            url: "order/payments",
+            params: {
+                limit: limit,
+            },
+            auth: self.$session.get('token'),
+            csrftoken: self.$session.get('token'),
+            callback: function(data) {
+                // console.log('payments',data);
+                store.getters["setData"]([store.state.order.paymentsArr, [data]]);
+            },
+        });
+    },
 
-        getPayments(date){
-            let self = this;
-            let store = self.$store;
+    getPayments(date){
+        let self = this;
+        let store = self.$store;
 
-            this.$store.dispatch("getReq", {
-                url: "order/ongoing_payments",
-                params: {
-                    date: date,
-                    limit: 0,
-                },
-                auth: self.$session.get('token'),
-                csrftoken: self.$session.get('token'),
-                callback: function(data) {
-                    // console.log('payments',data);
-                    store.getters["setData"]([store.state.order.paymentsArr, [data]]);
-                },
-            });
-        },
+        this.$store.dispatch("getReq", {
+            url: "order/ongoing_payments",
+            params: {
+                date: date,
+                limit: 0,
+            },
+            auth: self.$session.get('token'),
+            csrftoken: self.$session.get('token'),
+            callback: function(data) {
+                // console.log('payments',data);
+                store.getters["setData"]([store.state.order.paymentsArr, [data]]);
+            },
+        });
+    },
 
-        paymentDetails(paymentid){
-            let self = this;
+    paymentDetails(paymentid){
+        let self = this;
 
-            this.$store.dispatch('order/getPaymentDetails', {
-                url: 'order/payment_details',
-                params: {
-                    customerId: paymentid
-                },
-                auth: self.$session.get('token'),
-                csrftoken: self.$session.get('token'),
-                callback: function(data){
-                    // console.log('api data', data);
-                    self.$store.state.infoTempName = 'PaymentDetails'
-                    self.$store.getters["setData"]([self.$store.state.order.customerPaymentArr, [data]]);
-                    
-                },
-            })
-        },
+        this.$store.dispatch('order/getPaymentDetails', {
+            url: 'order/payment_details',
+            params: {
+                customerId: paymentid
+            },
+            auth: self.$session.get('token'),
+            csrftoken: self.$session.get('token'),
+            callback: function(data){
+                // console.log('api data', data);
+                self.$store.state.infoTempName = 'PaymentDetails'
+                self.$store.getters["setData"]([self.$store.state.order.customerPaymentArr, [data]]);
+                
+            },
+        })
+    },
 
-        newOrder(){
-            this.$store.state.formsDialog = true;
-            this.$store.state.formName = 'Order';
-            this.$store.state.formsTemp = 'OrderStepper';
-        }
+    newOrder(){
+        this.$store.state.formsDialog = true;
+        this.$store.state.formName = 'Order';
+        this.$store.state.formsTemp = 'OrderStepper';
+    }
   }
 };
 </script>

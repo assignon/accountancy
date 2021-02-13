@@ -7,7 +7,7 @@
                     <v-flex xs12 sm12 md4 lg4 xl4 class='products-count'>
                         <div class='inventory-header'>
                             <v-icon style='font-size: 30px;' class='mb-2 ml-3'>fas fa-boxes</v-icon>
-                            <p class='ml-3'>Inventories</p>
+                            <p class='ml-3'>Inventory</p>
                         </div>
 
                         <div class='inventory-container'>

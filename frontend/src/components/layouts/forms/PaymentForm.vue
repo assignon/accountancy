@@ -33,6 +33,7 @@
             v-model="$store.state.order.payIn"
             :rules="[$store.state.rules.required]"
             :items="selectPayInArr"
+            :menu-props="{ bottom: true, offsetY: true }"
             label="Pay in*"
             outlined
         ></v-select>
@@ -42,6 +43,7 @@
                     v-model="$store.state.order.payInterval"
                     :rules="[$store.state.rules.required]"
                     :items="selectPayIntervalArr"
+                    :menu-props="{ bottom: true, offsetY: true }"
                     label="Payment Interval*"
                     outlined
                 ></v-select>
@@ -61,6 +63,7 @@
             v-model="$store.state.order.payMethod"
             :rules="[$store.state.rules.required]"
             :items="selectPayMethodArr"
+            :menu-props="{ bottom: true, offsetY: true }"
             label="Payment Method*"
             outlined
         ></v-select>

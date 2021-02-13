@@ -74,6 +74,9 @@ export default {
 .stepper-dialog{
     height: 90%;
 }
+::-webkit-scrollbar {
+  width: 0px;
+}
   /* .v-dialog, .v-dialog--fullscreen{
       background-color: #1e1d2b;
   } */

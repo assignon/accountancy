@@ -110,7 +110,7 @@ class OrderView(viewsets.ModelViewSet):
     @action(methods=['get'], detail=False)
     def payments(self, request):
         """
-        get base on the date ongoing payments
+        get base all ongoing payments
 
         Args:
             request (dict): [request data]

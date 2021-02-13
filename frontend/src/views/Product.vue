@@ -105,14 +105,14 @@ export default {
       addProduct(){
         this.$store.state.formsDialog = true;
         this.$store.state.product.addProductForm = true;
-        this.$store.state.formName = 'New Product';
+        this.$store.state.formName = ' Product';
         this.$store.state.formsTemp = 'ProductForm';
       },
 
       UpdateProduct(){
             this.$store.state.formsDialog = true;
             this.$store.state.product.addProductForm = false;
-            this.$store.state.formName = 'New Product';
+            this.$store.state.formName = ' Product';
             this.$store.state.formsTemp = 'ProductForm';
       },
 

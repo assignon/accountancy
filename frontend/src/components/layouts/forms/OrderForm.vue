@@ -7,6 +7,7 @@
             v-model="$store.state.order.vehicule"
             :rules="[$store.state.rules.required]"
             :items="vehiculeItemsArr"
+            :menu-props="{ bottom: true, offsetY: true }"
             label="Choose Vehicle*"
             outlined
             style='width: 100%'
@@ -19,6 +20,7 @@
                     v-model="$store.state.order.brands"
                     :rules="[$store.state.rules.required]"
                     :items="brandsItemsArr"
+                    :menu-props="{ bottom: true, offsetY: true }"
                     label="Choose Brands*"
                     outlined
                     chips
@@ -32,6 +34,7 @@
                     v-model="$store.state.order.profiles"
                     :rules="[$store.state.rules.required]"
                     :items="profileItemsArr"
+                    :menu-props="{ bottom: true, offsetY: true }"
                     label="Choose profiles*"
                     outlined
                     multiple
@@ -47,6 +50,7 @@
                     v-model="$store.state.order.product"
                     :rules="[$store.state.rules.required]"
                     :items="selectItemsArr"
+                    :menu-props="{ bottom: true, offsetY: true }"
                     label="Choose Product*"
                     outlined
                 ></v-select>

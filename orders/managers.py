@@ -450,7 +450,6 @@ class CustomerManager(models.Manager):
             payments_dates = Payment.paymentDates_end(customer['id'])
             payment_method = Payment.objects.filter(id=customer['payment_id'])
             payment = Payment.objects.get(id=customer['payment_id'])
-            print('payyy', payment.pay_interval)
 
             customer_payments.append(
                 {
@@ -465,8 +464,9 @@ class CustomerManager(models.Manager):
                     'methods': get_related(
                         PaymentMethods, payment_method, 'method_id'),
                     # get customer credentials
-                    'customer': get_related(
-                        Credentials, customers, 'credential_id')
+                    # 'customer': get_related(
+                    #     Credentials, customers, 'credential_id')
+                    'customer': Credentials.objects.filter(id=customer['credential_id']).values()
                 }
             )
 
