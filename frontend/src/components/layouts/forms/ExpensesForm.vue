@@ -4,14 +4,14 @@
         <v-spacer></v-spacer>
         <p class='expenses-err mb-4'></p>
         <v-text-field
-            label='Expense Name'
+            label='Expense*'
             required
             outlined
             :rules="[$store.state.rules.required]"
             v-model='$store.state.expenses.name'
         ></v-text-field>
             <v-text-field
-            label='Expense Price'
+            label='Amount*'
             required
             outlined
             :rules="[$store.state.rules.required]"

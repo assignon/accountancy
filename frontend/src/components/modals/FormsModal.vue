@@ -63,9 +63,11 @@ export default {
   },
 
   methods: {
-       reloadPage(){
-           window.location.reload()
-       }
+    reloadPage(){
+        if(this.$store.reload){
+            window.location.reload()
+        }
+    }
   }
 };
 </script>

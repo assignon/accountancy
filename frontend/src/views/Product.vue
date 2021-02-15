@@ -108,6 +108,7 @@ export default {
         this.$store.state.product.addProductForm = true;
         this.$store.state.formName = ' Product';
         this.$store.state.formsTemp = 'ProductForm';
+        this.$store.reload = true;
       },
 
       UpdateProduct(){
@@ -115,6 +116,7 @@ export default {
             this.$store.state.product.addProductForm = false;
             this.$store.state.formName = ' Product';
             this.$store.state.formsTemp = 'ProductForm';
+            this.$store.reload = true
       },
 
       productDetails(productId){

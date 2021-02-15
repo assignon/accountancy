@@ -116,6 +116,7 @@ export default {
             this.$store.state.product.addProductForm = true;
             this.$store.state.formName = ' Product';
             this.$store.state.formsTemp = 'ProductForm';
+            this.$store.reload = true;
         },
 
         addExpenses(){

@@ -40,6 +40,7 @@ export default new Vuex.Store({
     formsDialog: false,
     pdfDialog: false,
     expensesDialog: false,
+    reload: true, // reload form modal or not
   },
 
   getters: {
