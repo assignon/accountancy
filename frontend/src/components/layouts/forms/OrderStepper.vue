@@ -63,7 +63,8 @@ export default {
 
     data(){
         return{
-            orderFormStep: 1
+            orderFormStep: 1,
+            paymentConfirmationDialog: false,
         }
     },
     created(){},
@@ -119,6 +120,7 @@ export default {
                         self.customerOrder(data.order_id)
                         self.$store.state.pdfTemp = 'OrderPdf';
                         self.$store.state.pdfDialog = true;
+                        self.paymentConfirmationDialog = true
                     }
                 },
             });

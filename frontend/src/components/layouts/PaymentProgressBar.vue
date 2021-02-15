@@ -1,5 +1,5 @@
 <template>
-    <div class='progress-bar-core'>
+    <div class='progress-bar-core' :style='{width: width}'>
        <v-progress-linear
             color= "#0163d1"
             height="7"
@@ -16,7 +16,7 @@
 export default {
     name: 'ProgressBar',
 
-    props:['times', 'paymentDatesArr'],
+    props:['times', 'paymentDatesArr', 'width'],
 
     computed:{
         paymentProgressValue: function(){
@@ -49,7 +49,6 @@ export default {
 
 <style scoped>
     .progress-bar-core{
-        width: 30%;
         height: auto;
         display: flex;
         justify-content: center;

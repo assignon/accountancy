@@ -34,7 +34,7 @@
                     required
                     outlined
                 ></v-text-field>
-                <p>Confirn the changes</p>
+                <p>Confirm the changes</p>
 
                 <div class="btn-container">
                     <v-flex xs12 sm12 md9 lg9 xl9>

@@ -14,7 +14,8 @@
                 >
                     <div class='product-inner-container'>
                         <div class='size'>
-                        <h3>{{product.tire.size}} ({{formatPrice(product.tire.price)}}FRS)</h3>
+                        <!-- <h3>{{product.tire.size}} ({{formatPrice(product.tire.price)}}FRS)</h3> -->
+                        <h3>{{product.tire.size}}</h3>
                          <v-icon  
                             large
                             color='#0163d1' class='ml-3' 
@@ -105,14 +106,14 @@ export default {
       addProduct(){
         this.$store.state.formsDialog = true;
         this.$store.state.product.addProductForm = true;
-        this.$store.state.formName = 'New Product';
+        this.$store.state.formName = ' Product';
         this.$store.state.formsTemp = 'ProductForm';
       },
 
       UpdateProduct(){
             this.$store.state.formsDialog = true;
             this.$store.state.product.addProductForm = false;
-            this.$store.state.formName = 'New Product';
+            this.$store.state.formName = ' Product';
             this.$store.state.formsTemp = 'ProductForm';
       },
 

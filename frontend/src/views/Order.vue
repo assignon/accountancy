@@ -40,27 +40,32 @@
                         </div>
                     </v-tab-item>
                      
-                    <v-tab-item style='width: 970px;margin-top:50px;' class='ml-5'>
+                    <v-tab-item style='width: 1000px;margin-top:50px;' class='ml-5'>
                         <v-flex xs12 sm12 md8 lg10 xl12  class='payment-container' v-if='customerPayments[0].count > 0'>
                             <div class='payments mt-5 ml-5 animated fadeInUp' 
                                 v-for="(payment, i) in customerPayments[0].payments" 
                                 :key='i'
                                 @click='$store.state.infoDrawer=true, paymentDetails(payment.id)'
                             >
-                                <p>
-                                    <v-icon class='mr-2' color='#15141c'>fas fa-user-circle</v-icon>
-                                    <span>{{payment.customer[0].name}}</span>
-                                    <span class='ml-3'>({{payment.payment_interval}})</span>
-                                </p>
+                                <v-flex xs12 sm12 md4 lg4 xl4>
+                                    <p>
+                                        <v-icon class='mr-2' color='#15141c'>fas fa-user-circle</v-icon>
+                                        <span>{{payment.customer[0].name}}</span>
+                                        <span class='ml-3'>({{payment.payment_interval}})</span>
+                                    </p>
+                                </v-flex>
 
-                                <p style='position: relative;top:5px;margin-left:60px' class=''>
-                                    <v-icon style='font-size: 20px' color='#15141c'>fas fa-credit-card</v-icon>
-                                    {{payment.methods[0].name}}
-                                </p>
+                                <v-flex xs12 sm12 md3 lg3 xl3>
+                                    <p style='position: relative;top:5px;margin-left:60px;text-align:left;' class=''>
+                                        <v-icon style='font-size: 20px' color='#15141c'>fas fa-credit-card</v-icon>
+                                        {{payment.methods[0].name}}
+                                    </p>
+                                </v-flex>
                                 
                                 <PaymentProgressBar 
                                     class='ml-3'
                                     style='position: relative;top:3px;'
+                                    width='30%'
                                     :times="payment.times"
                                     :paymentDatesArr="payment.payment_dates"
                                 />
@@ -133,86 +138,86 @@ export default {
   },
 
   methods: {
-        getOrders(date){
-            let self = this;
-            let store = self.$store;
+    getOrders(date){
+        let self = this;
+        let store = self.$store;
 
-            this.$store.dispatch("getReq", {
-                url: "order/orders",
-                params: {
-                    date: date,
-                    limit: 0,
-                },
-                auth: self.$session.get('token'),
-                csrftoken: self.$session.get('token'),
-                callback: function(data) {
-                    // console.log('orders',data);
-                    store.getters["setData"]([store.state.order.ordersArr, [data]]);
-                },
-            });
-        },
+        this.$store.dispatch("getReq", {
+            url: "order/orders",
+            params: {
+                date: date,
+                limit: 0,
+            },
+            auth: self.$session.get('token'),
+            csrftoken: self.$session.get('token'),
+            callback: function(data) {
+                // console.log('orders',data);
+                store.getters["setData"]([store.state.order.ordersArr, [data]]);
+            },
+        });
+    },
 
-        allPayments(limit){
-            let self = this;
-            let store = self.$store;
+    allPayments(limit){
+        let self = this;
+        let store = self.$store;
 
-            this.$store.dispatch("getReq", {
-                url: "order/payments",
-                params: {
-                    limit: limit,
-                },
-                auth: self.$session.get('token'),
-                csrftoken: self.$session.get('token'),
-                callback: function(data) {
-                    // console.log('payments',data);
-                    store.getters["setData"]([store.state.order.paymentsArr, [data]]);
-                },
-            });
-        },
+        this.$store.dispatch("getReq", {
+            url: "order/payments",
+            params: {
+                limit: limit,
+            },
+            auth: self.$session.get('token'),
+            csrftoken: self.$session.get('token'),
+            callback: function(data) {
+                // console.log('payments',data);
+                store.getters["setData"]([store.state.order.paymentsArr, [data]]);
+            },
+        });
+    },
 
-        getPayments(date){
-            let self = this;
-            let store = self.$store;
+    getPayments(date){
+        let self = this;
+        let store = self.$store;
 
-            this.$store.dispatch("getReq", {
-                url: "order/ongoing_payments",
-                params: {
-                    date: date,
-                    limit: 0,
-                },
-                auth: self.$session.get('token'),
-                csrftoken: self.$session.get('token'),
-                callback: function(data) {
-                    // console.log('payments',data);
-                    store.getters["setData"]([store.state.order.paymentsArr, [data]]);
-                },
-            });
-        },
+        this.$store.dispatch("getReq", {
+            url: "order/ongoing_payments",
+            params: {
+                date: date,
+                limit: 0,
+            },
+            auth: self.$session.get('token'),
+            csrftoken: self.$session.get('token'),
+            callback: function(data) {
+                // console.log('payments',data);
+                store.getters["setData"]([store.state.order.paymentsArr, [data]]);
+            },
+        });
+    },
 
-        paymentDetails(paymentid){
-            let self = this;
+    paymentDetails(paymentid){
+        let self = this;
 
-            this.$store.dispatch('order/getPaymentDetails', {
-                url: 'order/payment_details',
-                params: {
-                    customerId: paymentid
-                },
-                auth: self.$session.get('token'),
-                csrftoken: self.$session.get('token'),
-                callback: function(data){
-                    // console.log('api data', data);
-                    self.$store.state.infoTempName = 'PaymentDetails'
-                    self.$store.getters["setData"]([self.$store.state.order.customerPaymentArr, [data]]);
-                    
-                },
-            })
-        },
+        this.$store.dispatch('order/getPaymentDetails', {
+            url: 'order/payment_details',
+            params: {
+                customerId: paymentid
+            },
+            auth: self.$session.get('token'),
+            csrftoken: self.$session.get('token'),
+            callback: function(data){
+                // console.log('api data', data);
+                self.$store.state.infoTempName = 'PaymentDetails'
+                self.$store.getters["setData"]([self.$store.state.order.customerPaymentArr, [data]]);
+                
+            },
+        })
+    },
 
-        newOrder(){
-            this.$store.state.formsDialog = true;
-            this.$store.state.formName = 'Order';
-            this.$store.state.formsTemp = 'OrderStepper';
-        }
+    newOrder(){
+        this.$store.state.formsDialog = true;
+        this.$store.state.formName = 'Order';
+        this.$store.state.formsTemp = 'OrderStepper';
+    }
   }
 };
 </script>
@@ -357,24 +362,23 @@ export default {
         font-weight: bold;
         text-align: left;
     }
-    .payment-container .no-payments{
+    .no-payments{
         width: 100%;
-        height:450px;
-        background-color: #15141c;
+        height:90vh;
         border-radius: 10px;
         display: flex;
         flex-direction: column;
         justify-content:center;
         align-items: center;
     }
-    .payment-container .no-payments .v-icon{
-        font-size: 70px;
+    .no-payments .v-icon{
+        font-size: 100px;
         color: #1e1d2b;
     }
-    .payment-container .no-payments p{
+    .no-payments p{
         text-align: center;
         color: #1e1d2b;
-        font-size: 15px;
+        font-size: 17px;
         font-weight: bold;
     }
     @media only screen and (max-width: 500px) {

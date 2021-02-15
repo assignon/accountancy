@@ -13,7 +13,15 @@
       >
         <!-- <OrderPdf /> -->
         <component :is="$store.state.pdfTemp"></component>
-    </v-dialog>
+      </v-dialog>
+      <!-- expenses dialog -->
+      <v-dialog
+            v-model="$store.state.expenses.expensesDialog"
+            persistent
+            max-width="600px"
+        >
+            <ExpensesForm />
+        </v-dialog>
     </v-main>
   </v-app>
 </template>
@@ -23,6 +31,7 @@ import Sidebar from "./components/layouts/Sidebar";
 import FormsModal from "./components/modals/FormsModal";
 import OrderPdf from "@/components/layouts/OrderPdf.vue";
 import ProductPdf from "@/components/layouts/ProductPdf.vue";
+import ExpensesForm from "@/components/layouts/forms/ExpensesForm.vue";
 
 export default {
   name: "App",
@@ -32,6 +41,7 @@ export default {
     FormsModal,
     OrderPdf, 
     ProductPdf,
+    ExpensesForm,
   },
 
   data: () => ({
@@ -47,7 +57,7 @@ export default {
         this.$session.set("auth", false);
       }
       this.$store.state.AUTHENTICATED = this.$session.get("auth");
-      console.log(this.$store.state.AUTHENTICATED);
+      // console.log(this.$store.state.AUTHENTICATED);
     },
   }
 };

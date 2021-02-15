@@ -26,6 +26,8 @@ export default {
         payInterval: null,
         payIn: null,
         payMethod: null,
+        // payment status obj
+        currentStatus: null, //payment status of the current date
     },
 
     getters: {

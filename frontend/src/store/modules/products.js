@@ -7,6 +7,7 @@ export default {
         productsArr: [],
         addedProductsArr: [],
         BrandssArr: [],
+        vehiclesArr: [],
         filteredProductsArr: [],
         productDetailsArr: [],
         addProductForm: true,

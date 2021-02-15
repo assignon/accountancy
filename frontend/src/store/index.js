@@ -4,6 +4,7 @@ import Vuex from "vuex";
 import dashboard from "./modules/dashboard";  // store file from modules map import example
 import product from "./modules/products";
 import order from "./modules/orders";
+import expenses from "./modules/expenses";
 
 import axios from "axios";
 
@@ -38,6 +39,7 @@ export default new Vuex.Store({
     formName: null,
     formsDialog: false,
     pdfDialog: false,
+    expensesDialog: false,
   },
 
   getters: {
@@ -273,6 +275,7 @@ export default new Vuex.Store({
   modules: {
     dashboard: dashboard,
     product: product,
-    order: order
+    order: order,
+    expenses: expenses,
   }
 });

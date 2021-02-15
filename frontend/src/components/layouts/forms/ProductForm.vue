@@ -3,55 +3,87 @@
         <v-form class="product-form animated" ref="productForm">
             <p class='product-form-err-msg mb-5'></p>
             
-            <v-select
-                v-model="vehicle"
-                :rules="[$store.state.rules.required]"
-                :items="selectVehicleArr"
-                label="Select Vehicle*"
-                outlined
-            ></v-select>
-            <v-text-field
-                v-model="size"
-                :rules="[$store.state.rules.required]"
-                label="Size*"
-                required
-                outlined
-            ></v-text-field>
-            <v-text-field
-                v-model="price"
-                :rules="[$store.state.rules.required]"
-                label="Price*"
-                type='number'
-                required
-                outlined
-            ></v-text-field>
-            <v-text-field
-                v-model="quantity"
-                :rules="[$store.state.rules.required]"
-                label="Quantity*"
-                type='number'
-                required
-                outlined
-            ></v-text-field>
-            <v-select
-                v-model="brands"
-                :rules="[$store.state.rules.required]"
-                :items="selectBrandArr"
-                label="Select Brands*"
-                multiple
-                chips
-                outlined
-            ></v-select>
-            <v-select
-                v-model="profiles"
-                :rules="[$store.state.rules.required]"
-                :items="selectProfileArr"
-                label="Select Profiles*"
-                multiple
-                chips
-                outlined
-            ></v-select>
-            
+            <div class='product-field-container'>
+                <v-select
+                    v-model="vehicle"
+                    :rules="[$store.state.rules.required]"
+                    :items="selectVehicleArr"
+                    :menu-props="{ bottom: true, offsetY: true }"
+                    label="Select Vehicle*"
+                    outlined
+                    style='width=85%;'
+                ></v-select>
+                <v-icon 
+                    style='font-size:50px;' 
+                    color='#0163d1' 
+                    @click='extraItemDialog=true,newExtra="vehicle"'
+                    class='ml-5'
+                >fas fa-plus-square</v-icon>
+            </div>
+            <div class='product-field-container'>
+                <v-text-field
+                    v-model="size"
+                    :rules="[$store.state.rules.required]"
+                    label="Size*"
+                    required
+                    outlined
+                ></v-text-field>
+            </div>
+            <div class='product-field-container'>
+                <v-text-field
+                    v-model="price"
+                    label="Price*"
+                    type='number'
+                    outlined
+                ></v-text-field>
+            </div>
+            <div class='product-field-container'>
+                <v-text-field
+                    v-model="quantity"
+                    label="Quantity*"
+                    type='number'
+                    outlined
+                ></v-text-field>
+            </div>
+            <div class='product-field-container'>
+                <v-select
+                    v-model="brands"
+                    :rules="[$store.state.rules.required]"
+                    :items="selectBrandArr"
+                    :menu-props="{ bottom: true, offsetY: true }"
+                    label="Select Brands*"
+                    multiple
+                    chips
+                    outlined
+                    style='width=85%;'
+                ></v-select>
+                <v-icon 
+                    style='font-size:50px;' 
+                    color='#0163d1' 
+                    @click='extraItemDialog = true, newExtra="brand"'
+                    class='ml-5'
+                >fas fa-plus-square</v-icon>
+            </div>
+            <div class='product-field-container'>
+                <v-select
+                    v-model="profiles"
+                    :rules="[$store.state.rules.required]"
+                    :items="selectProfileArr"
+                    :menu-props="{ bottom: true, offsetY: true }"
+                    label="Select Profiles*"
+                    multiple
+                    chips
+                    outlined
+                    style='width=85%;'
+                ></v-select>
+                <v-icon 
+                    style='font-size:50px;' 
+                    color='#0163d1' 
+                    @click='extraItemDialog = true, newExtra="profile"'
+                    class='ml-5'
+                >fas fa-plus-square</v-icon>
+            </div>
+
             <div class="btn-container">
                 <v-btn
                     depressed
@@ -78,6 +110,46 @@
                 </v-btn>
             </div>
         </v-form>
+        <!-- add extra item dialog -->
+        <v-dialog
+            v-model="extraItemDialog"
+            persistent
+            max-width="600px"
+        >
+            <v-form class='new-extra'>
+                <p class="headline mb-4">Add New {{newExtra}}</p>
+                <v-spacer></v-spacer>
+                <p class='new-extra-err mb-4'></p>
+                <v-text-field
+                    :label='newExtra'
+                    required
+                    outlined
+                    :rules="[$store.state.rules.required]"
+                    v-model='extraItemName'
+                ></v-text-field>
+                <v-spacer></v-spacer>
+                <div class='btn-container'>
+                    <v-btn
+                        color="blue darken-1"
+                        text
+                        @click="extraItemDialog = false"
+                    >
+                        Close
+                    </v-btn>
+                    <v-btn
+                    depressed
+                        height="50"
+                        width="20%"
+                        class="fot-weight-bold white--text"
+                        color="#1976d2"
+                       @click="addExtra()"
+                    >
+                        <p style='font-size:17px;margin:auto;'>Add</p>
+                    </v-btn>
+                </div>
+            </v-form>
+        </v-dialog>
+
     </div>
 </template>
 
@@ -99,16 +171,20 @@ export default {
         return{
             vehicle: null,
             size: null,
-            price: null,
-            quantity: null,
-            selectVehicleArr: ['Car', 'Truck'],
+            price: 0,
+            quantity: 1,
+            selectVehicleArr: [],
             selectBrandArr: [],
             brands: [],
             selectProfileArr: [],
             profiles: [],
+            extraItemDialog: false,
+            extraItemName: null,
+            newExtra: null,
         }
     },
     created(){
+        this.allVehicles()
         this.allBrands()
         this.allProfiles()
         if(!this.$store.state.product.addProductForm){
@@ -135,6 +211,26 @@ export default {
                         self.selectItemsArr.push(item.size)
                     })
                     store.getters["setData"]([store.state.product.productsArr, [data]]);
+                },
+            });
+        },
+
+        allVehicles(){
+            let self = this;
+            let store = self.$store;
+
+            this.$store.dispatch("getReq", {
+                url: "product/vehicles",
+                params: {
+                },
+                auth: self.$session.get('token'),
+                csrftoken: self.$session.get('token'),
+                callback: function(data) {
+                    // console.log(JSON.parse(data));
+                    JSON.parse(data).forEach(item => {
+                        self.selectVehicleArr.push(item.fields.name)
+                    })
+                    store.getters["setData"]([store.state.product.vehiclesArr, JSON.parse(data)]);
                 },
             });
         },
@@ -179,6 +275,64 @@ export default {
             });
         },
 
+        capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        },
+
+        addExtra(){
+            // add extra profile, brand or vehicle
+            let self = this;
+            // let store = self.$store;
+            
+            let formErrMsg = document.querySelector(".new-extra-err");
+            let validationErrMsg = document.querySelector('.v-messages__message');
+
+            if(self.extraItemName != null && !document.body.contains(validationErrMsg)){
+                let body = {
+                    name: self.capitalizeFirstLetter(self.extraItemName)
+                }
+                if(self.newExtra == 'brand' && self.selectBrandArr.includes(self.capitalizeFirstLetter(self.extraItemName))){
+                    formErrMsg.innerHTML = `This ${self.newExtra} already exists`;
+                    return false
+                }else if(self.newExtra == 'profile' && self.selectProfileArr.includes(self.capitalizeFirstLetter(self.extraItemName))){
+                    formErrMsg.innerHTML = `This ${self.newExtra} already exists`;
+                    return false
+                }else if(self.newExtra == 'vehicle' && self.selectVehicleArr.includes(self.capitalizeFirstLetter(self.extraItemName))){
+                    formErrMsg.innerHTML = `This ${self.newExtra} already exists`;
+                    return false
+                }
+
+                self.$store.dispatch("postReq", {
+                    url: `product/new_${self.newExtra}`,
+                    params: body,
+                    auth: self.$session.get('token'),
+                    csrftoken: self.$session.get('token'),
+                    callback: function(data) {
+                        console.log(data);
+                        if(data.added){
+                            // add new extra to array
+                            if(self.newExtra == 'brand'){
+                                self.selectBrandArr.push(self.capitalizeFirstLetter(self.extraItemName))
+                            }else if(self.newExtra == 'profile'){
+                                self.selectProfileArr.push(self.capitalizeFirstLetter(self.extraItemName))
+                            }else if(self.newExtra == 'vehicle'){
+                                self.selectVehicleArr.push(self.capitalizeFirstLetter(self.extraItemName))
+                            }
+                            formErrMsg.innerHTML = data.msg
+                            self.extraItemName = ''
+                            formErrMsg.innerHTM = ''
+                            //close dialog after 2sec
+                            setTimeout(() => {self.extraItemDialog = false}, 2000)
+                        }else{
+                            formErrMsg.innerHTML = data.msg
+                        }
+                    },
+                });
+            }else{
+                formErrMsg.innerHTML = `Give the name of the ${self.newExtra}`;
+            }
+        },
+
         productsDetails(productId){
             let self = this
             this.$store.dispatch("getReq", {
@@ -207,8 +361,8 @@ export default {
             }
             let body = {
                 size: self.size,
-                price: self.price,
-                quantity: self.quantity,
+                price: self.price != null ? self.price : 0,
+                quantity: self.quantity != null ? self.quantity : 1,
                 vehicle: self.vehicle,
                 brands: brandsPayload,
                 profiles: profilesPayload
@@ -242,7 +396,7 @@ export default {
                 && self.brands.length > 0 
                 && self.profiles.length > 0
             ) {
-                if(self.price !=null && self.price > 0 && self.quantity != null && self.quantity > 0){
+                // if(self.price !=null && self.price > 0 && self.quantity != null && self.quantity > 0){
                     if(!document.body.contains(validationErrMsg)){
                         if(self.$store.state.product.addProductForm){
                             self.addProduct()
@@ -252,9 +406,9 @@ export default {
                     }else{
                         formErrMsg.innerHTML = validationErrMsg.textContent;
                     }
-                }else{
-                    formErrMsg.innerHTML = "Price and quantity should not be <= 0";
-                }
+                // }else{
+                //     formErrMsg.innerHTML = "Price and quantity should not be <= 0";
+                // }
             } else {
                 formErrMsg.innerHTML = "Fields are empty";
             }
@@ -335,10 +489,18 @@ export default {
         justify-content: flex-start;
         align-items: center;
     }
+    .product-field-container{
+        width: 100%;
+        height: auto;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: flex-start;
+    }
     .product-form .v-text-field{
-         width: 100%;
+         width: 85%;
      }
-    .product-form-err-msg{
+    .product-form-err-msg, .new-extra-err{
         width: 100%;
         height: auto;
         text-align: left;
@@ -356,4 +518,17 @@ export default {
     .v-btn{
         text-transform: capitalize;
     }
+    .new-extra{
+        width: 100%;
+        height: auto;
+        padding: 30px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        background-color: white;
+    }
+    .new-extra .v-text-field{
+         width: 100%;
+     }
 </style>

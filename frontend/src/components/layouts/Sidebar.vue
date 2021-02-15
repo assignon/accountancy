@@ -39,6 +39,20 @@
                 >fas fa-plus-square</v-icon>
             </div>
 
+            <div class='link-container'>
+                <router-link to="/expenses" style="text-decoration: none;" class='menu-item'>
+                    <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Expenses"'></span>
+                    <v-icon color='white'>fas fa-wallet</v-icon>
+                    <p>Expenses</p>
+                </router-link>
+                <v-icon 
+                    style='font-size:28px;position:relative;bottom:1px' 
+                    color='#0163d1'
+                    class='add-icon'
+                    @click='addExpenses()'
+                >fas fa-plus-square</v-icon>
+            </div>
+
             <!-- <div class='menu-item' v-if="!$route.name.startsWith('Dashboard')">
                 <v-icon color='white'>fas fa-sort-amount-down-alt</v-icon>
                 <p>Filters</p>
@@ -100,8 +114,12 @@ export default {
         addProduct(){
             this.$store.state.formsDialog = true;
             this.$store.state.product.addProductForm = true;
-            this.$store.state.formName = 'New Product';
+            this.$store.state.formName = ' Product';
             this.$store.state.formsTemp = 'ProductForm';
+        },
+
+        addExpenses(){
+            this.$store.state.expenses.expensesDialog = true
         }
     }
 }

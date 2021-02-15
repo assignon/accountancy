@@ -23,3 +23,5 @@ def settings(request):
 
 # def products(request):
 #     return render(request, template_name='index.html')
+def expenses(request):
+    return render(request, template_name='index.html')

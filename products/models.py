@@ -15,16 +15,22 @@ class Brands(models.Model):
     def save(self, *args, **kwargs):
         brand = Brands.objects.filter(name=self.name)
         if brand.count() > 0:
-            # get the existing credential obj
             raise Exception('This brand already exists')
         return super().save(*args, **kwargs)
 
 
 class Vehicule(models.Model):
     name = models.CharField(max_length=100)
+    objects = VehicleManager()
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        vehicle = Vehicule.objects.filter(name=self.name)
+        if vehicle.count() > 0:
+            raise Exception('This brand already exists')
+        return super().save(*args, **kwargs)
 
 
 class Profiles(models.Model):
@@ -37,7 +43,6 @@ class Profiles(models.Model):
     def save(self, *args, **kwargs):
         profile = Profiles.objects.filter(name=self.name)
         if profile.count() > 0:
-            # get the existing credential obj
             raise Exception('This profile already exists')
         return super().save(*args, **kwargs)
 

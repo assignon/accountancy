@@ -251,3 +251,10 @@ class ProfilesManager(models.Manager):
         profiles = self.get_queryset().all()
 
         return profiles
+
+
+class VehicleManager(models.Manager):
+    def all_vehicles(self):
+        vehicles = self.get_queryset().all()
+
+        return vehicles
