@@ -320,8 +320,12 @@ export default {
                             }
                             formErrMsg.innerHTML = data.msg
                             self.extraItemName = ''
-                            formErrMsg.innerHTM = ''
+                             document.querySelector('.new-extra').reset()
                             //close dialog after 2sec
+                            setTimeout(() => {
+                                self.extraItemDialog = false
+                                formErrMsg.innerHTML = ''
+                            }, 2000)
                             setTimeout(() => {self.extraItemDialog = false}, 2000)
                         }else{
                             formErrMsg.innerHTML = data.msg
