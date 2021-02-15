@@ -23,7 +23,7 @@ from rest_framework.status import (
 )
 
 from orders.serializers import OrderSerializer, PaymentSerializer, CustomerSerializer
-from .models import Customers, Orders, Payment, Payment_status
+from .models import Customers, Orders, Payment, PaymentMethods, Payment_status
 
 # Create your views here.
 
@@ -183,6 +183,17 @@ class PaymentView(viewsets.ModelViewSet):
         ).update(payed=new_value)
 
         return Response({'updated': True, 'msg': 'payment status updated'})
+
+    @csrf_exempt
+    @action(methods=['post'], detail=False)
+    def new_payment_method(self, request):
+        method_name = request.data['body']['name']
+        # add new payment method
+        try:
+            PaymentMethods.objects.create(name=method_name)
+            return Response({'added': True, 'msg': 'Payment method added'})
+        except Exception:
+            return Response({'added': False, 'msg': 'This payment method already exists'})
 
 
 class CustomerView(viewsets.ModelViewSet):
