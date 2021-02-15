@@ -17,7 +17,7 @@
             <v-icon 
                 style='font-size:50px;' 
                 color='#0163d1' 
-                @click='extraItemDialog=true,newExtra="vehicle"'
+                @click='addNewProduct'
                 class='ml-5'
             >fas fa-plus-square</v-icon>
         </div>
@@ -40,7 +40,7 @@
                 <v-icon 
                     style='font-size:50px;' 
                     color='#0163d1' 
-                    @click='extraItemDialog = true, newExtra="brand"'
+                    @click='addNewProduct'
                     class='ml-5'
                 >fas fa-plus-square</v-icon>
             </div>
@@ -61,7 +61,7 @@
                 <v-icon 
                     style='font-size:50px;' 
                     color='#0163d1' 
-                    @click='extraItemDialog = true, newExtra="profile"'
+                    @click='addNewProduct'
                     class='ml-5'
                 >fas fa-plus-square</v-icon>
             </div>
@@ -226,6 +226,14 @@ export default {
 
         capitalizeFirstLetter(string) {
             return string.charAt(0).toUpperCase() + string.slice(1);
+        },
+
+        addNewProduct(){
+            this.$store.state.formsDialog = true;
+            this.$store.state.product.addProductForm = true;
+            this.$store.state.formName = ' Product';
+            this.$store.state.formsTemp = 'ProductForm';
+            this.$store.reload = false;
         },
 
          addExtra(){
