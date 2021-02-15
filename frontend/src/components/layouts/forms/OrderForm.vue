@@ -41,7 +41,7 @@
                     style='font-size:50px;' 
                     color='#0163d1' 
                     @click='addNewProduct'
-                    class='ml-5'
+                    class='ml-5 mr-2'
                 >fas fa-plus-square</v-icon>
             </div>
             <div class='order-field-container'>
@@ -129,7 +129,7 @@
           </v-btn>
         </div>
          <!-- add extra item dialog -->
-        <v-dialog
+        <!-- <v-dialog
             v-model="extraItemDialog"
             persistent
             max-width="600px"
@@ -166,7 +166,7 @@
                     </v-btn>
                 </div>
             </v-form>
-        </v-dialog>
+        </v-dialog> -->
     </v-form>
 </template>
 
@@ -236,60 +236,60 @@ export default {
             this.$store.reload = false;
         },
 
-         addExtra(){
-            // add extra profile, brand or vehicle
-            let self = this;
-            // let store = self.$store;
+        //  addExtra(){
+        //     // add extra profile, brand or vehicle
+        //     let self = this;
+        //     // let store = self.$store;
             
-            let formErrMsg = document.querySelector(".new-extra-err");
-            // let validationErrMsg = document.querySelector('.v-messages__message');
+        //     let formErrMsg = document.querySelector(".new-extra-err");
+        //     // let validationErrMsg = document.querySelector('.v-messages__message');
 
-            if(self.extraItemName != null){
-                let body = {
-                    name: self.capitalizeFirstLetter(self.extraItemName)
-                }
+        //     if(self.extraItemName != null){
+        //         let body = {
+        //             name: self.capitalizeFirstLetter(self.extraItemName)
+        //         }
 
-                if(self.newExtra == 'brand' && self.brandsItemsArr.includes(self.capitalizeFirstLetter(self.extraItemName))){
-                    formErrMsg.innerHTML = `This ${self.newExtra} already exists`;
-                    return false
-                }else if(self.newExtra == 'profile' && self.profileItemsArr.includes(self.capitalizeFirstLetter(self.extraItemName))){
-                    formErrMsg.innerHTML = `This ${self.newExtra} already exists`;
-                    return false
-                }else if(self.newExtra == 'vehicle' && self.vehiculeItemsArr.includes(self.capitalizeFirstLetter(self.extraItemName))){
-                    formErrMsg.innerHTML = `This ${self.newExtra} already exists`;
-                    return false
-                }
+        //         if(self.newExtra == 'brand' && self.brandsItemsArr.includes(self.capitalizeFirstLetter(self.extraItemName))){
+        //             formErrMsg.innerHTML = `This ${self.newExtra} already exists`;
+        //             return false
+        //         }else if(self.newExtra == 'profile' && self.profileItemsArr.includes(self.capitalizeFirstLetter(self.extraItemName))){
+        //             formErrMsg.innerHTML = `This ${self.newExtra} already exists`;
+        //             return false
+        //         }else if(self.newExtra == 'vehicle' && self.vehiculeItemsArr.includes(self.capitalizeFirstLetter(self.extraItemName))){
+        //             formErrMsg.innerHTML = `This ${self.newExtra} already exists`;
+        //             return false
+        //         }
 
-                self.$store.dispatch("postReq", {
-                    url: `product/new_${self.newExtra}`,
-                    params: body,
-                    auth: self.$session.get('token'),
-                    csrftoken: self.$session.get('token'),
-                    callback: function(data) {
-                        console.log(data);
-                        if(data.added){
-                            // add new extra to array
-                            if(self.newExtra == 'brand'){
-                                self.brandsItemsArr.push(self.capitalizeFirstLetter(self.extraItemName))
-                            }else if(self.newExtra == 'profile'){
-                                self.profileItemsArr.push(self.capitalizeFirstLetter(self.extraItemName))
-                            }else if(self.newExtra == 'vehicle'){
-                                self.vehiculeItemsArr.push(self.capitalizeFirstLetter(self.extraItemName))
-                            }
-                            formErrMsg.innerHTML = data.msg
-                            self.extraItemName = ''
-                            formErrMsg.innerHTM = ''
-                            //close dialog after 2sec
-                            setTimeout(() => {self.extraItemDialog = false}, 2000)
-                        }else{
-                            formErrMsg.innerHTML = data.msg
-                        }
-                    },
-                });
-            }else{
-                formErrMsg.innerHTML = `Give the name of the ${self.newExtra}`;
-            }
-        },
+        //         self.$store.dispatch("postReq", {
+        //             url: `product/new_${self.newExtra}`,
+        //             params: body,
+        //             auth: self.$session.get('token'),
+        //             csrftoken: self.$session.get('token'),
+        //             callback: function(data) {
+        //                 console.log(data);
+        //                 if(data.added){
+        //                     // add new extra to array
+        //                     if(self.newExtra == 'brand'){
+        //                         self.brandsItemsArr.push(self.capitalizeFirstLetter(self.extraItemName))
+        //                     }else if(self.newExtra == 'profile'){
+        //                         self.profileItemsArr.push(self.capitalizeFirstLetter(self.extraItemName))
+        //                     }else if(self.newExtra == 'vehicle'){
+        //                         self.vehiculeItemsArr.push(self.capitalizeFirstLetter(self.extraItemName))
+        //                     }
+        //                     formErrMsg.innerHTML = data.msg
+        //                     self.extraItemName = ''
+        //                     formErrMsg.innerHTM = ''
+        //                     //close dialog after 2sec
+        //                     setTimeout(() => {self.extraItemDialog = false}, 2000)
+        //                 }else{
+        //                     formErrMsg.innerHTML = data.msg
+        //                 }
+        //             },
+        //         });
+        //     }else{
+        //         formErrMsg.innerHTML = `Give the name of the ${self.newExtra}`;
+        //     }
+        // },
 
         filteredProducts(){
             let self = this;

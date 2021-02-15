@@ -59,14 +59,22 @@
                 ></v-text-field>
             </v-flex>
         </div>
-        <v-select
-            v-model="$store.state.order.payMethod"
-            :rules="[$store.state.rules.required]"
-            :items="selectPayMethodArr"
-            :menu-props="{ bottom: true, offsetY: true }"
-            label="Payment Method*"
-            outlined
-        ></v-select>
+        <div class='payment-method-field-container'>
+            <v-select
+                v-model="$store.state.order.payMethod"
+                :rules="[$store.state.rules.required]"
+                :items="selectPayMethodArr"
+                :menu-props="{ bottom: true, offsetY: true }"
+                label="Payment Method*"
+                outlined
+            ></v-select>
+            <v-icon 
+                style='font-size:50px;' 
+                color='#0163d1' 
+                @click='extraItemDialog = true'
+                class='ml-5'
+            >fas fa-plus-square</v-icon>
+        </div>
         
         <div class="btn-container">
           <v-btn
@@ -91,6 +99,45 @@
             <p style='font-size:17px;margin:auto;'>Add Order</p>
           </v-btn>
         </div>
+         <!-- add extra item dialog -->
+        <v-dialog
+            v-model="extraItemDialog"
+            persistent
+            max-width="600px"
+        >
+            <v-form class='new-extra'>
+                <p class="headline mb-4">Add New Payment Method</p>
+                <v-spacer></v-spacer>
+                <p class='new-extra-err mb-4'></p>
+                <v-text-field
+                    :label='Name'
+                    required
+                    outlined
+                    :rules="[$store.state.rules.required]"
+                    v-model='extraItemName'
+                ></v-text-field>
+                <v-spacer></v-spacer>
+                <div class='btn-container'>
+                    <v-btn
+                        color="blue darken-1"
+                        text
+                        @click="extraItemDialog = false"
+                    >
+                        Close
+                    </v-btn>
+                    <v-btn
+                    depressed
+                        height="50"
+                        width="20%"
+                        class="fot-weight-bold white--text"
+                        color="#1976d2"
+                        @click="addNewMethod()"
+                    >
+                        <p style='font-size:17px;margin:auto;'>Add</p>
+                    </v-btn>
+                </div>
+            </v-form>
+        </v-dialog>
     </v-form>
 </template>
 
@@ -114,6 +161,8 @@ export default {
             selectPayInArr: ['Terms', 'Once'],
             selectPayMethodArr: [],
             selectPayIntervalArr: ['Daily', 'Weekly', 'Monthly'],
+            extraItemName: null,
+            extraItemDialog: false,
         }
     },
     created(){
@@ -157,7 +206,7 @@ export default {
                 csrftoken: self.$session.get('token'),
                 callback: function(data) {
                     data.forEach(item => {
-                        self.selectPayMethodArr.push(item.method)
+                        self.selectPayMethodArr.push(self.capitalizeFirstLetter(item.method))
                     })
                     console.log(data);
                     store.getters["setData"]([store.state.order.paymentMethodsArr, [data]]);
@@ -200,6 +249,54 @@ export default {
         updatePreviousStep(stepNum){
             this.$emit('updateprevstep', stepNum)
         },
+
+        capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        },
+
+        addNewMethod(){
+            // add extra profile, brand or vehicle
+            let self = this;
+            // let store = self.$store;
+            
+            let formErrMsg = document.querySelector(".new-extra-err");
+            // let validationErrMsg = document.querySelector('.v-messages__message');
+
+            if(self.extraItemName != null){
+                let body = {
+                    name: self.capitalizeFirstLetter(self.extraItemName)
+                }
+
+                if(self.selectPayMethodArr.includes(self.capitalizeFirstLetter(self.extraItemName))){
+                    formErrMsg.innerHTML = `This payment method already exists`;
+                    return false
+                }
+
+                self.$store.dispatch("postReq", {
+                    url: "payment/new_payment_method",
+                    params: body,
+                    auth: self.$session.get('token'),
+                    csrftoken: self.$session.get('token'),
+                    callback: function(data) {
+                        if(data.added){
+                            // add new extra to array
+                            self.selectPayMethodArr.push(self.capitalizeFirstLetter(self.extraItemName))
+                            formErrMsg.innerHTML = data.msg
+                            document.querySelector('.new-extra').reset()
+                            //close dialog after 2sec
+                            setTimeout(() => {
+                                self.extraItemDialog = false
+                                formErrMsg.innerHTML = ''
+                            }, 2000)
+                        }else{
+                            formErrMsg.innerHTML = data.msg
+                        }
+                    },
+                });
+            }else{
+                formErrMsg.innerHTML = `Give the name of the payment method`;
+            }
+        },
     },
 }
 </script>
@@ -233,6 +330,27 @@ export default {
         /* margin-bottom: 20px;
         margin-top: 20px; */
     }
+    .payment-method-field-container{
+        width: 100%;
+        height: auto;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: flex-start;
+    }
+    .new-extra{
+        width: 100%;
+        height: auto;
+        padding: 30px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        background-color: white;
+    }
+    .new-extra .v-text-field{
+         width: 100%;
+     }
     .btn-container{
         width: 100%;
         height: auto;
