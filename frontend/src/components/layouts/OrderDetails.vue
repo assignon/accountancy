@@ -17,7 +17,7 @@
                     <tr>
                         <th>Size</th>
                         <th>Brands</th>
-                        <th>Vehical</th>
+                        <th>Vehicle</th>
                         <th>Profiles</th>
                         <th>Price</th>
                         <th>Quantity</th>

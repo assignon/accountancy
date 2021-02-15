@@ -80,17 +80,22 @@
                             :key='i'
                             @click='$store.state.infoDrawer=true, paymentDetails(payment.id)'
                         >
-                            <p class='user-info'>
-                                <v-icon class='mr-2' color='#1e1d2b'>fas fa-user-circle</v-icon>
-                                <span>{{payment.customer[0].name}}</span>
-                                <span class='ml-3'>({{payment.payment_interval}})</span>
-                            </p>
-                            <PaymentProgressBar 
-                                class='ml-3'
-                                style='position: relative;top:3px;'
-                                :times="payment.times"
-                                :paymentDatesArr="payment.payment_dates"
-                            />
+                            <v-flex xs12 sm12 md7 lg7 xl7>
+                                <p class='user-info'>
+                                    <v-icon class='mr-2' color='#1e1d2b'>fas fa-user-circle</v-icon>
+                                    <span>{{payment.customer[0].name}}</span>
+                                    <span class='ml-3'>({{payment.payment_interval}})</span>
+                                </p>
+                            </v-flex>
+                            <v-flex xs12 sm12 md5 lg5 xl5>
+                                <PaymentProgressBar 
+                                    class='ml-3'
+                                    style='position: relative;top:3px;'
+                                    width='70%'
+                                    :times="payment.times"
+                                    :paymentDatesArr="payment.payment_dates"
+                                />
+                            </v-flex>
                         </div>
                     </div>
                     <div class='no-payments' v-else>

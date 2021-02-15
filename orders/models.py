@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils import timezone
 from products.models import Tires
 from datetime import datetime, timedelta
@@ -21,6 +23,15 @@ class PaymentMethods(models.Model):
         return super().save(*args, **kwargs)
 
 
+class Payment_status(models.Model):
+    # track the customer payments status
+    payment_date = models.DateField()
+    payed = models.BooleanField(default=False)
+
+    def __str__(self):
+        pass
+
+
 class Payment(models.Model):
     method = models.ForeignKey(PaymentMethods, on_delete=models.DO_NOTHING)
     pay_choices = (('once', 'once'), ('terms', 'terms'))
@@ -30,6 +41,7 @@ class Payment(models.Model):
                     ('monthly', 'monthly'))
     payment_interval = models.CharField(
         max_length=50, choices=pay_interval, default='daily')
+    payment_status = models.ManyToManyField(Payment_status)
     objects = PaymentManager()
 
     @staticmethod
@@ -180,3 +192,18 @@ class Customers(models.Model):
 
     def __str__(self):
         return Credentials.objects.get(id=self.credential_id).name
+
+
+@receiver(post_save, sender=Customers)
+def track_payment_status(sender, instance, created, **kwargs):
+    if created:
+        customer_id = instance.id
+        payment_dates = Payment.paymentDates_end(customer_id)['paying_dates']
+
+        for pd in payment_dates:
+            # create payment status
+            p_status = Payment_status.objects.create(payment_date=pd)
+            # get created payment object
+            payment = Payment.objects.get(id=instance.payment_id)
+            # add payment status to payment
+            payment.payment_status.add(p_status)

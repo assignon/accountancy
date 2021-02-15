@@ -23,7 +23,7 @@ from rest_framework.status import (
 )
 
 from orders.serializers import OrderSerializer, PaymentSerializer, CustomerSerializer
-from .models import Customers, Orders, Payment
+from .models import Customers, Orders, Payment, Payment_status
 
 # Create your views here.
 
@@ -167,6 +167,22 @@ class PaymentView(viewsets.ModelViewSet):
         paymentmethods = Payment.objects.get_payment_methods()
 
         return Response(paymentmethods)
+
+    @csrf_exempt
+    @action(methods=['put'], detail=False)
+    def update_payment_status(self, request):
+        payment_id = Customers.objects.get(
+            id=request.data['body']['customer_id']).payment_id
+        # payment_date = request.data['body']['payment_date']
+        payment_date = datetime.strftime(datetime.now().date(), '%Y-%m-%d')
+        new_value = request.data['body']['new_value']  # bollean
+
+        Payment_status.objects.filter(
+            Q(payment__id=payment_id) &
+            Q(payment_date=payment_date)
+        ).update(payed=new_value)
+
+        return Response({'updated': True, 'msg': 'payment status updated'})
 
 
 class CustomerView(viewsets.ModelViewSet):

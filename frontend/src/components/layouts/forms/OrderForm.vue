@@ -3,45 +3,68 @@
         <p class='order-form-err-msg mb-5'></p>
         <div class='product-chips-container mt-3 mb-5'></div>
 
-         <v-select
-            v-model="$store.state.order.vehicule"
-            :rules="[$store.state.rules.required]"
-            :items="vehiculeItemsArr"
-            :menu-props="{ bottom: true, offsetY: true }"
-            label="Choose Vehicle*"
-            outlined
-            style='width: 100%'
-            @change='filteredProducts()'
-        ></v-select>
-
+        <div class='order-field-container'>
+            <v-select
+                v-model="$store.state.order.vehicule"
+                :rules="[$store.state.rules.required]"
+                :items="vehiculeItemsArr"
+                :menu-props="{ bottom: true, offsetY: true }"
+                label="Choose Vehicle*"
+                outlined
+                style='width: 100%'
+                @change='filteredProducts()'
+            ></v-select>
+            <v-icon 
+                style='font-size:50px;' 
+                color='#0163d1' 
+                @click='extraItemDialog=true,newExtra="vehicle"'
+                class='ml-5'
+            >fas fa-plus-square</v-icon>
+        </div>
+        
         <div class='brands-profiles-select'>
-            <v-flex xs12 sm12 md5 lg5 xl5>
-                <v-select
-                    v-model="$store.state.order.brands"
-                    :rules="[$store.state.rules.required]"
-                    :items="brandsItemsArr"
-                    :menu-props="{ bottom: true, offsetY: true }"
-                    label="Choose Brands*"
-                    outlined
-                    chips
-                    multiple
-                    @change='filteredProducts()'
-                ></v-select>
-            </v-flex>
-
-            <v-flex xs12 sm12 md6 lg6 xl6>
-                <v-select
-                    v-model="$store.state.order.profiles"
-                    :rules="[$store.state.rules.required]"
-                    :items="profileItemsArr"
-                    :menu-props="{ bottom: true, offsetY: true }"
-                    label="Choose profiles*"
-                    outlined
-                    multiple
-                    chips
-                    @change='filteredProducts()'
-                ></v-select>
-            </v-flex>
+            <div class='order-field-container'>
+                <v-flex xs12 sm12 md11 lg11 xl11>
+                    <v-select
+                        v-model="$store.state.order.brands"
+                        :rules="[$store.state.rules.required]"
+                        :items="brandsItemsArr"
+                        :menu-props="{ bottom: true, offsetY: true }"
+                        label="Choose Brands*"
+                        outlined
+                        chips
+                        multiple
+                        @change='filteredProducts()'
+                    ></v-select>
+                </v-flex>
+                <v-icon 
+                    style='font-size:50px;' 
+                    color='#0163d1' 
+                    @click='extraItemDialog = true, newExtra="brand"'
+                    class='ml-5'
+                >fas fa-plus-square</v-icon>
+            </div>
+            <div class='order-field-container'>
+                <v-flex xs12 sm12 md12 lg12 xl12>
+                    <v-select
+                        v-model="$store.state.order.profiles"
+                        :rules="[$store.state.rules.required]"
+                        :items="profileItemsArr"
+                        :menu-props="{ bottom: true, offsetY: true }"
+                        label="Choose profiles*"
+                        outlined
+                        multiple
+                        chips
+                        @change='filteredProducts()'
+                    ></v-select>
+                </v-flex>
+                <v-icon 
+                    style='font-size:50px;' 
+                    color='#0163d1' 
+                    @click='extraItemDialog = true, newExtra="profile"'
+                    class='ml-5'
+                >fas fa-plus-square</v-icon>
+            </div>
         </div>
 
         <div class='products-fields'>
@@ -105,6 +128,45 @@
             <p style='font-size:17px;margin:auto;'>Next</p>
           </v-btn>
         </div>
+         <!-- add extra item dialog -->
+        <v-dialog
+            v-model="extraItemDialog"
+            persistent
+            max-width="600px"
+        >
+            <v-form class='new-extra'>
+                <p class="headline mb-4">Add New {{newExtra}}</p>
+                <v-spacer></v-spacer>
+                <p class='new-extra-err mb-4'></p>
+                <v-text-field
+                    :label='newExtra'
+                    required
+                    outlined
+                    :rules="[$store.state.rules.required]"
+                    v-model='extraItemName'
+                ></v-text-field>
+                <v-spacer></v-spacer>
+                <div class='btn-container'>
+                    <v-btn
+                        color="blue darken-1"
+                        text
+                        @click="extraItemDialog = false"
+                    >
+                        Close
+                    </v-btn>
+                    <v-btn
+                    depressed
+                        height="50"
+                        width="20%"
+                        class="fot-weight-bold white--text"
+                        color="#1976d2"
+                        @click="addExtra()"
+                    >
+                        <p style='font-size:17px;margin:auto;'>Add</p>
+                    </v-btn>
+                </div>
+            </v-form>
+        </v-dialog>
     </v-form>
 </template>
 
@@ -125,19 +187,102 @@ export default {
         return{
             selectItemsArr: [],
             brandsItemsArr: [],
-            vehiculeItemsArr: ['Car', 'Truck'],
+            vehiculeItemsArr: [],
             profileItemsArr: [],
             productNotAdded: true,
             productIsNull: true,
+            extraItemDialog: false,
+            extraItemName: null,
+            newExtra: null,
         }
     },
     created(){
         // this.allProducts()
         this.allBrands()
         this.allProfiles()
+        this.allVehicles()
     },
 
     methods: {
+        allVehicles(){
+            let self = this;
+            let store = self.$store;
+
+            this.$store.dispatch("getReq", {
+                url: "product/vehicles",
+                params: {
+                },
+                auth: self.$session.get('token'),
+                csrftoken: self.$session.get('token'),
+                callback: function(data) {
+                    // console.log(JSON.parse(data));
+                    JSON.parse(data).forEach(item => {
+                        self.vehiculeItemsArr.push(item.fields.name)
+                    })
+                    store.getters["setData"]([store.state.product.vehiclesArr, JSON.parse(data)]);
+                },
+            });
+        },
+
+        capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        },
+
+         addExtra(){
+            // add extra profile, brand or vehicle
+            let self = this;
+            // let store = self.$store;
+            
+            let formErrMsg = document.querySelector(".new-extra-err");
+            // let validationErrMsg = document.querySelector('.v-messages__message');
+
+            if(self.extraItemName != null){
+                let body = {
+                    name: self.capitalizeFirstLetter(self.extraItemName)
+                }
+
+                if(self.newExtra == 'brand' && self.brandsItemsArr.includes(self.capitalizeFirstLetter(self.extraItemName))){
+                    formErrMsg.innerHTML = `This ${self.newExtra} already exists`;
+                    return false
+                }else if(self.newExtra == 'profile' && self.profileItemsArr.includes(self.capitalizeFirstLetter(self.extraItemName))){
+                    formErrMsg.innerHTML = `This ${self.newExtra} already exists`;
+                    return false
+                }else if(self.newExtra == 'vehicle' && self.vehiculeItemsArr.includes(self.capitalizeFirstLetter(self.extraItemName))){
+                    formErrMsg.innerHTML = `This ${self.newExtra} already exists`;
+                    return false
+                }
+
+                self.$store.dispatch("postReq", {
+                    url: `product/new_${self.newExtra}`,
+                    params: body,
+                    auth: self.$session.get('token'),
+                    csrftoken: self.$session.get('token'),
+                    callback: function(data) {
+                        console.log(data);
+                        if(data.added){
+                            // add new extra to array
+                            if(self.newExtra == 'brand'){
+                                self.brandsItemsArr.push(self.capitalizeFirstLetter(self.extraItemName))
+                            }else if(self.newExtra == 'profile'){
+                                self.profileItemsArr.push(self.capitalizeFirstLetter(self.extraItemName))
+                            }else if(self.newExtra == 'vehicle'){
+                                self.vehiculeItemsArr.push(self.capitalizeFirstLetter(self.extraItemName))
+                            }
+                            formErrMsg.innerHTML = data.msg
+                            self.extraItemName = ''
+                            formErrMsg.innerHTM = ''
+                            //close dialog after 2sec
+                            setTimeout(() => {self.extraItemDialog = false}, 2000)
+                        }else{
+                            formErrMsg.innerHTML = data.msg
+                        }
+                    },
+                });
+            }else{
+                formErrMsg.innerHTML = `Give the name of the ${self.newExtra}`;
+            }
+        },
+
         filteredProducts(){
             let self = this;
             let store = self.$store;
@@ -453,6 +598,27 @@ export default {
         /* margin-bottom: 20px;
         margin-top: 20px; */
     }
+    .order-field-container{
+        width: 100%;
+        height: auto;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: flex-start;
+    }
+    .new-extra{
+        width: 100%;
+        height: auto;
+        padding: 30px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        background-color: white;
+    }
+    .new-extra .v-text-field{
+         width: 100%;
+     }
     .btn-container{
         width: 100%;
         height: auto;

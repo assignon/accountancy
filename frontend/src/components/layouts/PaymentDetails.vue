@@ -25,10 +25,25 @@
                 <p>Start Date: {{parseDate(paymentDetails[0].customer[0].start)}}</p>
                 <p>End Date: {{parseDate(paymentDetails[0].payment_dates.end)}}</p>
                 <p
-                    v-if='dateNow < paymentDetails[0].payment_dates.paying_dates[paymentDetails[0].payment_dates.paying_dates.length-1]'
+                    v-if='currentDate < paymentDetails[0].payment_dates.paying_dates[paymentDetails[0].payment_dates.paying_dates.length-1]'
                 >
                     Next Payment: {{parseDate(nextPaymentDate(paymentDetails[0].payment_dates.paying_dates))}}
                 </p>
+
+                <div class='payment-status-core'>
+                    <h3>Payment Status</h3>
+                    <div class='payment-status-container' v-for='(ps, i) in paymentDetails[0].p_status' :key='i'>
+                        <p>{{ps.payment_date}}</p>
+                        <v-checkbox
+                            v-model="ps.payed"
+                            :value="ps.payed"
+                            label=""
+                            class='ml-5'
+                            style='position:relative;bottom:20px;'
+                            @click='displayConfirmationDialog(ps.payed, paymentDetails[0].customer[0].id)'
+                        ></v-checkbox>
+                    </div>
+                </div>
                 
             </div>
         </div>
@@ -39,6 +54,38 @@
                 <v-icon style='font-size:15px' class='ml-3' color='#fff'>fas fa-trash-alt</v-icon>
             </v-btn> -->
         </div>
+        <v-dialog
+            v-model="paymentConfirmationDialog"
+            persistent
+            max-width="600px"
+        >
+            <div class='payment-confirmation-container'>
+                <p class='confirmation-text' style='font-size: 17px;font-weight:bold;text-align:left;'></p>
+                <div class="btn-container">
+                <v-btn
+                    depressed
+                    height="50"
+                    width="20%"
+                    class="fot-weight-bold white--text mr-2"
+                    color="#1976d2"
+                    @click="cancelPaymentUpdate"
+                >
+                    <p style='font-size:17px;margin:auto;'>No</p>
+                </v-btn>
+
+                <v-btn
+                    depressed
+                    height="50"
+                    width="20%"
+                    class="fot-weight-bold white--text"
+                    color="#1976d2"
+                    @click="updatePaymentStatus"
+                >
+                    <p style='font-size:17px;margin:auto;'>Yes</p>
+                </v-btn>
+                </div>
+            </div>
+        </v-dialog>
     </div>
 </template>
 
@@ -55,7 +102,11 @@ export default {
 
     data(){
         return {
-            dateNow: new Date().toISOString().split('T')[0]
+            currentDate: new Date().toISOString().split('T')[0],
+            // current_status: null, //payment status of the current date
+            paymentConfirmationDialog: false,
+            paymentStatus: null, 
+            customerID: null,
         }
     },
 
@@ -87,6 +138,47 @@ export default {
 
         removePayment(){
             alert()
+        },
+
+        displayConfirmationDialog(updateValue, customerId){
+            let self = this;
+            self.paymentConfirmationDialog = true
+            setTimeout(() => {
+                self.paymentStatus = updateValue
+                self.customerID = customerId
+                document.querySelector('.confirmation-text').innerHTML = updateValue ? 
+                'Current payment status: NOT PAYED <br> Do you wanna update the current paymentstatus?' :
+                'Current payment status: PAYED <br> Do you wanna update the current payment status?'
+            }, 100)
+        },
+
+        cancelPaymentUpdate(){
+            self.paymentConfirmationDialog=false
+            window.location.reload()
+        },
+
+        updatePaymentStatus(){
+            let self = this;
+            let body = {
+                new_value: self.paymentStatus,
+                customer_id: self.customerID,
+            }
+
+            this.$store.dispatch("putReq", {
+                url: "payment/update_payment_status",
+                params: body,
+                auth: self.$session.get('token'),
+                csrftoken: self.$session.get('token'),
+                callback: function(data) {
+                    console.log(data);
+                    if(data.updated){
+                       document.querySelector('.confirmation-text').innerHTML = data.msg
+                       setTimeout(() => {
+                           self.paymentConfirmationDialog = false
+                       }, 1500)
+                    }
+                },
+            });
         }
     }
 }
@@ -146,6 +238,22 @@ export default {
         justify-content: center;
         align-items: center;
     }
+    .payment-status-core{
+        width: 100%;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+    }
+    .payment-status-container{
+        width: 100%;
+        height: auto;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: flex-start;
+    }
     .details-actions{
         height: 10%;
         width: 90%;
@@ -157,5 +265,25 @@ export default {
         text-transform: capitalize;
         color: white;
         font-weight: bold;
+    }
+    .payment-confirmation-container{
+        width: 100%;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: #fffafa;
+        padding: 50px;
+    }
+    .btn-container{
+        width: 100%;
+        height: auto;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    }
+    .v-btn{
+        text-transform: capitalize;
     }
 </style>

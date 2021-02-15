@@ -37,7 +37,7 @@ urlpatterns = [
     path('', views.login, name='Login'),
     path('orders/', views.orders, name='orders'),
     path('dashboard/', views.dashboard, name='dashboard'),
-    # path('products/', views.products, name='products'),
+    path('expenses/', views.expenses, name='expenses'),
 
 ] + static(
     settings.STATIC_URL, document_root=settings.STATIC_ROOT,

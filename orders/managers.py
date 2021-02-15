@@ -116,7 +116,7 @@ class OrdersManager(models.Manager):
             start=kwargs['start']
         )
 
-        return {'created': True, 'msg': 'Order places', 'order_id': customer.pk}
+        return {'created': True, 'msg': 'Order places', 'order_id': customer.pk, 'payment_id': payment_obj.pk}
 
     def remove_order(self, order_id):
         from orders.models import Customers
@@ -132,7 +132,7 @@ class OrdersManager(models.Manager):
 
     def get_orders(self, dte=None, limit=None):
         from products.models import Vehicule
-        from orders.models import Customers, Payment, PaymentMethods, ProductOrdered, Tires, Orders
+        from orders.models import Customers, Payment, PaymentMethods, ProductOrdered, Tires, Orders, Payment_status
         """
         get orders base on the give date
 
@@ -168,11 +168,17 @@ class OrdersManager(models.Manager):
                     'start': customer.start
                 }
 
+                # get payment stats
+                p_status = Payment_status.objects.filter(
+                    payment__id=payment.values()[0]['id']).values()
+
                 orders_arr.append({
+                    'customer_id': Customers.objects.get(order_id=order['id']).id,
                     'order': order,
                     'credentials': Customers.objects.get_credentials(
                         order_id=order['id']),
                     'payment': payment_data,
+                    'p_status': p_status,
                     'paying': Orders.paying(order['id']),
                     'ordered_products': [
                         {
@@ -369,7 +375,8 @@ class CustomerManager(models.Manager):
         }
 
     def customer_ongoing_payment(self, paymentid):
-        from .models import Credentials, Payment, PaymentMethods, Orders
+        # payment details
+        from .models import Credentials, Payment, PaymentMethods, Orders, Payment_status
         # querysets
         # customers = self.select_related().filter(credential_id=paymentid)
         customers = self.select_related().filter(payment_id=paymentid)
@@ -380,6 +387,10 @@ class CustomerManager(models.Manager):
         payment_methods = PaymentMethods.objects.filter(
             id=payments[0]['method_id'])
 
+        # get payment stats
+        p_status = Payment_status.objects.filter(
+            payment__id=paymentid).values()
+
         return {
             'customer': customers.values(),
             'credentials': credential,
@@ -387,7 +398,8 @@ class CustomerManager(models.Manager):
             'methods': payment_methods.values(),
             'paying_term': Payment.paying_in_terms(customers.values()[0]['id']),
             'paying': Orders.paying(order.id),
-            'payment_dates': Payment.paymentDates_end(customers.values()[0]['id'])
+            'payment_dates': Payment.paymentDates_end(customers.values()[0]['id']),
+            'p_status': p_status
         }
 
     def ongoing_payments(self, dte, limit):

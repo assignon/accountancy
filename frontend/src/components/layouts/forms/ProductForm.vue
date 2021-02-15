@@ -110,7 +110,7 @@
                 </v-btn>
             </div>
         </v-form>
-        <!-- add missing item dialog -->
+        <!-- add extra item dialog -->
         <v-dialog
             v-model="extraItemDialog"
             persistent
@@ -283,13 +283,14 @@ export default {
             // add extra profile, brand or vehicle
             let self = this;
             // let store = self.$store;
-            let body = {
-                name: self.capitalizeFirstLetter(self.extraItemName)
-            }
+            
             let formErrMsg = document.querySelector(".new-extra-err");
             let validationErrMsg = document.querySelector('.v-messages__message');
 
             if(self.extraItemName != null && !document.body.contains(validationErrMsg)){
+                let body = {
+                    name: self.capitalizeFirstLetter(self.extraItemName)
+                }
                 if(self.newExtra == 'brand' && self.selectBrandArr.includes(self.capitalizeFirstLetter(self.extraItemName))){
                     formErrMsg.innerHTML = `This ${self.newExtra} already exists`;
                     return false

@@ -3,34 +3,34 @@
         <v-layout class='expenses-layout'>
             <v-flex xs12 sm12 md8 lg9 xl9 class='expenses-flex'>
                 <div class='expenses-container' v-if='expenses[0].count > 0'>
-                    <!-- <div 
-                        class='expenses-temp-layout animated fadeInUp'
+                    <div 
+                        class='expenses-temp-layout animated fadeInUp mt-2 pt-3 pb-3'
                         v-for="(expense,i) in expenses[0].expenses"
                         :key='i'
                     >
                         <v-flex xs12 sm12 md4 lg4 xl4 class='expense-name'>
-                            <p>{{order.credentials.name}}</p>
+                            <p style='text-transform: capitalize'>{{expense.name}}</p>
                         </v-flex>
 
                         <v-flex xs12 sm12 md4 lg3 xl3 class='date'>
                             <p>
                                 <v-icon small color='#1e1d2b' class='mr-1'>fas fa-calendar-alt</v-icon>
-                                {{parseDate(order.order.order_on)}}
+                                {{parseDate(expense.add_on)}}
                             </p>
                         </v-flex>
 
                         <v-flex xs12 sm12 md3 lg3 xl3 class='price'>
                             <p>
                                 <v-icon small color='#1e1d2b' class='mr-1'>fas fa-coins</v-icon>
-                                {{formatPrice(order.paying)}}FRS
+                                {{formatPrice(expense.price)}}FRS
                             </p>
                         </v-flex>
 
-                        <v-flex xs12 sm12 md2 lg2 xl2 class='actions'>
+                        <!-- <v-flex xs12 sm12 md2 lg2 xl2 class='actions'>
                            <v-icon medium color='red'>fas fa-trash-alt</v-icon>
-                        </v-flex>
+                        </v-flex> -->
 
-                    </div> -->
+                    </div>
                 </div>
 
                 <div class='no-expenses' v-else>
@@ -50,7 +50,7 @@
                         <p><v-icon medium color='#15141c' class='mr-2'>fas fa-wallet</v-icon>Total Expenses</p>
                     </div>
                     <div class='total-expense'>
-                        <h1>{{formatPrice(expenses[0].daily_total)}}FRS</h1>
+                        <h1 class='animated bounceIn'>{{formatPrice(expenses[0].daily_total)}}FRS</h1>
                     </div>
                 </div>
             </v-flex>
@@ -142,11 +142,45 @@ export default {
         height: 100%;
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        justify-content: flex-start;
         align-items: center;
     }
     .expenses-container{
-
+        height: 90%;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        overflow-y: scroll;
+        overflow-x: hidden;
+    }
+    .expenses-temp-layout{
+        height: auto;
+        width: 90%;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        border: 1px solid #ebf0f7;
+        border-radius: 10px;
+        background-color: #ebf0f7;
+        padding: 5px;
+        margin-left: 5%;
+        box-shadow: rgba(255, 255, 255, 0.2) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0.9) 0px 0px 0px 1px;
+    }
+    .date p, .expense-name p, .price p{
+        color: #1e1d2b;
+        font-size: 15px;
+        text-align: center;
+        width: 100%;
+        padding: 0px;
+        margin: 0px;
+        font-weight: bold;
+        overflow: hidden;
+    }
+    .actions .v-icon{
+        cursor: pointer;
     }
     .no-expenses{
         height: 100%;
@@ -168,6 +202,7 @@ export default {
         display: flex;
         justify-content: flex-start;
         align-items: flex-start;
+        border-radius: 5px;
         box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;
     }
     .daily-total-expense{
@@ -177,6 +212,7 @@ export default {
         flex-direction: column;
         justify-content: flex-start;
         align-items: flex-start;
+        border-radius: 5px;
         box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;
         margin-top: 30px;
     }
