@@ -21,7 +21,9 @@ def settings(request):
     return render(request, template_name='index.html')
 
 
-# def products(request):
-#     return render(request, template_name='index.html')
+def warehouses(request):
+    return render(request, template_name='index.html')
+
+
 def expenses(request):
     return render(request, template_name='index.html')
