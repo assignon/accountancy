@@ -115,6 +115,47 @@ class DashboardView(viewsets.ModelViewSet):
             return Response({'msg': 'Warehouse already exist', 'created': False})
 
     @csrf_exempt
+    @action(methods=['put'], detail=False)
+    def update_warehouse(self, request):
+        username = request.data['body']['username']
+        email = request.data['body']['email'] if request.data['body']['email'] != None else 'None'
+        password = request.data['body']['password']
+        whouse_id = request.data['body']['id']
+
+        # check if user already exist
+        whouse = User.objects.filter(id=whouse_id)
+        if whouse.count() > 0:
+            if username != None:
+                whouse.update(
+                    username=username
+                )
+
+            if email != None:
+                whouse.update(
+                    email=email
+                )
+
+            if password != None:
+                whouse.update(
+                    password=password
+                )
+
+            return Response({
+                'msg': 'Warehouse updated',
+                'updated': True},
+                status=HTTP_200_OK)
+        else:
+            return Response({'msg': 'Warehouse don t exists', 'updated': False})
+
+    @csrf_exempt
+    @action(methods=['delete'], detail=False)
+    def delete_warehouse(self, request):
+        whouse_id = request.query_params.get('id')
+        User.objects.filter(id=whouse_id).delete()
+
+        return Response({'msg': 'Warehouse deleted', 'deleted': True})
+
+    @csrf_exempt
     @action(methods=['get'], detail=False)
     def get_user_data(self, request):
         # get a warehouse base on id

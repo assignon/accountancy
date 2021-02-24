@@ -15,12 +15,21 @@
                     <div class='product-inner-container'>
                         <div class='size'>
                         <!-- <h3>{{product.tire.size}} ({{formatPrice(product.tire.price)}}FRS)</h3> -->
-                        <h3>{{product.tire.size}}</h3>
-                         <v-icon  
-                            large
-                            color='#0163d1' class='ml-3' 
-                            @click='UpdateProduct()'
-                         >fas fa-plus-square</v-icon>
+                        <v-flex xs12 sm12 md8 lg8 xl8 style='display:flex;justify-content:flex-start;align-items:center;'>
+                            <h3>{{product.tire.size}}</h3>
+                        </v-flex>
+                        <v-flex xs12 sm12 md4 lg4 xl4 style='display:flex;flex-direction:row;justify-content:flex-end;align-items:center;'>
+                            <v-icon  
+                                style='font-size:30px'
+                                color='#0163d1' class='mr-4' 
+                                @click='UpdateProduct()'
+                            >fas fa-plus-square</v-icon>
+                            <v-icon  
+                                style='font-size:30px'
+                                color='#0163d1' class='' 
+                                @click='transferProduct()'
+                            >fas fa-share-square</v-icon>
+                         </v-flex>
                         </div>
                         <div class='product-qty'>
                             <h3 class='display-3 mt-3 font-weight-bold'>{{product.tire.quantity}}</h3>
@@ -88,12 +97,13 @@ export default {
         this.$store.dispatch("getReq", {
             url: "product/products",
             params: {
-                date: null
+                date: null,
+                user_id: this.$session.get('warehouseId')
             },
             auth: self.$session.get('token'),
             csrftoken: self.$session.get('token'),
             callback: function(data) {
-                console.log(data);
+                // console.log(data);
                 store.getters["setData"]([store.state.product.productsArr, [data]]);
             },
         });
@@ -117,6 +127,10 @@ export default {
             this.$store.state.formName = ' Product';
             this.$store.state.formsTemp = 'ProductForm';
             this.$store.reload = true
+      },
+
+      transferProduct(){
+
       },
 
       productDetails(productId){

@@ -5,7 +5,8 @@
             <h3 class='mt-3'>CHICAM</h3>
             <div class='warehouses-container mt-5' v-if="$session.get('su')">
                 <select class="warehouse-select" v-model='warehouse' @change='changeWarehouse()'>
-                    <option v-for='(whouse, i) in warehouses[0]' :key='i' :value="whouse.name">{{whouse.name | suWarehouseName(whouse.su, whouse.name) | capitalize(whouse.name)}} w.house</option>
+                    <option value='all,0'>All</option>
+                    <option v-for='(whouse, i) in warehouses[0]' :key='i' :value="whouse.name+','+whouse.id">{{whouse.name | suWarehouseName(whouse.su, whouse.name) | capitalize(whouse.name)}}</option>
                 </select>
                 <v-icon small color='white' style='position:relative;right:20px;'>fas fa-angle-down</v-icon>
             </div>
@@ -27,7 +28,7 @@
                 <v-icon 
                     style='font-size:28px;position:relative;bottom:1px' 
                     color='#0163d1' class='add-icon' 
-                    @click='warehouseDialog=true'
+                    @click='$store.state.dashboard.warehouseDialog=true, $store.state.dashboard.formActionType="add"'
                 >fas fa-plus-square</v-icon>
             </div>
 
@@ -92,15 +93,16 @@
         </div>
         <!-- add new warehouse/user dialog -->
         <v-dialog
-            v-model="warehouseDialog"
+            v-model="$store.state.dashboard.warehouseDialog"
             persistent
             max-width="600px"
         >
             <v-form class='warehouse-form' ref='warehouseForm'>
-                <h2 class='mb-5'>Add new Warehouse</h2>
+                <h2 class='mb-5' v-if='$store.state.dashboard.formActionType=="add"'>Add new Warehouse</h2>
+                <h2 class='mb-5' v-else>Update Warehouse</h2>
                 <p class='err-msg mb-2'></p>
                 <v-text-field
-                    v-model="warehouseName"
+                    v-model="$store.state.dashboard.warehouseName"
                     :rules="[$store.state.rules.required]"
                     label="Warehouse name (will use as username)*"
                     required
@@ -108,14 +110,15 @@
                 ></v-text-field>
 
                 <v-text-field
-                    v-model="email"
+                    v-model="$store.state.dashboard.email"
                     :rules="[$store.state.emailRules]"
                     label="Email"
                     outlined
                 ></v-text-field>
 
                 <v-text-field
-                    v-model="password"
+                    v-if='$store.state.dashboard.formActionType=="add"'
+                    v-model="$store.state.dashboard.upassword"
                     :rules="[$store.state.rules.required]"
                     label="Password*"
                     type='password'
@@ -123,7 +126,15 @@
                     outlined
                 ></v-text-field>
                 <v-text-field
-                    v-model="rPassword"
+                    v-if='$store.state.dashboard.formActionType=="update"'
+                    v-model="$store.state.dashboard.upassword"
+                    label="Password"
+                    type='password'
+                    outlined
+                ></v-text-field>
+                <v-text-field
+                    v-if='$store.state.dashboard.formActionType=="add"'
+                    v-model="$store.state.dashboard.rPassword"
                     :rules="[$store.state.rules.required]"
                     label="Repeat password*"
                     type='password'
@@ -132,8 +143,9 @@
                 ></v-text-field>
 
                 <div class='btn-container'>
-                    <v-btn large @click='warehouseDialog=false' color='#1976d2' class='mr-3'>close</v-btn>
-                    <v-btn large @click='addWarehouse()' color='#1976d2'>Add Warehouse</v-btn>
+                    <v-btn large @click='$store.state.dashboard.warehouseDialog=false' color='#1976d2' class='mr-3'>close</v-btn>
+                    <v-btn large @click='addWarehouse()' color='#1976d2' v-if='$store.state.dashboard.formActionType=="add"'>Add Warehouse</v-btn>
+                    <v-btn large @click='updateWarehouse($store.state.dashboard.warehouseId)' color='#1976d2' v-else>Update Warehouse</v-btn>
                 </div>
             </v-form>
         </v-dialog>
@@ -167,28 +179,46 @@ export default {
 
     data(){
         return{
-            warehouse: this.$session.get('warehouse'), //selected warehouse
-            warehouseDialog: false,
-            warehouseName: null,
-            email: null,
-            password: null,
-            rPassword: null,
+            warehouse: this.$session.get('warehouseName'), //selected warehouse name
         }
     },
 
     created(){
+        console.log(this.$parent);
         let self = this
         setTimeout(() => {
-            document.querySelector('.warehouse-select').value = self.warehouse
+            self.warehouse = this.$session.get('warehouseName')+','+this.$session.get('warehouseId')
         }, 100)
         this.getWarehouses()
     },
 
     methods:{
+         // product methods
+        // allProducts(){
+        //     let self = this;
+        //     let store = self.$store;
+
+        //     this.$store.dispatch("getReq", {
+        //         url: "product/products",
+        //         params: {
+        //             date: null,
+        //             user_id: this.$session.get('warehouseId')
+        //         },
+        //         auth: self.$session.get('token'),
+        //         csrftoken: self.$session.get('token'),
+        //         callback: function(data) {
+        //             // console.log(data);
+        //             store.getters["setData"]([store.state.product.productsArr, [data]]);
+        //         },
+        //     });
+        // },
+
         changeWarehouse(){
             let self = this
             // update warehouse local session var
-            this.$session.set('warehouse', self.warehouse)
+            this.$session.set('warehouseName', self.warehouse.split(',')[0])
+            this.$session.set('warehouseId', self.warehouse.split(',')[1])
+            window.location.reload()
         },
 
         getWarehouses(){
@@ -211,16 +241,16 @@ export default {
             let formErrMsg = document.querySelector(".err-msg");
             let validationErrMsg = document.querySelector('.v-messages__message');
 
-            if(self.warehouseName != null &&
-                self.password != null &&
-                self.rPassword != null &&
+            if(self.$store.state.dashboard.warehouseName != null &&
+                self.$store.state.dashboard.upassword != null &&
+                self.$store.state.dashboard.rPassword != null &&
                 !document.body.contains(validationErrMsg)
             ){
-                if(self.password == self.rPassword){
+                if(self.$store.state.dashboard.upassword == self.$store.state.dashboard.rPassword){
                     let body = {
-                        username: self.warehouseName,
-                        email: self.email,
-                        password: self.password
+                        username: self.$store.state.dashboard.warehouseName,
+                        email: self.$store.state.dashboard.email,
+                        password: self.$store.state.dashboard.upassword
                     }
 
                     self.$store.dispatch("postReq", {
@@ -237,10 +267,9 @@ export default {
                                 self.getWarehouses()
                                 //close dialog after 2sec
                                 setTimeout(() => {
-                                    self.extraItemDialog = false
+                                    self.$store.state.dashboard.warehouseDialog = false
                                     formErrMsg.innerHTML = ''
                                 }, 2000)
-                                setTimeout(() => {self.warehouseDialog = false}, 2000)
                             }else{
                                 formErrMsg.innerHTML = data.msg
                             }
@@ -251,6 +280,64 @@ export default {
                 }
             }else{
                 formErrMsg.innerHTML = 'warehouse name and password should not be empty'
+            }
+        },
+
+        whouseDetails(whouseId){
+            let self = this;
+
+            self.$store.dispatch("getReq", {
+                url: 'dashboard/get_user_data',
+                params: {user_id: whouseId},
+                auth: self.$session.get('token'),
+                csrftoken: self.$session.get('token'),
+                callback: function(data) {
+                    console.log(data);
+                    self.$store.getters["setData"]([self.$store.state.dashboard.whouseDetailsArr, [data]]);
+                    self.$store.state.infoTempName = 'WhouseDetails'
+                },
+            });
+        },
+
+        updateWarehouse(whouseId){
+            let self = this
+            let formErrMsg = document.querySelector(".err-msg");
+            let validationErrMsg = document.querySelector('.v-messages__message');
+            // update warehouse
+            if(self.$store.state.dashboard.warehouseName != '' ||
+                self.$store.state.dashboard.email != ''||
+                self.$store.state.dashboard.upassword != '' &&
+                !document.body.contains(validationErrMsg)
+            ){
+                // send request
+                self.$store.dispatch("putReq", {
+                    url: 'dashboard/update_warehouse',
+                    params: {
+                        username: self.$store.state.dashboard.warehouseName,
+                        email: self.$store.state.dashboard.email,
+                        password: self.$store.state.dashboard.upassword,
+                        id: whouseId
+                    },
+                    auth: self.$session.get('token'),
+                    csrftoken: self.$session.get('token'),
+                    callback: function(data) {
+                        console.log(data);
+                        if(data.updated){
+                            formErrMsg.innerHTML = data.msg
+                            document.querySelector('.warehouse-form').reset()
+                            self.getWarehouses()
+                            //close dialog after 2sec
+                            setTimeout(() => {
+                                self.$store.state.dashboard.warehouseDialog = false
+                                formErrMsg.innerHTML = ''
+                            }, 2000)
+                        }else{
+                            formErrMsg.innerHTML = data.msg
+                        }
+                    },
+                });
+            }else{
+                formErrMsg.innerHTML = 'warehouse name or password or email should not be empty'
             }
         },
 

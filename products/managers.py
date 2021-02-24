@@ -63,7 +63,8 @@ class ProductManager(models.Manager):
                 quantity=kwargs['quantity'],
                 vehicule=vehicle,
                 profiles_str=profile_arr,
-                brands_str=brands_arr
+                brands_str=brands_arr,
+                warehouse_id=kwargs['user_id']
             )
             tire.save()
             # get brands
@@ -160,15 +161,17 @@ class ProductManager(models.Manager):
                 'count': added_products.count()
             }
 
-    def all_products(self):
+    def all_products(self, user_id):
         from .models import Tires
         products = None
         productsArr = []
         qty = 0  # tire quantity
 
-        product_obj = self.select_related().all()
+        # product_obj = self.select_related().all()
+        product_obj = Tires.objects.all().values(
+        ) if user_id == 0 else Tires.objects.filter(warehouse_id=user_id).values()
 
-        for product in Tires.objects.all().values():
+        for product in product_obj:
             qty += product['quantity']
             productsArr.append(
                 {

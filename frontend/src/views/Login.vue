@@ -58,7 +58,12 @@ export default {
       this.$session.set('userId', userId)
       this.$session.set('authenticated', true)
       this.$session.set('su', su)
-      this.$session.set('warehouse', 'main')
+      if(su){
+        this.$session.set('warehouseName', 'All')
+        this.$session.set('warehouseId', 0)
+      }else{
+        this.$session.set('warehouseId', userId)
+      }
     },
 
     signin(){

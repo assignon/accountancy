@@ -5,23 +5,25 @@
             class='wh-temp-layout animated fadeInUp pt-3 pb-3 pl-5'
             v-for="(whouse,i) in warehouses[0]"
             :key='i'
+            :id='whouse.id'
         >
             <v-flex xs12 sm12 md5 lg5 xl5 class='warehouse-name' @click.stop='$store.state.infoDrawer=true, whouseDetails(whouse.id)'>
-                <p><v-icon small color='#1e1d2b'>fas fa-warehouse</v-icon>
-                    {{whouse.name}}<span v-if='whouse.su'>[main]</span>
+                <p>
+                    <v-icon style='font-size:20px' color='#1e1d2b' class='mr-1'>fas fa-warehouse</v-icon>
+                    {{capitalize(whouse.name)}}<span v-if='whouse.su'>[main]</span>
                 </p>
             </v-flex>
 
             <v-flex xs12 sm12 md3 lg3 xl3 class='date' @click.stop='$store.state.infoDrawer=true, whouseDetails(whouse.id)'>
                 <p>
-                    <v-icon small color='#1e1d2b' class='mr-1'>fas fa-calendar-alt</v-icon>
+                    <v-icon style='font-size:20px' color='#1e1d2b' class='mr-1'>fas fa-calendar-alt</v-icon>
                     {{parseDate(whouse.added_on)}}
                 </p>
             </v-flex>
 
             <v-flex xs12 sm12 md4 lg4 xl4 class='wh-actions' v-if='!whouse.su'>
-                <v-icon medium color='#0163d1' class='mr-3' @click.stop='updateWh(whouse.id)'>fas fa-pencil-alt</v-icon>
-                <v-icon medium color='#fc0e26' class='ml-3' @click.stop='deleteWh(whouse.id)'>fas fa-trash-alt</v-icon>
+                <v-icon style='font-size:20px' color='#0163d1' class='mr-5' @click.stop='updateWh(whouse.id)'>fas fa-pencil-alt</v-icon>
+                <v-icon style='font-size:20px' color='#fc0e26' class='ml-5' @click.stop='deleteWh(whouse.id)'>fas fa-trash-alt</v-icon>
             </v-flex>
 
         </v-layout>
@@ -65,6 +67,12 @@ export default {
         return new Date(date).toDateString()
     },
 
+    capitalize(value) {
+        if (!value) return ''
+        value = value.toString()
+        return value.charAt(0).toUpperCase() + value.slice(1)
+    },
+
     whouseDetails(whouseId){
         let self = this;
 
@@ -77,16 +85,41 @@ export default {
                 console.log(data);
                 self.$store.getters["setData"]([self.$store.state.dashboard.whouseDetailsArr, [data]]);
                 self.$store.state.infoTempName = 'WhouseDetails'
+                // vull warehouse form
+                self.$store.state.dashboard.warehouseName = data.name
+                self.$store.state.dashboard.email = data.email
+                self.$store.state.dashboard.password = data.password
             },
         });
     },
 
     updateWh(whouseId){
-        console.log(whouseId);
+        this.$store.state.dashboard.warehouseDialog = true
+        this.$store.state.dashboard.formActionType = 'update'
+        this.$store.state.dashboard.warehouseId = whouseId
+
+        this.whouseDetails(whouseId)
+        
     },
 
     deleteWh(whouseId){
-        console.log(whouseId);
+        let self = this;
+        let currentWh = document.getElementById(whouseId)
+        
+        self.$store.dispatch("deleteReq", {
+            url: 'dashboard/delete_warehouse',
+            params: {id: whouseId},
+            auth: self.$session.get('token'),
+            csrftoken: self.$session.get('token'),
+            callback: function(data) {
+                console.log(data);
+                currentWh.classList.remove('fadeInUp')
+                currentWh.classList.add('fadeOutUp')
+                setTimeout(() => {
+                    currentWh.style.display = 'none'
+                }, 600);
+            },
+        });
     },
   }
 };

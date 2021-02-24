@@ -44,6 +44,7 @@ class ProductView(viewsets.ModelViewSet):
             'quantity': req['quantity'],
             'brands': req['brands']['brands'],
             'profiles': req['profiles']['profiles'],
+            'user_id': int(req['user_id'])
         }
 
         return Response(Products.objects.add_product(**data))
@@ -73,7 +74,9 @@ class ProductView(viewsets.ModelViewSet):
         Args:
             request (dict): [request data]
         """
-        products = Products.objects.all_products()
+        user_id = int(request.query_params.get('user_id'))
+
+        products = Products.objects.all_products(user_id)
 
         return Response(products)
 

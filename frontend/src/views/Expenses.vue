@@ -102,6 +102,7 @@ export default {
                 url: "expense/daily_expenses",
                 params: {
                     date: date,
+                    user_id: this.$session.get('warehouseId')
                 },
                 auth: self.$session.get('token'),
                 csrftoken: self.$session.get('token'),
