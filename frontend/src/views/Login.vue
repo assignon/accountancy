@@ -7,8 +7,7 @@
         <v-text-field
             v-model="email"
             :rules="[$store.state.emailRules, $store.state.rules.required]"
-            label="Email"
-            type='email'
+            label="Email or Username"
             required
             outlined
         ></v-text-field>
@@ -51,13 +50,15 @@ export default {
   },
 
   methods: {
-    startSession(token, userId){
+    startSession(token, su, userId){
       // start a session
       this.$session.start()
       // store token en user id
       this.$session.set('token', token)
       this.$session.set('userId', userId)
       this.$session.set('authenticated', true)
+      this.$session.set('su', su)
+      this.$session.set('warehouse', 'main')
     },
 
     signin(){
@@ -77,7 +78,7 @@ export default {
           callback: function(data) {
               console.log(data);
               if(data.authenticate){
-                self.startSession(data.token, data.id)
+                self.startSession(data.token, data.is_superuser, data.id)
                 self.$router.push({name: "Dashboard"})
               }else{
                  formErrMsg.innerHTML = data.msg

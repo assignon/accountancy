@@ -1,8 +1,14 @@
 <template>
     <div class='sidebar-core'>
         <div class='logo'>
-            <div></div>
+            <div class='logo-img'></div>
             <h3 class='mt-3'>CHICAM</h3>
+            <div class='warehouses-container mt-5' v-if="$session.get('su')">
+                <select class="warehouse-select" v-model='warehouse' @change='changeWarehouse()'>
+                    <option v-for='(whouse, i) in warehouses[0]' :key='i' :value="whouse.name">{{whouse.name | suWarehouseName(whouse.su, whouse.name) | capitalize(whouse.name)}} w.house</option>
+                </select>
+                <v-icon small color='white' style='position:relative;right:20px;'>fas fa-angle-down</v-icon>
+            </div>
         </div>
 
         <div class='menu-container'>
@@ -11,6 +17,19 @@
                 <v-icon color='white'>fas fa-tachometer-alt</v-icon>
                 <p>Dashboard</p>
             </router-link>
+
+            <div class='link-container' v-if="$session.get('su')">
+                <router-link to="/warehouses" style="text-decoration: none;" class='menu-item'>
+                    <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Warehouse"'></span>
+                    <v-icon color='white'>fas fa-warehouse</v-icon>
+                    <p>W.house</p>
+                </router-link>
+                <v-icon 
+                    style='font-size:28px;position:relative;bottom:1px' 
+                    color='#0163d1' class='add-icon' 
+                    @click='warehouseDialog=true'
+                >fas fa-plus-square</v-icon>
+            </div>
 
             <div class='link-container'>
                 <router-link to="/orders" style="text-decoration: none;" class='menu-item'>
@@ -71,22 +90,170 @@
                 <p>Log out</p>
             </div>
         </div>
+        <!-- add new warehouse/user dialog -->
+        <v-dialog
+            v-model="warehouseDialog"
+            persistent
+            max-width="600px"
+        >
+            <v-form class='warehouse-form' ref='warehouseForm'>
+                <h2 class='mb-5'>Add new Warehouse</h2>
+                <p class='err-msg mb-2'></p>
+                <v-text-field
+                    v-model="warehouseName"
+                    :rules="[$store.state.rules.required]"
+                    label="Warehouse name (will use as username)*"
+                    required
+                    outlined
+                ></v-text-field>
+
+                <v-text-field
+                    v-model="email"
+                    :rules="[$store.state.emailRules]"
+                    label="Email"
+                    outlined
+                ></v-text-field>
+
+                <v-text-field
+                    v-model="password"
+                    :rules="[$store.state.rules.required]"
+                    label="Password*"
+                    type='password'
+                    required
+                    outlined
+                ></v-text-field>
+                <v-text-field
+                    v-model="rPassword"
+                    :rules="[$store.state.rules.required]"
+                    label="Repeat password*"
+                    type='password'
+                    required
+                    outlined
+                ></v-text-field>
+
+                <div class='btn-container'>
+                    <v-btn large @click='warehouseDialog=false' color='#1976d2' class='mr-3'>close</v-btn>
+                    <v-btn large @click='addWarehouse()' color='#1976d2'>Add Warehouse</v-btn>
+                </div>
+            </v-form>
+        </v-dialog>
     </div>
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 export default {
     name: 'Sidebar',
 
-    data(){
-        return{
+    computed: {
+        ...mapGetters({
+            warehouses: 'dashboard/getWraehouse',
+        }),
+       
+    },
 
+    filters: {
+        suWarehouseName: function(name, su){
+            if(!su) return name
+            name = 'main'
+            return name
+        }, 
+        capitalize: function (value) {
+            if (!value) return ''
+            value = value.toString()
+            return value.charAt(0).toUpperCase() + value.slice(1)
         }
     },
 
-    created(){console.log(this.$route);},
+    data(){
+        return{
+            warehouse: this.$session.get('warehouse'), //selected warehouse
+            warehouseDialog: false,
+            warehouseName: null,
+            email: null,
+            password: null,
+            rPassword: null,
+        }
+    },
+
+    created(){
+        let self = this
+        setTimeout(() => {
+            document.querySelector('.warehouse-select').value = self.warehouse
+        }, 100)
+        this.getWarehouses()
+    },
 
     methods:{
+        changeWarehouse(){
+            let self = this
+            // update warehouse local session var
+            this.$session.set('warehouse', self.warehouse)
+        },
+
+        getWarehouses(){
+            let self = this;
+
+            self.$store.dispatch("getReq", {
+                url: 'dashboard/get_warehouses',
+                params: {},
+                auth: self.$session.get('token'),
+                csrftoken: self.$session.get('token'),
+                callback: function(data) {
+                    // console.log(data);
+                    self.$store.getters["setData"]([self.$store.state.dashboard.warehouseArr, [data]]);
+                },
+            });
+        },
+
+        addWarehouse(){
+            let self = this
+            let formErrMsg = document.querySelector(".err-msg");
+            let validationErrMsg = document.querySelector('.v-messages__message');
+
+            if(self.warehouseName != null &&
+                self.password != null &&
+                self.rPassword != null &&
+                !document.body.contains(validationErrMsg)
+            ){
+                if(self.password == self.rPassword){
+                    let body = {
+                        username: self.warehouseName,
+                        email: self.email,
+                        password: self.password
+                    }
+
+                    self.$store.dispatch("postReq", {
+                        url: 'dashboard/new_warehouse',
+                        params: body,
+                        auth: self.$session.get('token'),
+                        csrftoken: self.$session.get('token'),
+                        callback: function(data) {
+                            // console.log(data);
+                            if(data.created){
+                                // self.$store.getters["setData"]([self.$store.state.dashboard.warehouseArr, [data]]);
+                                formErrMsg.innerHTML = data.msg
+                                document.querySelector('.warehouse-form').reset()
+                                self.getWarehouses()
+                                //close dialog after 2sec
+                                setTimeout(() => {
+                                    self.extraItemDialog = false
+                                    formErrMsg.innerHTML = ''
+                                }, 2000)
+                                setTimeout(() => {self.warehouseDialog = false}, 2000)
+                            }else{
+                                formErrMsg.innerHTML = data.msg
+                            }
+                        },
+                    });
+                }else{
+                    formErrMsg.innerHTML = 'Passwords don t match'
+                }
+            }else{
+                formErrMsg.innerHTML = 'warehouse name and password should not be empty'
+            }
+        },
+
         logout(){
             let self = this;
 
@@ -148,7 +315,7 @@ export default {
         align-items: center;
         /* box-shadow: rgba(255, 255, 255, 0.2) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0.9) 0px 0px 0px 1px; */
     }
-    .logo div{
+    .logo .logo-img{
         border: 1px solid #15141c;
         border-radius: 15px;
         background-image: url('../../assets/chicam.jpg');
@@ -163,6 +330,23 @@ export default {
     .logo h3{
         text-align: center;
         color: white;
+    }
+    .warehouses-container{
+        width: 90%;
+        height: auto;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+    }
+    .warehouse-select{
+        width: 100%;
+        height: 40px;
+        border: 1px solid white;
+        border-radius: 5px;
+        color: white;
+        padding-left: 10px;
+        background-color: #15141c;
     }
     .menu-container{
         height: auto;
@@ -227,6 +411,47 @@ export default {
         justify-content: flex-start;
         align-items: flex-start;
         cursor: pointer;
+    }
+    /* dialog styles */
+    .warehouse-form{
+        height: auto;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: white;
+        padding-top: 50px;
+        padding-bottom: 50px;
+    }
+    .err-msg{
+        text-align: center;
+        font-size: 17px;
+        color: #ce2b58;
+    }
+    .warehouse-form .v-text-field{
+        width: 85%;
+    }
+    .btn-container{
+        height: auto;
+        width: 85%;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: flex-end;
+    }
+    .btn-container .v-btn{
+        color: #fff;
+        font-size: 15px;
+        font-weight: bolder;
+        text-transform: capitalize;
+    }
+    .btn-container p{
+        text-align: right;
+        font-size: 17px;
+        font-weight: bolder;
+        cursor: pointer;
+        color: #1976d2;
     }
     @media only screen and (max-width: 1500px) {
         /* .sidebar-core{

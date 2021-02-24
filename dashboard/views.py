@@ -33,19 +33,29 @@ from products.models import Products
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def signin(request):
-    email = request.data['body']['email']
+    email = request.data['body']['email']  # can contain email or username
     password = request.data['body']['password']
     # get username and password count
     email_count = User.objects.filter(email=email).count()
+    username_count = User.objects.filter(username=email).count()
     passsword_count = User.objects.filter(password=password).count()
     # check if user given email ans password exist in DB
-    if email_count != 0:
+    if email_count != 0 or username_count != 0:
         # verify if the user given password is correct
-        currentUser = User.objects.get(email=email)
+        try:
+            currentUser = User.objects.get(email=email)
+        except:
+            currentUser = User.objects.get(username=email)
+
         if currentUser.check_password(password):
-            # get username
-            username = User.objects.get(email=email).username
-            user = authenticate(username=username, password=password)
+            # check if email is senden or username
+            if email_count > 0:
+                # get username
+                username = User.objects.get(email=email).username
+                user = authenticate(username=username, password=password)
+            else:
+                user = authenticate(
+                    username=email, password=password)  # email=username
             # userToken(request, user)
             if user:
                 login(request, user)
@@ -67,7 +77,7 @@ def signin(request):
     else:
         emailContext = {
             'authenticate': False,
-            'msg': 'Email onjuist'
+            'msg': 'Email or username onjuist'
         }
         return Response(emailContext)
 
@@ -78,16 +88,67 @@ class DashboardView(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     @csrf_exempt
+    @action(methods=['post'], detail=False)
+    def new_warehouse(self, request):
+        username = request.data['body']['username']
+        email = request.data['body']['email'] if request.data['body']['email'] != None else 'None'
+        password = request.data['body']['password']
+
+        if request.user is not None:
+            # check if user already exist
+            user_exist = user = User.objects.filter(
+                username=username).count()
+            if user_exist == 0:
+                user = User.objects.create_user(
+                    username=username, email=email, password=password, is_superuser=0, is_staff=1)
+
+                token, _ = Token.objects.get_or_create(user=user)
+
+                return Response({
+                    'msg': 'Warehouse added',
+                    'created': True},
+                    status=HTTP_200_OK)
+            else:
+                return Response({'msg': 'Warehouse already exist', 'created': False})
+
+        else:
+            return Response({'msg': 'Warehouse already exist', 'created': False})
+
+    @csrf_exempt
     @action(methods=['get'], detail=False)
     def get_user_data(self, request):
+        # get a warehouse base on id
         user_id = request.query_params.get('user_id')
 
         user = User.objects.get(id=user_id)
 
         return Response({
             'email': user.email,
-            'name': user.username
+            'name': user.username,
+            'id': user.id,
+            'added_on': user.date_joined.date(),
+            'admin': user.is_superuser,
+            'staff': user.is_staff,
+            'active': user.is_active,
         })
+
+    @csrf_exempt
+    @action(methods=['get'], detail=False)
+    def get_warehouses(self, request):
+        warehouse_arr = []
+
+        warehouses = User.objects.all().values()
+        for wh in warehouses:
+            warehouse_arr.append(
+                {
+                    'name': wh['username'],
+                    'id': wh['id'],
+                    'email': wh['email'],
+                    'su': wh['is_superuser'],
+                    'added_on': wh['date_joined'].date()
+                }
+            )
+        return Response(warehouse_arr)
 
     @csrf_exempt
     @action(methods=['put'], detail=False)

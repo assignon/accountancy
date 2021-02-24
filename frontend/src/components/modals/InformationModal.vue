@@ -20,6 +20,7 @@
 import OrderDetails from "@/components/layouts/OrderDetails";
 import ProductDetails from "@/components/layouts/ProductDetails";
 import PaymentDetails from "@/components/layouts/PaymentDetails";
+import WhouseDetails from "@/components/layouts/WhouseDetails";
 export default {
     name: 'InformationModal',
 
@@ -28,7 +29,8 @@ export default {
     components: {
         PaymentDetails,
         ProductDetails,
-        OrderDetails
+        OrderDetails,
+        WhouseDetails,
     },
 
     data(){
