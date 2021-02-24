@@ -2,6 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import Login from "../views/Login.vue";
 import Dashboard from "../views/Dashboard.vue";
+import Warehouse from "../views/Warehouse.vue";
 import Order from "../views/Order.vue";
 import Product from "../views/Product.vue";
 import Settings from "../views/Settings.vue";
@@ -20,6 +21,11 @@ const routes = [
     path: "/dashboard",
     name: "Dashboard",
     component: Dashboard
+  },
+  {
+    path: "/warehouses",
+    name: "Warehouse",
+    component: Warehouse
   },
   {
     path: "/orders",

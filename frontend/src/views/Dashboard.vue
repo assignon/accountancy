@@ -170,7 +170,8 @@ export default {
             this.$store.dispatch("getReq", {
                 url: "product/products",
                 params: {
-                    date: null
+                    date: null,
+                    user_id: this.$session.get('warehouseId')
                 },
                 auth: self.$session.get('token'),
                 csrftoken: self.$session.get('token'),

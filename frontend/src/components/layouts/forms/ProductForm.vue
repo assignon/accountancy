@@ -1,6 +1,12 @@
 <template>
     <div class='product-form-core'>
         <v-form class="product-form animated" ref="productForm">
+            <p class='mb-3'>
+                Add New product to 
+                <span style='color: #0163d1;font-weight:bold' v-if='Number($session.get("warehouseId"))==$session.get("userId") || $session.get("warehouseName")=="all"'>Main</span>
+                <span style='color: #0163d1;font-weight:bold' v-else>{{$session.get('warehouseName')}}</span>
+                warehouse
+            </p>
             <p class='product-form-err-msg mb-5'></p>
             
             <div class='product-field-container'>
@@ -202,7 +208,8 @@ export default {
             this.$store.dispatch("getReq", {
                 url: "product/products",
                 params: {
-                    date: null
+                    date: null,
+                    user_id: this.$session.get('warehouseId')
                 },
                 auth: self.$session.get('token'),
                 csrftoken: self.$session.get('token'),
@@ -369,7 +376,8 @@ export default {
                 quantity: self.quantity != null ? self.quantity : 1,
                 vehicle: self.vehicle,
                 brands: brandsPayload,
-                profiles: profilesPayload
+                profiles: profilesPayload,
+                user_id: this.$session.get('warehouseId') == 0 ? this.$session.get('userId') : this.$session.get('warehouseId')
             }
 
             this.$store.dispatch("postReq", {

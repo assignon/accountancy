@@ -1,6 +1,11 @@
 <template>
     <v-form class='expenses-form' ref='expensesForm'>
-        <p class="mb-4 font-weight-bold">Add New expense</p>
+        <p class="mb-4 font-weight-bold">
+            Add New expense to 
+            <span style='color: #0163d1;font-weight:bold' v-if='Number($session.get("warehouseId"))==$session.get("userId") || $session.get("warehouseName")=="all"'>Main</span>
+            <span style='color: #0163d1;font-weight:bold' v-else>{{$session.get('warehouseName')}}</span>
+            warehouse
+        </p>
         <v-spacer></v-spacer>
         <p class='expenses-err mb-4'></p>
         <v-text-field
@@ -60,6 +65,7 @@ export default {
             let body = {
                 name: self.$store.state.expenses.name,
                 price: self.$store.state.expenses.price,
+                user_id: this.$session.get('warehouseId') == '0' ? this.$session.get('userId') : this.$session.get('warehouseId')
             }
             let formErrMsg = document.querySelector(".expenses-err");
             let validationErrMsg = document.querySelector('.v-messages__message');
@@ -76,7 +82,7 @@ export default {
                             formErrMsg.innerHTML = 'Expense added'
                             document.querySelector('.expenses-form').reset()
                             //close dialog after 2sec
-                            setTimeout(() => {self.$store.state.expenses.expensesDialog = false, formErrMsg.innerHTML = ''}, 2000)
+                            setTimeout(() => {self.$store.state.expenses.expensesDialog = false, formErrMsg.innerHTML = '', window.location.reload()}, 2000)
                         }else{
                             formErrMsg.innerHTML = 'Something went wrong'
                         }

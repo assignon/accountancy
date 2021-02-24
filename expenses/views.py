@@ -37,6 +37,7 @@ class ExpensesView(viewsets.ModelViewSet):
         data = {
             'name': req['name'],
             'price': req['price'],
+            'user_id': int(req['user_id'])
         }
 
         return Response(Expenses.objects.add_expenses(**data))
@@ -46,5 +47,6 @@ class ExpensesView(viewsets.ModelViewSet):
     def daily_expenses(self, request):
         dte = datetime.strftime(datetime.now().date(), '%Y-%m-%d') if request.query_params.get(
             'date') == None else request.query_params.get('date')
+        user_id = int(request.query_params.get('user_id'))
 
-        return Response(Expenses.objects.get_daily_expenses(dte))
+        return Response(Expenses.objects.get_daily_expenses(dte, user_id))

@@ -107,7 +107,7 @@ export default {
     },
 
     created(){
-        console.log(this.orderArr[0].order);
+        // console.log(this.orderArr[0].order);
     },
 
     methods: {
@@ -170,8 +170,8 @@ export default {
                 self.paymentStatus = updateValue
                 self.customerID = customerId
                 document.querySelector('.confirmation-text').innerHTML = updateValue ? 
-                'Current payment status: NOT PAYED <br> Do you wanna update the current paymentstatus?' :
-                'Current payment status: PAYED <br> Do you wanna update the current payment status?'
+                'Current payment status: NOT PAID <br> Do you wanna update the current paymentstatus?' :
+                'Current payment status: PAID <br> Do you wanna update the current payment status?'
             }, 100)
         },
 
