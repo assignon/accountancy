@@ -20,7 +20,7 @@ export default {
         getUserData(state) {
             return state.userDataArr
         },
-        getWraehouse(state) {
+        getWarehouse(state) {
             return state.warehouseArr
         },
         getWhouseDetails(state) {

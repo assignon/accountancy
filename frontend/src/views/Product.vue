@@ -10,45 +10,45 @@
                     v-for="(product, i) in products[0].products"
                     :key="i"
                     class='prduct-flex'
-                    @click='$store.state.infoDrawer=true, productDetails(product.id)'
+                    
                 >
                     <div class='product-inner-container'>
                         <div class='size'>
-                        <!-- <h3>{{product.tire.size}} ({{formatPrice(product.tire.price)}}FRS)</h3> -->
-                        <v-flex xs12 sm12 md8 lg8 xl8 style='display:flex;justify-content:flex-start;align-items:center;'>
-                            <h3>{{product.tire.size}}</h3>
-                        </v-flex>
-                        <v-flex xs12 sm12 md4 lg4 xl4 style='display:flex;flex-direction:row;justify-content:flex-end;align-items:center;'>
-                            <v-icon  
-                                style='font-size:30px'
-                                color='#0163d1' class='mr-4' 
-                                @click='UpdateProduct()'
-                            >fas fa-plus-square</v-icon>
-                            <v-icon  
-                                style='font-size:30px'
-                                color='#0163d1' class='' 
-                                @click='transferProduct()'
-                            >fas fa-share-square</v-icon>
-                         </v-flex>
+                            <!-- <h3>{{product.tire.size}} ({{formatPrice(product.tire.price)}}FRS)</h3> -->
+                            <v-flex xs12 sm12 md8 lg8 xl8 style='display:flex;justify-content:flex-start;align-items:center;' @click='$store.state.infoDrawer=true, productDetails(product.id)'>
+                                <h3>{{product.tire.size}}</h3>
+                            </v-flex>
+                            <v-flex xs12 sm12 md4 lg4 xl4 style='display:flex;flex-direction:row;justify-content:flex-end;align-items:center;'>
+                                <v-icon  
+                                    style='font-size:30px'
+                                    color='#0163d1' class='mr-4' 
+                                    @click='UpdateProduct()'
+                                >fas fa-plus-square</v-icon>
+                                <v-icon  
+                                    style='font-size:30px'
+                                    color='#0163d1' class='' 
+                                    @click='$store.state.product.transferDialog=true, productDetails(product.id)'
+                                >fas fa-share-square</v-icon>
+                            </v-flex>
                         </div>
-                        <div class='product-qty'>
+                        <div class='product-qty' @click='$store.state.infoDrawer=true, productDetails(product.id)'>
                             <h3 class='display-3 mt-3 font-weight-bold'>{{product.tire.quantity}}</h3>
                         </div>
-                        <div class='brands'>
+                        <div class='brands' @click='$store.state.infoDrawer=true, productDetails(product.id)'>
                             <p v-for='(brand, b) in product.brands' :key="b">
                                 <v-chip :ripple="false" small>
                                     {{brand.name}}<span class='ml-2'></span>
                                 </v-chip>
                             </p>
                         </div>
-                        <div class='profiles'>
+                        <div class='profiles' @click='$store.state.infoDrawer=true, productDetails(product.id)'>
                             <p v-for='(profile, p) in product.profiles' :key="p">
                                 <v-chip :ripple="false" small>
                                     {{profile.name}}<span class='ml-2'></span>
                                 </v-chip>
                             </p>
                         </div>
-                        </div>
+                    </div>
                 </v-flex>
             </div>
         </v-layout>
@@ -57,17 +57,20 @@
             border='1px solid #15141c'
             closeClr='white' 
         />
+        <TransferModal/>
     </div>
 </template>
 
 <script>
 import InformationModal from "@/components/modals/InformationModal.vue";
+import TransferModal from "@/components/modals/TransferModal.vue";
 import { mapGetters } from 'vuex';
 export default {
   name: "Order",
   
   components: {
-       InformationModal
+       InformationModal,
+       TransferModal
   },
 
     computed: {
@@ -127,10 +130,6 @@ export default {
             this.$store.state.formName = ' Product';
             this.$store.state.formsTemp = 'ProductForm';
             this.$store.reload = true
-      },
-
-      transferProduct(){
-
       },
 
       productDetails(productId){
