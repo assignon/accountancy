@@ -216,7 +216,7 @@ class ProductManager(models.Manager):
         return {'products': productsArr}
 
     def filter_products(self, vehicle, brands, profiles):
-        from .models import Tires, Vehicule, Brands, Profiles
+        from .models import Tires, Vehicule
         try:
             vehicle = Vehicule.objects.get(name=vehicle).id
         except:
@@ -236,10 +236,46 @@ class ProductManager(models.Manager):
             Q(vehicule_id=vehicle)
         )
 
-        print('brannnddd', ','.join(sorted(brands['brands'])))
-        print('prooofffill', ','.join(sorted(profiles['profiles'])))
+        # print('brannnddd', ','.join(sorted(brands['brands'])))
+        # print('prooofffill', ','.join(sorted(profiles['profiles'])))
 
         return {'tire': tires.values()}
+
+    def transfer_product(self, **kwargs):
+        from .models import Tires, Vehicule, Brands, Profiles
+        from django.contrib.auth.models import User
+
+        receiver_wh_id = User.objects.get(username=kwargs['receiver_name'])
+        sender_id = kwargs['sender_id']
+
+        product_by_sender = Tires.objects.filter(
+            Q(size=kwargs['size']) &
+            Q(brands_str=','.join(sorted(kwargs['brands']['brands']))) &
+            Q(profiles_str=','.join(sorted(kwargs['profiles']['profiles']))) &
+            Q(vehicule_id=kwargs['vehicle']) &
+            Q(warehouse_id=sender_id)
+        )
+
+        product_by_receiver = Tires.objects.filter(
+            Q(size=kwargs['size']) &
+            Q(brands_str=','.join(sorted(kwargs['brands']['brands']))) &
+            Q(profiles_str=','.join(sorted(kwargs['profiles']['profiles']))) &
+            Q(vehicule_id=kwargs['vehicle']) &
+            Q(warehouse_id=receiver_wh_id.id)
+        )
+
+        if product_by_receiver.count() == 0:
+            # create
+            pass
+        else:
+            # update
+            pass
+
+        # update sender product quantity
+        current_qty = product_by_sender[0]['quantity']
+        qty_tranfered = kwargs['qty']
+        new_qty = current_qty - qty_tranfered
+        product_by_sender.update(quantity=new_qty)
 
 
 class BrandsManager(models.Manager):

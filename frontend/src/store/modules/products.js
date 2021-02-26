@@ -11,6 +11,7 @@ export default {
         filteredProductsArr: [],
         productDetailsArr: [],
         addProductForm: true,
+        transferDialog: false,
     },
 
     getters: {

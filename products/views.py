@@ -97,6 +97,18 @@ class ProductView(viewsets.ModelViewSet):
         return Response(Products.objects.product_details(product_id))
 
     @csrf_exempt
+    @action(methods=['post'], detail=False)
+    def transfer_product(self, request):
+        transfer_data = {
+            'vehicle': request.data['body']['vehicle'],
+            'brands': json.loads(request.data['body']['brands']),
+            'profiles': json.loads(request.data['body']['profiles']),
+        }
+
+        return Response(Products.objects.transfer_product(**transfer_data))
+        # return Response({'transfered': True, 'msg': 'Product transfered'})
+
+    @csrf_exempt
     @action(methods=['get'], detail=False)
     def come_in(self, request):
         """

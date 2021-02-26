@@ -159,7 +159,7 @@ export default {
 
     computed: {
         ...mapGetters({
-            warehouses: 'dashboard/getWraehouse',
+            warehouses: 'dashboard/getWarehouse',
         }),
        
     },
