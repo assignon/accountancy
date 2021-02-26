@@ -55,8 +55,8 @@ class Tires(models.Model):
     profiles = models.ManyToManyField(Profiles)
     vehicule = models.ForeignKey(Vehicule, on_delete=models.DO_NOTHING)
     quantity = models.IntegerField(default=1)
-    profiles_str = models.CharField(max_length=255)
-    brands_str = models.CharField(max_length=255)
+    profiles_str = models.CharField(max_length=255, null=True, blank=True)
+    brands_str = models.CharField(max_length=255, null=True, blank=True)
     warehouse_id = models.IntegerField(default=1)  # user id
 
     def __str__(self):

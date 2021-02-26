@@ -242,40 +242,75 @@ class ProductManager(models.Manager):
         return {'tire': tires.values()}
 
     def transfer_product(self, **kwargs):
-        from .models import Tires, Vehicule, Brands, Profiles
+        from .models import Tires, Vehicule, Brands, Profiles, Products
         from django.contrib.auth.models import User
 
         receiver_wh_id = User.objects.get(username=kwargs['receiver_name'])
         sender_id = kwargs['sender_id']
+        try:
+            global vehicle
+            vehicle = Vehicule.objects.get(name=kwargs['vehicle'])
+        except ObjectDoesNotExist:
+            # global vehucle
+            vehicle = Vehicule.objects.create(name=kwargs['vehicle'])
 
         product_by_sender = Tires.objects.filter(
             Q(size=kwargs['size']) &
-            Q(brands_str=','.join(sorted(kwargs['brands']['brands']))) &
-            Q(profiles_str=','.join(sorted(kwargs['profiles']['profiles']))) &
-            Q(vehicule_id=kwargs['vehicle']) &
+            Q(brands_str=','.join(sorted(kwargs['brands']))) &
+            Q(profiles_str=','.join(sorted(kwargs['profiles']))) &
+            Q(vehicule=vehicle) &
             Q(warehouse_id=sender_id)
         )
 
         product_by_receiver = Tires.objects.filter(
             Q(size=kwargs['size']) &
-            Q(brands_str=','.join(sorted(kwargs['brands']['brands']))) &
-            Q(profiles_str=','.join(sorted(kwargs['profiles']['profiles']))) &
-            Q(vehicule_id=kwargs['vehicle']) &
+            Q(brands_str=','.join(sorted(kwargs['brands']))) &
+            Q(profiles_str=','.join(sorted(kwargs['profiles']))) &
+            Q(vehicule=vehicle) &
             Q(warehouse_id=receiver_wh_id.id)
         )
 
         if product_by_receiver.count() == 0:
             # create
-            pass
+            brands_arr = ','.join(sorted(kwargs['brands'])) if len(
+                kwargs['brands']) > 0 else None
+            profile_arr = ','.join(sorted(kwargs['profiles'])) if len(
+                kwargs['profiles']) > 0 else None
+
+            # add tire
+            tire = Tires.objects.create(
+                size=kwargs['size'],
+                price=kwargs['price'],
+                quantity=kwargs['qty'],
+                vehicule=vehicle,
+                profiles_str=profile_arr,
+                brands_str=brands_arr,
+                warehouse_id=receiver_wh_id.id
+            )
+            tire.save()
+            # add brands to tire
+            if len(kwargs['brands']) > 0:
+                for brand in kwargs['brands']:
+                    tire.brands.add(Brands.objects.get(name=brand))
+            # add profiles to tire
+            if len(kwargs['profiles']) > 0:
+                for profile in kwargs['profiles']:
+                    tire.profiles.add(Profiles.objects.get(name=profile))
+            # add tire to product
+            Products.objects.create(tire=tire)
         else:
-            # update
-            pass
+            # update receiver product qty
+            current_receiver_qty = product_by_receiver.values()[0]['quantity']
+            new_qty = int(current_receiver_qty) + int(kwargs['qty'])
+            product_by_receiver.update(quantity=new_qty)
 
         # update sender product quantity
-        current_qty = product_by_sender[0]['quantity']
+        current_qty = product_by_sender.values()[0]['quantity']
         qty_tranfered = kwargs['qty']
-        new_qty = current_qty - qty_tranfered
+        new_qty = int(current_qty) - int(qty_tranfered)
         product_by_sender.update(quantity=new_qty)
+
+        return {'transfered': True, 'msg': 'Product transfered'}
 
 
 class BrandsManager(models.Manager):

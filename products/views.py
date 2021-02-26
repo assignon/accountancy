@@ -101,12 +101,17 @@ class ProductView(viewsets.ModelViewSet):
     def transfer_product(self, request):
         transfer_data = {
             'vehicle': request.data['body']['vehicle'],
-            'brands': json.loads(request.data['body']['brands']),
-            'profiles': json.loads(request.data['body']['profiles']),
+            'brands': [brand['name'] for brand in request.data['body']['brands']['brands']],
+            'profiles': [profile['name'] for profile in request.data['body']['profiles']['profiles']],
+            'qty': request.data['body']['qty'],
+            'receiver_name': request.data['body']["receiver_name"],
+            'sender_id': request.data['body']['sender_id'],
+            'size': request.data['body']['size'],
+            'price': request.data['body']['price'],
         }
 
         return Response(Products.objects.transfer_product(**transfer_data))
-        # return Response({'transfered': True, 'msg': 'Product transfered'})
+        # return Response({'data': transfer_data['brands']})
 
     @csrf_exempt
     @action(methods=['get'], detail=False)
