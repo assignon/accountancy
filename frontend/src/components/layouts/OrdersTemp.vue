@@ -4,13 +4,14 @@
             class='order-temp-layout animated fadeInUp'
             v-for="(order,i) in orderArr[0].order"
             :key='i'
+            :style="[oder_totaly_paid(order.p_status).includes(false) ? {borderLeft:'7px solid red'} : {borderLeft:'7px solid green'}]" 
         >
-            <v-flex xs12 sm12 md2 lg2 xl2 class='customer-name' @click.stop='$store.state.infoDrawer=true, customerOrder(order.credentials.customer_id)'>
+            <v-flex xs12 sm12 md2 lg2 xl2 class='customer-name' @click.stop='$store.state.infoDrawer=true, customerOrder(order.customer_id)'>
                 <v-icon medium color='#1e1d2b'>fas fa-user-circle</v-icon>
                 <p>{{order.credentials.name}}</p>
             </v-flex>
 
-            <v-flex xs12 sm12 md3 lg3 xl3 class='product-name' @click.stop='$store.state.infoDrawer=true, customerOrder(order.credentials.customer_id)'>
+            <v-flex xs12 sm12 md3 lg3 xl3 class='product-name' @click.stop='$store.state.infoDrawer=true, customerOrder(order.customer_id)'>
                 <p>
                     <v-icon small color='#1e1d2b' class='mr-1'>fas fa-boxes</v-icon>
                     {{order.ordered_products[0].product[0].size}} 
@@ -18,14 +19,14 @@
                     <span class='ml-2' v-if='order.ordered_products.length>=2'>[ +{{order.ordered_products.length-1}} ]</span></p>
             </v-flex>
 
-            <v-flex xs12 sm12 md4 lg3 xl3 class='date' @click.stop='$store.state.infoDrawer=true, customerOrder(order.credentials.customer_id)'>
+            <v-flex xs12 sm12 md4 lg3 xl3 class='date' @click.stop='$store.state.infoDrawer=true, customerOrder(order.customer_id)'>
                 <p>
                     <v-icon small color='#1e1d2b' class='mr-1'>fas fa-calendar-alt</v-icon>
                     {{parseDate(order.order.order_on)}}
                 </p>
             </v-flex>
 
-            <v-flex xs12 sm12 md3 lg3 xl3 class='price' @click.stop='$store.state.infoDrawer=true, customerOrder(order.credentials.customer_id)'>
+            <v-flex xs12 sm12 md3 lg3 xl3 class='price' @click.stop='$store.state.infoDrawer=true, customerOrder(order.customer_id)'>
                 <p>
                     <v-icon small color='#1e1d2b' class='mr-1'>fas fa-coins</v-icon>
                     {{formatPrice(order.paying)}}FRS
@@ -38,14 +39,32 @@
                     {{order.payment.method[0].name}}
                 </p>
             </v-flex> -->
-
-            <v-flex xs12 sm12 md2 lg2 xl2 :style="[currentDate == ps.payment_date ? {border:'flex'} : {display:'none'}]" :class='currentDate' v-for='(ps, i) in order.p_status' :key='i'>
+            <div  v-if='order.payment.pay_in != "Once"'>
+                <v-flex xs12 sm12 md2 lg2 xl2 
+                    :style="[currentDate == ps.payment_date ? {display:'flex'} : {display:'none'}]" 
+                    :class='currentDate' 
+                    v-for='(ps, i) in order.p_status' 
+                    :key='i'
+                > <!-- ther could be multiple payment dates -->
+                    <v-checkbox
+                        v-if='currentDate == ps.payment_date'
+                        v-model="ps.payed"
+                        :value="ps.payed"
+                        label="PAID"
+                        @click='displayConfirmationDialog(ps.payed, order.customer_id, ps.payment_date)'
+                    ></v-checkbox>
+                </v-flex>
+            </div>
+    
+            <v-flex xs12 sm12 md2 lg2 xl2 
+                v-else
+                :class='currentDate' 
+            > 
                 <v-checkbox
-                    v-if='currentDate == ps.payment_date'
-                    v-model="ps.payed"
-                    :value="ps.payed"
-                    label="Payed"
-                    @click='displayConfirmationDialog(ps.payed, order.customer_id)'
+                    v-model="order.p_status[0].payed"
+                    :value="order.p_status[0].payed"
+                    label="PAID"
+                    @click='displayConfirmationDialog(order.p_status[0].payed, order.customer_id, order.p_status[0].payment_date)'
                 ></v-checkbox>
             </v-flex>
 
@@ -103,11 +122,13 @@ export default {
             paymentConfirmationDialog: false,
             paymentStatus: null, 
             customerID: null,
+            updatedPaymentdate: null,
         }
     },
 
     created(){
         // console.log(this.orderArr[0].order);
+        console.log(this.orderArr[0]);
     },
 
     methods: {
@@ -119,6 +140,19 @@ export default {
             // Add the component back in
                 this.renderComponent = true;
             });
+        },
+
+        oder_totaly_paid(pStatus){
+            let statusArr = [];
+            
+            pStatus.forEach((item) => {
+                if(item.payed == true){
+                    statusArr.push(true)
+                }else{
+                    statusArr.push(false)
+                }
+            })
+            return statusArr
         },
 
         parseDate(date){
@@ -139,7 +173,6 @@ export default {
                 if(currentDate == ps.payment_date){
                     status = {payed: ps.payed, text: ps.payed ? 'Payed' : 'Not Yet'}
                 }
-                console.log('hallo');
             })
             self.$store.state.order.currentStatus = status
             return status
@@ -163,12 +196,13 @@ export default {
             })
         },
 
-        displayConfirmationDialog(updateValue, customerId){
+        displayConfirmationDialog(updateValue, customerId, updatedPaymentdate){
             let self = this;
             self.paymentConfirmationDialog = true
             setTimeout(() => {
                 self.paymentStatus = updateValue
                 self.customerID = customerId
+                self.updatedPaymentdate = updatedPaymentdate
                 document.querySelector('.confirmation-text').innerHTML = updateValue ? 
                 'Current payment status: NOT PAID <br> Do you wanna update the current paymentstatus?' :
                 'Current payment status: PAID <br> Do you wanna update the current payment status?'
@@ -185,6 +219,7 @@ export default {
             let body = {
                 new_value: self.paymentStatus,
                 customer_id: self.customerID,
+                payment_date: self.updatedPaymentdate
             }
 
             this.$store.dispatch("putReq", {

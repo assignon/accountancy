@@ -1,7 +1,11 @@
 <template>
     <div class='pdf-core'>
         <div class='pdf-header'>
-            <h2>CHICAM</h2>
+            <div class='header-text'>
+                <h2>CHICAM</h2>
+                <p class='font-weight-bold'>+237 000 00 00 00</p>
+                <p class='font-weight-bold'>Import & Export commerce general</p>
+            </div>
             <p style='position:relative;top:10px;'>
                 <span class='font-weight-bold'>Date</span><br>
                 {{new Date().toDateString()}}
@@ -80,8 +84,8 @@
             </table>
 
             <div class='total-price pb-3'>
-                <v-btn large color='#1976d2' style='position:relative;top:70px;color:white;text-transform:capitalize;font-weight:bold;' @click='reloadPAge()'>Back</v-btn>
-                <v-btn large color='#1976d2' style='position:relative;top:70px;color:white;text-transform:capitalize;font-weight:bold;' @click='printOrder()'>Print PDF</v-btn>
+                <v-btn large color='#1976d2' class='action-btn' style='position:relative;top:70px;color:white;text-transform:capitalize;font-weight:bold;' @click='reloadPAge()'>Back</v-btn>
+                <v-btn large color='#1976d2' class='action-btn' style='position:relative;top:70px;color:white;text-transform:capitalize;font-weight:bold;' @click='printOrder()'>Print PDF</v-btn>
                 <h3>
                     <!-- <span>
                         {{orderDeteails[0].payment_helper.paying_in_terms}} / 
@@ -111,11 +115,19 @@ export default {
 
     methods: {
         printOrder(){
-            window.print();
-            window.location.reload()
-            window.addEventListener('onafterprint', function(){
+            let actionBtn = document.querySelectorAll('.action-btn')
+            for (let i = 0; i < actionBtn.length; i++) {
+                const elem = actionBtn[i];
+                elem.style.display = 'None'
+            }
+            setTimeout(() => {
+                window.print();
                 window.location.reload()
-            }) 
+                return false
+                // window.addEventListener('onafterprint', function(){
+                //     window.location.reload()
+                // }) 
+            }, 100);
         },
 
         formatPrice(value) {
@@ -148,7 +160,36 @@ export default {
         justify-content: flex-start;
         align-items: center;
         background-color: #fff;
+        background-image: url('../../assets/chicam.jpg');
+        background-size: contain;
+        background-position: center;
+        background-repeat: no-repeat;
     }
+    /* @media all{
+        .pdf-core{
+            display:none;
+        }
+    }
+
+    @media print{
+        .pdf-core{
+            width: 100%;
+            min-height: 100vh;
+            height: 100vh;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            background-color: #fff;
+            background-image: url('../../assets/chicam.jpg');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+    } */
     ::-webkit-scrollbar {
          width: 10px;
     }
@@ -160,6 +201,14 @@ export default {
         justify-content: space-between;
         align-items: flex-end;
         margin-bottom: 50px;
+    }
+    .header-text{
+        height: auto;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
     }
     .pdf-body{
         width: 100%;
@@ -196,10 +245,12 @@ export default {
     }
     .pdf-core p{
         color: #15141c;
-        font-size:15px;
+        font-size:18px;
         text-align: left;
         margin: 0px;
         padding: 0px;
+        background-color: white;
+        text-transform: capitalize;
     }
     .pdf-footer{
         width: 100%;

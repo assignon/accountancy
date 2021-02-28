@@ -1,5 +1,21 @@
 <template>
     <div class='expenses-core'>
+        <div class='claendar-ctrl mt-5' style='display:flex;justify-content:flex-end;align-items:center;width:97%;'>
+            <v-btn
+                class="font-weight-bold"
+                large
+                color="#1976d2"
+                style='cursor:pointer;text-transform:capitalize'
+                rounded
+                @click='$store.state.calendarStatus = !$store.state.calendarStatus'
+            >
+                <v-icon left style='font-size:20px;' class='pl-2 pt-2 pb-2' color='white'>
+                    fas fa-calendar-alt
+                </v-icon>
+                <span v-if='$store.state.calendarStatus' style='color:white;'>Hide Calendar</span>
+                <span v-else style='color:white;'>Show Calendar</span>
+            </v-btn>
+        </div>
         <v-layout class='expenses-layout'>
             <v-flex xs12 sm12 md8 lg9 xl9 class='expenses-flex'>
                 <div class='expenses-container' v-if='expenses[0].count > 0'>
@@ -40,7 +56,7 @@
             </v-flex>
 
             <v-flex xs12 sm12 md4 lg3 xl3 class='calendar-flex mr-5'>
-                <div class='calendar-container'>
+                <div class='calendar-container' v-if='$store.state.calendarStatus'>
                     <Calendar 
                         @expenses='getExpenses'
                     />
@@ -121,6 +137,7 @@ export default {
         height: 100vh;
         width: 85%;
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: flex-start;
         margin-left: 15%;

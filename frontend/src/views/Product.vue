@@ -22,7 +22,7 @@
                                 <v-icon  
                                     style='font-size:30px'
                                     color='#0163d1' class='mr-4' 
-                                    @click='UpdateProduct()'
+                                    @click='productDetails(product.id), UpdateProduct()'
                                 >fas fa-plus-square</v-icon>
                                 <v-icon  
                                     style='font-size:30px'

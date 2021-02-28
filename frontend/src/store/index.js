@@ -41,6 +41,9 @@ export default new Vuex.Store({
     pdfDialog: false,
     expensesDialog: false,
     reload: true, // reload form modal or not
+     // calendar ctrl
+    calendarStatusText: 'Hide Calendar',
+    calendarStatus: true, //hide or display calendar
   },
 
   getters: {

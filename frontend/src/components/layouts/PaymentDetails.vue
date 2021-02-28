@@ -5,7 +5,7 @@
                 <h3>Customer Details</h3>
                 <p>Name: {{paymentDetails[0].credentials[0].name}}</p>
                 <p v-if='paymentDetails[0].credentials[0].email'>Email: {{paymentDetails[0].credentials[0].email}}</p>
-                <p v-lsee>Email: None</p>
+                <p v-else>Email: None</p>
                 <p v-if='paymentDetails[0].credentials[0].address'>Address: {{paymentDetails[0].credentials[0].address}}</p>
                 <p>Tel.number: {{paymentDetails[0].credentials[0].tel_number}}</p>
             </div>
@@ -40,7 +40,7 @@
                             label=""
                             class='ml-5'
                             style='position:relative;bottom:20px;'
-                            @click='displayConfirmationDialog(ps.payed, paymentDetails[0].customer[0].id)'
+                            @click='displayConfirmationDialog(ps.payed, paymentDetails[0].customer[0].id, ps.payment_date)'
                         ></v-checkbox>
                     </div>
                 </div>
@@ -107,6 +107,7 @@ export default {
             paymentConfirmationDialog: false,
             paymentStatus: null, 
             customerID: null,
+            updatedPaymentdate: null,
         }
     },
 
@@ -140,12 +141,13 @@ export default {
             alert()
         },
 
-        displayConfirmationDialog(updateValue, customerId){
+        displayConfirmationDialog(updateValue, customerId, updatedPaymentdate){
             let self = this;
             self.paymentConfirmationDialog = true
             setTimeout(() => {
                 self.paymentStatus = updateValue
                 self.customerID = customerId
+                self.updatedPaymentdate = updatedPaymentdate
                 document.querySelector('.confirmation-text').innerHTML = updateValue ? 
                 'Current payment status: NOT PAYED <br> Do you wanna update the current paymentstatus?' :
                 'Current payment status: PAYED <br> Do you wanna update the current payment status?'
@@ -162,6 +164,7 @@ export default {
             let body = {
                 new_value: self.paymentStatus,
                 customer_id: self.customerID,
+                payment_date: self.updatedPaymentdate
             }
 
             this.$store.dispatch("putReq", {

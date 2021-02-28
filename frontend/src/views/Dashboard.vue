@@ -1,5 +1,21 @@
 <template>
     <div class='dash-core animated fadeIn pb-5' v-if="this.$session.has('authenticated') && this.$session.get('authenticated')">
+        <div class='claendar-ctrl mt-5' style='display:flex;justify-content:flex-end;align-items:center;width:97%;'>
+            <v-btn
+                class="font-weight-bold"
+                large
+                color="#1976d2"
+                style='cursor:pointer;text-transform:capitalize'
+                rounded
+                @click='$store.state.calendarStatus = !$store.state.calendarStatus'
+            >
+                <v-icon left style='font-size:20px;' class='pl-2 pt-2 pb-2' color='white'>
+                    fas fa-calendar-alt
+                </v-icon>
+                <span v-if='$store.state.calendarStatus' style='color:white;'>Hide Calendar</span>
+                <span v-else style='color:white;'>Show Calendar</span>
+            </v-btn>
+        </div>
         <v-layout class="dash-layout">
 
             <v-flex xs12 sm12 md8 lg8 xl8 class='left-side'>
@@ -60,7 +76,7 @@
 
             <v-flex xs12 sm12 md3 lg3 xl3 class='rigth-side'>
                 <div class='calendar-payments'>
-                    <div class='calendar'>
+                    <div class='calendar' v-if='$store.state.calendarStatus'>
                         <Calendar 
                             @orders='getOrders'
                             @payments='getPayments'
@@ -209,6 +225,8 @@ export default {
                 params: {
                     date: date,
                     limit: 0,
+                    user_id: this.$session.get('warehouseId'),
+                    su_id: this.$session.get('userId')
                 },
                 auth: self.$session.get('token'),
                 csrftoken: self.$session.get('token'),
@@ -247,6 +265,7 @@ export default {
                 params: {
                     date: date,
                     limit: 20,
+                    user_id: this.$session.get('warehouseId')
                 },
                 auth: self.$session.get('token'),
                 csrftoken: self.$session.get('token'),
@@ -266,6 +285,7 @@ export default {
         height: auto;
         width: auto;
         display: flex;
+        flex-direction:column;
         justify-content: center;
         align-items: flex-start;
         margin-left: 15%;

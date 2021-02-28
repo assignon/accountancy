@@ -23,7 +23,7 @@
 
             <v-flex xs12 sm12 md4 lg4 xl4 class='wh-actions' v-if='!whouse.su'>
                 <v-icon style='font-size:20px' color='#0163d1' class='mr-5' @click.stop='updateWh(whouse.id)'>fas fa-pencil-alt</v-icon>
-                <v-icon style='font-size:20px' color='#fc0e26' class='ml-5' @click.stop='deleteWh(whouse.id)'>fas fa-trash-alt</v-icon>
+                <!-- <v-icon style='font-size:20px' color='#fc0e26' class='ml-5' @click.stop='deleteWh(whouse.id)'>fas fa-trash-alt</v-icon> -->
             </v-flex>
 
         </v-layout>
@@ -48,7 +48,7 @@ export default {
 
   computed: {
     ...mapGetters({
-        warehouses: 'dashboard/getWraehouse',
+        warehouses: 'dashboard/getWarehouse',
     }),
   },
 
@@ -59,7 +59,7 @@ export default {
   },
 
   created(){
-    //   console.log(this.warehouses);
+      this.getWarehouses()
   },
 
   methods: {
@@ -71,6 +71,21 @@ export default {
         if (!value) return ''
         value = value.toString()
         return value.charAt(0).toUpperCase() + value.slice(1)
+    },
+
+    getWarehouses(){
+        let self = this;
+
+        self.$store.dispatch("getReq", {
+            url: 'dashboard/get_warehouses',
+            params: {},
+            auth: self.$session.get('token'),
+            csrftoken: self.$session.get('token'),
+            callback: function(data) {
+                // console.log(data);
+                self.$store.getters["setData"]([self.$store.state.dashboard.warehouseArr, [data]]);
+            },
+        });
     },
 
     whouseDetails(whouseId){

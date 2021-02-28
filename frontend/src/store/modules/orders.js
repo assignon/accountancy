@@ -22,6 +22,7 @@ export default {
         vehicule: null,
         brands: [],
         profiles: [],
+        serachOrderArr: [],
         // payment informations
         payInterval: null,
         payIn: null,
@@ -45,7 +46,10 @@ export default {
         },
         getPaymentMethods: (state) => {
             return state.paymentMethodsArr
-        }
+        },
+        getSearchedOrder: (state) => {
+            return state.serachOrderArr
+        },
     },
 
     mutations: {

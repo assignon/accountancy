@@ -53,11 +53,15 @@ class Tires(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     brands = models.ManyToManyField(Brands)
     profiles = models.ManyToManyField(Profiles)
-    vehicule = models.ForeignKey(Vehicule, on_delete=models.DO_NOTHING)
+    vehicule = models.ForeignKey(
+        Vehicule, on_delete=models.DO_NOTHING, null=True, blank=True)
     quantity = models.IntegerField(default=1)
     profiles_str = models.CharField(max_length=255, null=True, blank=True)
     brands_str = models.CharField(max_length=255, null=True, blank=True)
     warehouse_id = models.IntegerField(default=1)  # user id
+
+    class Meta:
+        ordering = ['-id']
 
     def __str__(self):
         return self.size

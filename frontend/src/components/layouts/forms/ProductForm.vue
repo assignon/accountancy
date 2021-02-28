@@ -12,7 +12,6 @@
             <div class='product-field-container'>
                 <v-select
                     v-model="vehicle"
-                    :rules="[$store.state.rules.required]"
                     :items="selectVehicleArr"
                     :menu-props="{ bottom: true, offsetY: true }"
                     label="Select Vehicle*"
@@ -54,7 +53,6 @@
             <div class='product-field-container'>
                 <v-select
                     v-model="brands"
-                    :rules="[$store.state.rules.required]"
                     :items="selectBrandArr"
                     :menu-props="{ bottom: true, offsetY: true }"
                     label="Select Brands*"
@@ -73,7 +71,6 @@
             <div class='product-field-container'>
                 <v-select
                     v-model="profiles"
-                    :rules="[$store.state.rules.required]"
                     :items="selectProfileArr"
                     :menu-props="{ bottom: true, offsetY: true }"
                     label="Select Profiles*"
@@ -169,7 +166,7 @@ export default {
     computed: {
         ...mapGetters({
             productDetails: 'product/getProductDetails',
-            // products: 'product/getProducts',
+            products: 'product/getProducts',
         }),
        
     },
@@ -403,10 +400,11 @@ export default {
             let validationErrMsg = document.querySelector('.v-messages__message');
             console.log(self.vehicle);
                         console.log(self.profiles);
-            if (self.vehicle != null 
-                && self.size != null 
-                && self.brands.length > 0 
-                && self.profiles.length > 0
+            if (
+                // self.vehicle != null 
+                self.size != null 
+                // && self.brands.length > 0 
+                // && self.profiles.length > 0
             ) {
                 // if(self.price !=null && self.price > 0 && self.quantity != null && self.quantity > 0){
                     if(!document.body.contains(validationErrMsg)){
@@ -422,13 +420,12 @@ export default {
                 //     formErrMsg.innerHTML = "Price and quantity should not be <= 0";
                 // }
             } else {
-                formErrMsg.innerHTML = "Fields are empty";
+                formErrMsg.innerHTML = "Field size required";
             }
         },
 
         fillProductForm(){
             let self = this;
-
             self.vehicle = self.productDetails[0].products[0].vehicle
             self.size = self.productDetails[0].products[0].tire[0].size
             self.price = self.productDetails[0].products[0].tire[0].price
