@@ -323,7 +323,6 @@ export default {
                                 self.selectVehicleArr.push(self.capitalizeFirstLetter(self.extraItemName))
                             }
                             formErrMsg.innerHTML = data.msg
-                            self.extraItemName = ''
                              document.querySelector('.new-extra').reset()
                             //close dialog after 2sec
                             setTimeout(() => {
