@@ -44,6 +44,7 @@ class OrderView(viewsets.ModelViewSet):
         """
         # dte = request.query_params.get('date')
         data = {
+            'user_id': request.data['body']['user_id'],
             # customer data
             'name': request.data['body']['name'],
             'email': request.data['body']['email'],
@@ -85,9 +86,18 @@ class OrderView(viewsets.ModelViewSet):
             request (dict): [request data]
         """
         dte = request.query_params.get('date')
-        orders = Orders.objects.get_orders(dte)
+        user_id = request.query_params.get('user_id')
+        orders = Orders.objects.get_orders(user_id, dte)
 
         return Response(orders)
+
+    @csrf_exempt
+    @action(methods=['get'], detail=False)
+    def search_order(self, request):
+        customer_name = request.query_params.get('customer_name')
+        whouse_id = request.query_params.get('user_id')
+
+        return Response(Orders.objects.search_order(customer_name, whouse_id))
 
     @csrf_exempt
     @action(methods=['get'], detail=False)
@@ -101,8 +111,11 @@ class OrderView(viewsets.ModelViewSet):
         dte = datetime.strftime(datetime.now().date(), '%Y-%m-%d') if request.query_params.get(
             'date') == None else request.query_params.get('date')
         limit = request.query_params.get('limit')
+        warehouse_id = int(request.query_params.get('user_id'))
+        su_id = int(request.query_params.get('su_id'))
         # payments_dates = Payment.paymentDates_end(payment['id'])
-        payments = Customers.objects.ongoing_payments(dte, limit)
+        payments = Customers.objects.ongoing_payments(
+            dte, limit, warehouse_id, su_id)
 
         return Response(payments)
 
@@ -116,8 +129,10 @@ class OrderView(viewsets.ModelViewSet):
             request (dict): [request data]
         """
         limit = request.query_params.get('limit')
+        warehouse_id = int(request.query_params.get('user_id'))
+        su_id = int(request.query_params.get('su_id'))
 
-        payments = Customers.objects.all_payments(limit)
+        payments = Customers.objects.all_payments(limit, warehouse_id, su_id)
 
         return Response(payments)
 
@@ -174,7 +189,8 @@ class PaymentView(viewsets.ModelViewSet):
         payment_id = Customers.objects.get(
             id=request.data['body']['customer_id']).payment_id
         # payment_date = request.data['body']['payment_date']
-        payment_date = datetime.strftime(datetime.now().date(), '%Y-%m-%d')
+        # payment_date = datetime.strftime(datetime.now().date(), '%Y-%m-%d')
+        payment_date = request.data['body']['payment_date']
         new_value = request.data['body']['new_value']  # bollean
 
         Payment_status.objects.filter(

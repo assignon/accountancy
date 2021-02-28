@@ -6,7 +6,6 @@
         <div class='order-field-container'>
             <v-select
                 v-model="$store.state.order.vehicule"
-                :rules="[$store.state.rules.required]"
                 :items="vehiculeItemsArr"
                 :menu-props="{ bottom: true, offsetY: true }"
                 label="Choose Vehicle*"
@@ -27,7 +26,6 @@
                 <v-flex xs12 sm12 md11 lg11 xl11>
                     <v-select
                         v-model="$store.state.order.brands"
-                        :rules="[$store.state.rules.required]"
                         :items="brandsItemsArr"
                         :menu-props="{ bottom: true, offsetY: true }"
                         label="Choose Brands*"
@@ -48,7 +46,6 @@
                 <v-flex xs12 sm12 md12 lg12 xl12>
                     <v-select
                         v-model="$store.state.order.profiles"
-                        :rules="[$store.state.rules.required]"
                         :items="profileItemsArr"
                         :menu-props="{ bottom: true, offsetY: true }"
                         label="Choose profiles*"
@@ -76,6 +73,7 @@
                     :menu-props="{ bottom: true, offsetY: true }"
                     label="Choose Product*"
                     outlined
+                    @click='filteredProducts()'
                 ></v-select>
             </v-flex>
             <v-flex xs12 sm12 md2 lg2 xl2>
@@ -304,29 +302,30 @@ export default {
              self.selectItemsArr = [];
              store.state.order.product = null
 
-            if(
-                store.state.order.vehicule != null 
-                && store.state.order.brands.length > 0 
-                && store.state.order.profiles.length > 0
-            ){
-                this.$store.dispatch("getReq", {
-                url: "product/filter_products",
-                params: {
-                    vehicle: store.state.order.vehicule,
-                    brands: brandsPayload,
-                    profiles: profilesPayload,
+            // if(
+            //     store.state.order.vehicule != null 
+            //     && store.state.order.brands.length > 0 
+            //     && store.state.order.profiles.length > 0
+            // ){
+            this.$store.dispatch("getReq", {
+            url: "product/filter_products",
+            params: {
+                vehicle: store.state.order.vehicule,
+                brands: brandsPayload,
+                profiles: profilesPayload,
+                user_id: self.$session.get('userId')
+            },
+            auth: self.$session.get('token'),
+            csrftoken: self.$session.get('token'),
+            callback: function(data) {
+                console.log(data);
+                data.tire.forEach(item => {
+                    self.selectItemsArr.push(item.size+'-'+item.quantity)
+                })
+                store.getters["setData"]([store.state.product.filteredProductsArr, [data]]);
                 },
-                auth: self.$session.get('token'),
-                csrftoken: self.$session.get('token'),
-                callback: function(data) {
-                    console.log(data);
-                    data.tire.forEach(item => {
-                        self.selectItemsArr.push(item.size+'-'+item.quantity)
-                    })
-                    store.getters["setData"]([store.state.product.filteredProductsArr, [data]]);
-                    },
-                });
-            }
+            });
+            // }
         },
 
          allBrands(){
@@ -539,6 +538,7 @@ export default {
             let store = self.$store.state.order;
             let formErrMsg = document.querySelector(".order-form-err-msg");
             let validationErrMsg = document.querySelector('.v-messages__message');
+
             if (store.product != null && store.quantity > 0) {
                 let productSize = store.product.split('-')
                 store.product  = productSize[0]

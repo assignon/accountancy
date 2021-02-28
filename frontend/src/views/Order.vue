@@ -1,11 +1,44 @@
 <template>
   <div class="order-core animated fadeIn">
      <v-layout class='order-layout'>
-         <div class='create-order'>
-             <v-btn large @click='newOrder()' rounded color='#1976d2' class='mr-5'>New Order</v-btn>
-         </div>
+        <div class='create-order'>
+            <div class='hide-serach-result' v-if='searchView==true'>
+                <v-icon medium color='#15141c' @click='searchView=false'>fas fa-chevron-left</v-icon>
+                <p style='color:#15141c; margin:auto' class='ml-3 font-weight-bold' @click='searchView=false'>Back</p>
+            </div>
+             <div class='order-search-form' ref='orderSearchForm'>
+                <v-text-field
+                    v-model="orderSearch"
+                    label="Search Orders (e.g john)...*"
+                    type='search'
+                    rounded
+                    required
+                    filled
+                    dense
+                    append-icon="fas fa-search"
+                    @keyup.enter='displaySearchView'
+                    @input='searchOrder'
+                ></v-text-field>
+            </div>
+            <v-btn large @click='newOrder()' rounded color='#1976d2' class='mr-5'>New Order</v-btn>
+            <!-- calendar ctrl -->
+            <v-btn
+                class="mr-4"
+                large
+                color="#1976d2"
+                style='cursor:pointer'
+                rounded
+                @click='$store.state.calendarStatus = !$store.state.calendarStatus'
+            >
+                <v-icon left style='font-size:20px;' class='pl-2 pt-2 pb-2' color='white'>
+                    fas fa-calendar-alt
+                </v-icon>
+                <span v-if='$store.state.calendarStatus' style='color:white;'>Hide Calendar</span>
+                <span v-else style='color:white;'>Show Calendar</span>
+            </v-btn>
+        </div>
 
-         <div class='flex-container'>
+        <div class='flex-container' v-if='!searchView'>
              <v-flex xs12 sm12 md8 lg9 xl9 class='orders-flex'>
                  <v-tabs
                     v-model="tab"
@@ -79,13 +112,23 @@
                 </v-tabs-items>
             </v-flex>
 
-            <v-flex xs12 sm12 md4 lg3 xl3 class='calendar-flex mt-5 mr-5'>
+            <v-flex xs12 sm12 md4 lg3 xl3 class='calendar-flex mt-5 mr-5' v-if='$store.state.calendarStatus'>
                 <Calendar 
                     @orders='getOrders'
                     @payments='getPayments'
                 />
             </v-flex>
-         </div>
+        </div>
+        <div class='order-search-result' v-else>
+            <div class='order-founded' v-if='searchedOrder.length>0'>
+                <OrdersTemp :orderArr='searchedOrder'/>
+            </div>
+
+            <div class='order-no-founded' v-if='searchedOrder.length==0'>
+                <v-icon class='mb-3' style='font-size: 100px' color='#15141c'>fas fa-truck-loading</v-icon>
+                <p class='font-weight-bold'>No order founded</p>
+            </div>
+        </div>
      </v-layout>
      <InformationModal 
             bColor='#15141c'    
@@ -117,6 +160,7 @@ export default {
             // orders
             orders: 'order/getOrders',
             customerPayments: 'order/getPayments',
+            searchedOrder: 'order/getSearchedOrder',
         }),
     },
 
@@ -124,6 +168,8 @@ export default {
   data(){
     return{
       tab: null,
+      orderSearch: null, //v-model
+      searchView: false
     }
   },
 
@@ -147,6 +193,8 @@ export default {
             params: {
                 date: date,
                 limit: 0,
+                user_id: this.$session.get('warehouseId')
+                // user_id: this.$session.get('warehouseId') == 0 ? this.$session.get('userId') : this.$session.get('warehouseId')
             },
             auth: self.$session.get('token'),
             csrftoken: self.$session.get('token'),
@@ -165,6 +213,8 @@ export default {
             url: "order/payments",
             params: {
                 limit: limit,
+                user_id: this.$session.get('warehouseId'),
+                su_id: this.$session.get('userId')
             },
             auth: self.$session.get('token'),
             csrftoken: self.$session.get('token'),
@@ -184,6 +234,8 @@ export default {
             params: {
                 date: date,
                 limit: 0,
+                user_id: this.$session.get('warehouseId'),
+                su_id: this.$session.get('userId')
             },
             auth: self.$session.get('token'),
             csrftoken: self.$session.get('token'),
@@ -217,6 +269,41 @@ export default {
         this.$store.state.formsDialog = true;
         this.$store.state.formName = 'Order';
         this.$store.state.formsTemp = 'OrderStepper';
+    },
+
+    displaySearchView(){
+        this.searchView = true
+    },
+
+    searchOrder(){
+        let self = this
+
+        self.searchView = true
+        if(this.orderSearch == ''){
+            self.searchView = false
+            self.$store.state.order.serachOrderArr = []
+        }
+        // send request
+        if(this.orderSearch != ''){
+            this.$store.dispatch('getReq', {
+                url: 'order/search_order',
+                params: {
+                    customer_name: self.orderSearch,
+                    user_id: self.$session.get('warehouseId')
+                },
+                auth: self.$session.get('token'),
+                csrftoken: self.$session.get('token'),
+                callback: function(data){
+                    console.log('search data', data);
+                    if(data.founded){
+                        self.$store.state.infoTempName = 'PaymentDetails'
+                        self.$store.getters["setData"]([self.$store.state.order.serachOrderArr, [data]]);
+                    }else{
+                        self.$store.state.order.serachOrderArr = []
+                    }
+                },
+            })
+    }   
     }
   }
 };
@@ -254,6 +341,29 @@ export default {
         font-weight: bolder;
         text-transform: capitalize;
     }
+    .hide-serach-result{
+        height: 50px;
+        width: 40%;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        cursor: pointer;
+    }
+    .order-search-form{
+        width: 50%;
+        height: auto;
+        display: flex;
+        justify-content: flex-start;
+        align-items: flex-end;
+    }
+    .order-search-form .v-text-field{
+         width: 70%;
+         margin-right: 20px;
+     }
+     .order-search-form .v-icon{
+
+     }
     .flex-container{
         height: auto;
         width: 100%;
@@ -380,6 +490,30 @@ export default {
         color: #1e1d2b;
         font-size: 17px;
         font-weight: bold;
+    }
+    .order-search-result{
+        height: 90vh;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+    }
+    .order-founded{
+        height: 100%;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+    }
+    .order-no-founded{
+        height: 100%;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
     }
     @media only screen and (max-width: 500px) {
         .order-core, .orders-flex, .v-tabs, .v-tabs-items{

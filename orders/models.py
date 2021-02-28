@@ -136,6 +136,7 @@ class Orders(models.Model):
     product_ordered = models.ManyToManyField(ProductOrdered)
     order_on = models.DateField(auto_now=True)
     order_at = models.TimeField(auto_now=True)
+    warehouse_id = models.IntegerField(default=1)
     objects = OrdersManager()
 
     class Meta:
@@ -171,10 +172,11 @@ class Credentials(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        credential = Credentials.objects.filter(email=self.email)
-        if credential.count() > 0:
-            # get the existing credential obj
-            return Credentials.objects.get(id=credential.values()[0]['id'])
+        if self.email != None:
+            credential = Credentials.objects.filter(email=self.email)
+            if credential.count() > 0:
+                # get the existing credential obj
+                return Credentials.objects.get(id=credential.values()[0]['id'])
         return super().save(*args, **kwargs)
 
 

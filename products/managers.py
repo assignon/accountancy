@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models import Q, Sum, Count
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import NON_FIELD_ERRORS, ObjectDoesNotExist
 # from .models import Tires
 from datetime import datetime
 import json
@@ -36,17 +36,22 @@ class ProductManager(models.Manager):
     def add_product(self, **kwargs):
         from products.models import Products, Tires, Brands, Profiles, Vehicule
 
+        vehicle_name = kwargs['vehicle']
         try:
             global vehicle
-            vehicle = Vehicule.objects.get(name=kwargs['vehicle'])
+            if kwargs['vehicle'] != None:
+                vehicle = Vehicule.objects.get(name=vehicle_name)
         except ObjectDoesNotExist:
             global vehucle
-            vehicle = Vehicule.objects.create(name=kwargs['vehicle'])
+            if kwargs['vehicle'] != None:
+                vehicle = Vehicule.objects.create(name=vehicle_name)
 
         brands_arr = ','.join(sorted(kwargs['brands'])) if len(
-            kwargs['brands']) > 0 else "{}".format(sorted(kwargs['brands'][0]))
+            kwargs['brands']) > 0 else None
+        # kwargs['brands']) > 0 else "{}".format(sorted(kwargs['brands'][0]))
         profile_arr = ','.join(sorted(kwargs['profiles'])) if len(
-            kwargs['profiles']) > 0 else '{}'.format(sorted(kwargs['profiles'][0]))
+            kwargs['profiles']) > 0 else None
+        # kwargs['profiles']) > 0 else '{}'.format(sorted(kwargs['profiles'][0]))
 
         this_tire = Tires.objects.filter(
             Q(size=kwargs['size']) &
@@ -57,16 +62,28 @@ class ProductManager(models.Manager):
 
         if this_tire.count() == 0:
             # add tire
-            tire = Tires.objects.create(
-                size=kwargs['size'],
-                price=kwargs['price'],
-                quantity=kwargs['quantity'],
-                vehicule=vehicle,
-                profiles_str=profile_arr,
-                brands_str=brands_arr,
-                warehouse_id=kwargs['user_id']
-            )
-            tire.save()
+            # add vehicle if is not none
+            if kwargs['vehicle'] != None:
+                tire = Tires.objects.create(
+                    size=kwargs['size'],
+                    price=kwargs['price'],
+                    quantity=kwargs['quantity'],
+                    vehicule=vehicle,
+                    profiles_str=profile_arr,
+                    brands_str=brands_arr,
+                    warehouse_id=kwargs['user_id']
+                )
+                tire.save()
+            else:
+                tire = Tires.objects.create(
+                    size=kwargs['size'],
+                    price=kwargs['price'],
+                    quantity=kwargs['quantity'],
+                    profiles_str=profile_arr,
+                    brands_str=brands_arr,
+                    warehouse_id=kwargs['user_id']
+                )
+                tire.save()
             # get brands
             for brand in kwargs['brands']:
                 tire.brands.add(Brands.objects.get(name=brand))
@@ -88,21 +105,33 @@ class ProductManager(models.Manager):
     def update_product(self, **kwargs):
         from products.models import Products, Tires, Brands, Profiles, Vehicule
 
-        vehicle = Vehicule.objects.get(name=kwargs['vehicle'])
         brands_arr = ','.join(sorted(kwargs['brands'])) if len(
-            kwargs['brands']) > 0 else "{}".format(sorted(kwargs['brands'][0]))
+            kwargs['brands']) > 0 else None
+        # kwargs['brands']) > 0 else "{}".format(sorted(kwargs['brands'][0]))
         profile_arr = ','.join(sorted(kwargs['profiles'])) if len(
-            kwargs['profiles']) > 0 else '{}'.format(sorted(kwargs['profiles'][0]))
+            kwargs['profiles']) > 0 else None
+        # kwargs['profiles']) > 0 else '{}'.format(sorted(kwargs['profiles'][0]))
 
         tire = Tires.objects.filter(id=kwargs['tire_id'])
-        tire.update(
-            size=kwargs['size'],
-            price=kwargs['price'],
-            quantity=kwargs['quantity'],
-            vehicule=vehicle,
-            profiles_str=profile_arr,
-            brands_str=brands_arr
-        )
+
+        if kwargs['vehicle'] != None:
+            vehicle = Vehicule.objects.get(name=kwargs['vehicle'])
+            tire.update(
+                size=kwargs['size'],
+                price=kwargs['price'],
+                quantity=kwargs['quantity'],
+                vehicule=vehicle,
+                profiles_str=profile_arr,
+                brands_str=brands_arr
+            )
+        else:
+            tire.update(
+                size=kwargs['size'],
+                price=kwargs['price'],
+                quantity=kwargs['quantity'],
+                profiles_str=profile_arr,
+                brands_str=brands_arr
+            )
 
         # update brands
         tire[0].brands.all().delete()
@@ -173,6 +202,11 @@ class ProductManager(models.Manager):
 
         for product in product_obj:
             qty += product['quantity']
+            try:
+                vehicle = Tires.objects.get(
+                    id=product['tire_id']).vehicule.name
+            except:
+                vehicle = None
             productsArr.append(
                 {
                     # 'add_at': product['add_at'],
@@ -182,7 +216,7 @@ class ProductManager(models.Manager):
                     'id': self.get_queryset().get(tire_id=product['id']).id,
                     'brands': Tires.objects.get(id=product['id']).brands.all().values(),
                     'profiles': Tires.objects.get(id=product['id']).profiles.all().values(),
-                    'vehicle': Tires.objects.get(id=product['id']).vehicule.name
+                    'vehicle': vehicle
                 }
             )
             # products = Tires.objects.values('size').annotate(Sum('quantity'))
@@ -201,6 +235,11 @@ class ProductManager(models.Manager):
         product_obj = self.select_related().filter(id=product_id)
 
         for product in product_obj.values():
+            try:
+                vehicle = Tires.objects.get(
+                    id=product['tire_id']).vehicule.name
+            except:
+                vehicle = None
             productsArr.append(
                 {
                     'add_at': product['add_at'],
@@ -209,13 +248,13 @@ class ProductManager(models.Manager):
                     'tire': get_related(Tires, product_obj, 'tire_id'),
                     'brands': Tires.objects.get(id=product['tire_id']).brands.all().values(),
                     'profiles': Tires.objects.get(id=product['tire_id']).profiles.all().values(),
-                    'vehicle': Tires.objects.get(id=product['tire_id']).vehicule.name
+                    'vehicle': vehicle
                 }
             )
 
         return {'products': productsArr}
 
-    def filter_products(self, vehicle, brands, profiles):
+    def filter_products(self, vehicle, brands, profiles, warehouse_id):
         from .models import Tires, Vehicule
         try:
             vehicle = Vehicule.objects.get(name=vehicle).id
@@ -230,14 +269,37 @@ class ProductManager(models.Manager):
         #     Q(vehicule_id=vehicle)
         # )
 
-        tires = Tires.objects.filter(
-            Q(brands_str=','.join(sorted(brands['brands']))) &
-            Q(profiles_str=','.join(sorted(profiles['profiles']))) &
-            Q(vehicule_id=vehicle)
-        )
-
-        # print('brannnddd', ','.join(sorted(brands['brands'])))
-        # print('prooofffill', ','.join(sorted(profiles['profiles'])))
+        if len(brands['brands']) > 0 and len(profiles['profiles']) > 0 and vehicle != None:
+            tires = Tires.objects.filter(
+                Q(brands_str=','.join(sorted(brands['brands']))) &
+                Q(profiles_str=','.join(sorted(profiles['profiles']))) &
+                Q(vehicule_id=vehicle) &
+                Q(warehouse_id=warehouse_id)
+            )
+        elif len(brands['brands']) == 0 and len(profiles['profiles']) > 0 and vehicle != None:
+            tires = Tires.objects.filter(
+                Q(profiles_str=','.join(sorted(profiles['profiles']))) &
+                Q(vehicule_id=vehicle) &
+                Q(warehouse_id=warehouse_id)
+            )
+        elif len(brands['brands']) > 0 and len(profiles['profiles']) == 0 and vehicle != None:
+            tires = Tires.objects.filter(
+                Q(brands_str=','.join(sorted(brands['brands']))) &
+                Q(vehicule_id=vehicle) &
+                Q(warehouse_id=warehouse_id)
+            )
+        elif len(brands['brands']) > 0 and len(profiles['profiles']) > 0 and vehicle == None:
+            tires = Tires.objects.filter(
+                Q(brands_str=','.join(sorted(brands['brands']))) &
+                Q(profiles_str=','.join(sorted(profiles['profiles']))) &
+                Q(warehouse_id=warehouse_id)
+            )
+        else:
+            tires = Tires.objects.filter(
+                Q(brands_str=None) &
+                Q(profiles_str=None) &
+                Q(warehouse_id=warehouse_id)
+            )
 
         return {'tire': tires.values()}
 
@@ -247,28 +309,52 @@ class ProductManager(models.Manager):
 
         receiver_wh_id = User.objects.get(username=kwargs['receiver_name'])
         sender_id = kwargs['sender_id']
+        vehicle_name = kwargs['vehicle']
         try:
             global vehicle
-            vehicle = Vehicule.objects.get(name=kwargs['vehicle'])
+            if kwargs['vehicle'] != None:
+                vehicle = Vehicule.objects.get(name=vehicle_name)
         except ObjectDoesNotExist:
-            # global vehucle
-            vehicle = Vehicule.objects.create(name=kwargs['vehicle'])
+            global vehucle
+            if kwargs['vehicle'] != None:
+                vehicle = Vehicule.objects.create(name=vehicle_name)
+        # if len(kwargs['brands']) > 0 and len(kwargs['profiles']) > 0
 
-        product_by_sender = Tires.objects.filter(
-            Q(size=kwargs['size']) &
-            Q(brands_str=','.join(sorted(kwargs['brands']))) &
-            Q(profiles_str=','.join(sorted(kwargs['profiles']))) &
-            Q(vehicule=vehicle) &
-            Q(warehouse_id=sender_id)
-        )
+        if kwargs['vehicle'] != None:
+            product_by_sender = Tires.objects.filter(
+                Q(size=kwargs['size']) &
+                Q(brands_str=','.join(sorted(kwargs['brands'])) if len(
+                    kwargs['brands']) > 0 else None) &
+                Q(profiles_str=','.join(sorted(kwargs['profiles'])) if len(
+                    kwargs['profiles']) > 0 else None) &
+                Q(vehicule=vehicle) &
+                Q(warehouse_id=sender_id)
+            )
+        else:
+            product_by_sender = Tires.objects.filter(
+                Q(size=kwargs['size']) &
+                Q(brands_str=','.join(sorted(kwargs['brands'])) if len(
+                    kwargs['brands']) > 0 else None) &
+                Q(profiles_str=','.join(sorted(kwargs['profiles'])) if len(
+                    kwargs['profiles']) > 0 else None) &
+                Q(warehouse_id=sender_id)
+            )
 
-        product_by_receiver = Tires.objects.filter(
-            Q(size=kwargs['size']) &
-            Q(brands_str=','.join(sorted(kwargs['brands']))) &
-            Q(profiles_str=','.join(sorted(kwargs['profiles']))) &
-            Q(vehicule=vehicle) &
-            Q(warehouse_id=receiver_wh_id.id)
-        )
+        if kwargs['vehicle'] != None:
+            product_by_receiver = Tires.objects.filter(
+                Q(size=kwargs['size']) &
+                Q(brands_str=','.join(sorted(kwargs['brands']))) &
+                Q(profiles_str=','.join(sorted(kwargs['profiles']))) &
+                Q(vehicule=vehicle) &
+                Q(warehouse_id=receiver_wh_id.id)
+            )
+        else:
+            product_by_receiver = Tires.objects.filter(
+                Q(size=kwargs['size']) &
+                Q(brands_str=','.join(sorted(kwargs['brands']))) &
+                Q(profiles_str=','.join(sorted(kwargs['profiles']))) &
+                Q(warehouse_id=receiver_wh_id.id)
+            )
 
         if product_by_receiver.count() == 0:
             # create
@@ -278,16 +364,28 @@ class ProductManager(models.Manager):
                 kwargs['profiles']) > 0 else None
 
             # add tire
-            tire = Tires.objects.create(
-                size=kwargs['size'],
-                price=kwargs['price'],
-                quantity=kwargs['qty'],
-                vehicule=vehicle,
-                profiles_str=profile_arr,
-                brands_str=brands_arr,
-                warehouse_id=receiver_wh_id.id
-            )
-            tire.save()
+            if kwargs['vehicle'] != None:
+                tire = Tires.objects.create(
+                    size=kwargs['size'],
+                    price=kwargs['price'],
+                    quantity=kwargs['qty'],
+                    vehicule=vehicle,
+                    profiles_str=profile_arr,
+                    brands_str=brands_arr,
+                    warehouse_id=receiver_wh_id.id
+                )
+                tire.save()
+            else:
+                tire = Tires.objects.create(
+                    size=kwargs['size'],
+                    price=kwargs['price'],
+                    quantity=kwargs['qty'],
+                    profiles_str=profile_arr,
+                    brands_str=brands_arr,
+                    warehouse_id=receiver_wh_id.id
+                )
+                tire.save()
+
             # add brands to tire
             if len(kwargs['brands']) > 0:
                 for brand in kwargs['brands']:

@@ -88,6 +88,7 @@ export default {
     },
 
     created() {
+        console.log(this.orderDeteails);
     },
 
     methods: {

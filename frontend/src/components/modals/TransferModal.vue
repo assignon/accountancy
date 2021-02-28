@@ -23,6 +23,7 @@
                     label="Transfer To*"
                     outlined
                     style='width: 85%'
+                    @click='getWarehouses'
                 ></v-select>
                 <v-text-field
                     v-model="qty"
@@ -102,10 +103,12 @@ export default {
 
         this.getWarehouses()
         
-        this.warehouses[0].forEach(items => {
-            self.warehousesArr.push(items.name)
-        })
-        this.excludeCurrentWarehouseFromArr()
+        setTimeout(() => {
+            this.warehouses[0].forEach(items => {
+                self.warehousesArr.push(items.name)
+            })
+            this.excludeCurrentWarehouseFromArr()
+        }, 100);
     },
 
     methods: {
@@ -113,9 +116,9 @@ export default {
             let self = this
             let currentWh = this.$session.get('su') ? 'main' : this.$session.get('warehouseName')
 
-            let findCurrentWh = self.warehousesArr.findIndex(x => x == currentWh);
-            if(findCurrentWh != -1){
-                self.warehousesArr.splice(findCurrentWh, 1);
+            let currentWhIndex = self.warehousesArr.findIndex(x => x == currentWh);
+            if(currentWhIndex != -1){
+                self.warehousesArr.splice(currentWhIndex, 1);
             }
 
             // self.warehousesArr.filter(function(value, index, arr){ 
@@ -140,6 +143,7 @@ export default {
                 callback: function(data) {
                     // console.log(data);
                     self.$store.getters["setData"]([self.$store.state.dashboard.warehouseArr, [data]]);
+                    console.log(self.$store.state.dashboard.warehouseArr);
                 },
             });
         },

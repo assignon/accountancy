@@ -106,6 +106,7 @@ export default {
                 payment_interval: store.payInterval,
                 pay_in: store.payIn,
                 method: store.payMethod,
+                user_id: this.$session.get('warehouseId') == 0 ? this.$session.get('userId') : this.$session.get('warehouseId')
             }
 
             this.$store.dispatch("postReq", {

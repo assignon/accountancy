@@ -86,8 +86,9 @@ class ProductView(viewsets.ModelViewSet):
         vehicle = request.query_params.get('vehicle')
         brands = json.loads(request.query_params.get('brands'))
         profiles = json.loads(request.query_params.get('profiles'))
+        warehouse_id = request.query_params.get('user_id')
 
-        return Response(Products.objects.filter_products(vehicle, brands, profiles))
+        return Response(Products.objects.filter_products(vehicle, brands, profiles, warehouse_id))
 
     @csrf_exempt
     @action(methods=['get'], detail=False)

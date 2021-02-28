@@ -184,12 +184,12 @@ export default {
     },
 
     created(){
-        console.log(this.$parent);
         let self = this
+
+        this.getWarehouses()
         setTimeout(() => {
             self.warehouse = this.$session.get('warehouseName')+','+this.$session.get('warehouseId')
         }, 100)
-        this.getWarehouses()
     },
 
     methods:{
@@ -219,21 +219,6 @@ export default {
             this.$session.set('warehouseName', self.warehouse.split(',')[0])
             this.$session.set('warehouseId', self.warehouse.split(',')[1])
             window.location.reload()
-        },
-
-        getWarehouses(){
-            let self = this;
-
-            self.$store.dispatch("getReq", {
-                url: 'dashboard/get_warehouses',
-                params: {},
-                auth: self.$session.get('token'),
-                csrftoken: self.$session.get('token'),
-                callback: function(data) {
-                    // console.log(data);
-                    self.$store.getters["setData"]([self.$store.state.dashboard.warehouseArr, [data]]);
-                },
-            });
         },
 
         addWarehouse(){
@@ -281,6 +266,21 @@ export default {
             }else{
                 formErrMsg.innerHTML = 'warehouse name and password should not be empty'
             }
+        },
+
+        getWarehouses(){
+            let self = this;
+
+            self.$store.dispatch("getReq", {
+                url: 'dashboard/get_warehouses',
+                params: {},
+                auth: self.$session.get('token'),
+                csrftoken: self.$session.get('token'),
+                callback: function(data) {
+                    // console.log(data);
+                    self.$store.getters["setData"]([self.$store.state.dashboard.warehouseArr, [data]]);
+                },
+            });
         },
 
         whouseDetails(whouseId){
