@@ -70,7 +70,6 @@ def signin(request):
         else:
             passwordContext = {
                 'authenticate': False,
-                'ww': password,
                 'msg': 'Wachtwoord onjuist',
             }
             return Response(passwordContext)

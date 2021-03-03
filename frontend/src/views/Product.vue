@@ -119,6 +119,7 @@ export default {
       addProduct(){
         this.$store.state.formsDialog = true;
         this.$store.state.product.addProductForm = true;
+        this.$store.state.product.productProforma = false;
         this.$store.state.formName = ' Product';
         this.$store.state.formsTemp = 'ProductForm';
         this.$store.reload = true;
@@ -127,6 +128,7 @@ export default {
       UpdateProduct(){
             this.$store.state.formsDialog = true;
             this.$store.state.product.addProductForm = false;
+            this.$store.state.product.productProforma = false;
             this.$store.state.formName = ' Product';
             this.$store.state.formsTemp = 'ProductForm';
             this.$store.reload = true
@@ -180,7 +182,7 @@ export default {
         align-items: flex-start;
         margin-left: 15%;
         /* background-color: #1e1d2b; */
-        background-color: #fafafa;
+        background-color: #fff;
     }
     .product-layout{
         height: auto;

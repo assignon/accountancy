@@ -20,7 +20,7 @@
                     @input='searchOrder'
                 ></v-text-field>
             </div>
-            <v-btn large @click='newOrder()' rounded color='#1976d2' class='mr-5'>New Order</v-btn>
+            <v-btn large @click='newOrder()' rounded color='#1976d2' class='mr-5'>New Sale</v-btn>
             <!-- calendar ctrl -->
             <v-btn
                 class="mr-4"
@@ -49,7 +49,7 @@
                     <v-tab class='ml-5'>
                         <p style='color:#15141c;font-size: 17px;text-transform:capitalize;font-weight:bold'>
                             <v-icon style='font-size: 30px;' color='#15141c'>fas fa-truck-loading</v-icon>
-                            Orders
+                            Sales
                         </p>
                     </v-tab>
                     <v-tab class='ml-5'>
@@ -69,7 +69,7 @@
                     <v-tab-item v-else>
                         <div class='no-orders' style='width: 900px;margin-top:50px;'>
                             <v-icon>fas fa-truck-loading</v-icon>
-                            <p class='mt-3'>No Orders</p>
+                            <p class='mt-3'>No Sales</p>
                         </div>
                     </v-tab-item>
                      
@@ -267,7 +267,7 @@ export default {
 
     newOrder(){
         this.$store.state.formsDialog = true;
-        this.$store.state.formName = 'Order';
+        this.$store.state.formName = 'Sale';
         this.$store.state.formsTemp = 'OrderStepper';
     },
 

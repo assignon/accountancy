@@ -42,7 +42,7 @@
                     outlined
                 ></v-text-field>
             </div>
-            <div class='product-field-container'>
+            <div class='product-field-container' v-if="$store.state.product.productProforma==false">
                 <v-text-field
                     v-model="quantity"
                     label="Quantity*"
@@ -94,22 +94,34 @@
                     width="20%"
                     class="fot-weight-bold white--text"
                     color="#1976d2"
-                    v-if='$store.state.product.addProductForm'
+                    v-if='$store.state.product.addProductForm && $store.state.product.productProforma==false'
                     @click='submitProduct()'
                 >
                     <p style='font-size:17px;margin:auto;'>Add Product</p>
                 </v-btn>
-                 <v-btn
+                <v-btn
                     large
                     depressed
                     height="50"
                     width="30%"
                     class="fot-weight-bold white--text"
                     color="#1976d2"
-                    v-else
+                    v-if='$store.state.product.addProductForm==false && $store.state.product.productProforma==false'
                     @click='submitUpdatedProduct()'
                 >
                     <p style='font-size:17px;margin:auto;'>Update Product</p>
+                </v-btn>
+                <v-btn
+                    large
+                    depressed
+                    height="50"
+                    width="30%"
+                    class="fot-weight-bold white--text"
+                    color="#1976d2"
+                    v-if='$store.state.product.productProforma && $store.state.product.addProductForm==false'
+                    @click='createProforma()'
+                >
+                    <p style='font-size:17px;margin:auto;'>Create Proforma</p>
                 </v-btn>
             </div>
         </v-form>
@@ -190,7 +202,7 @@ export default {
         this.allVehicles()
         this.allBrands()
         this.allProfiles()
-        if(!this.$store.state.product.addProductForm){
+        if(!this.$store.state.product.addProductForm && !this.$store.state.product.productProforma){
             setTimeout(() => {
                 this.fillProductForm()
             },200)
@@ -422,6 +434,28 @@ export default {
             } else {
                 formErrMsg.innerHTML = "Field size required";
             }
+        },
+
+        createProforma(){
+            let self = this;
+            let store = self.$store.state.product
+
+            self.$store.state.pdfTemp = 'ProformaPdf';
+            self.$store.state.pdfDialog = true;
+
+            store.proVehicle = self.vehicle
+            store.proSize = self.size
+            store.proPrice = self.price
+
+            self.brands.forEach(item => {
+                console.log(item);
+                store.proBrands.push(item)
+            })
+
+            self.profiles.forEach(item => {
+                store.proProfiles.push(item)
+            })
+            console.log(store.proBrands);
         },
 
         fillProductForm(){

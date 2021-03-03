@@ -36,7 +36,7 @@
                 <router-link to="/orders" style="text-decoration: none;" class='menu-item'>
                     <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Order"'></span>
                     <v-icon color='white'>fas fa-truck-loading</v-icon>
-                    <p>Orders</p>
+                    <p>Sales</p>
                 </router-link>
                 <v-icon 
                     style='font-size:28px;position:relative;bottom:1px' 
@@ -71,6 +71,9 @@
                     class='add-icon'
                     @click='addExpenses()'
                 >fas fa-plus-square</v-icon>
+            </div>
+            <div class='link-container' @click='newProforma()'>
+                <p style='color:white;font-weight:bold;font-size:15px'>Proforma</p>
             </div>
 
             <!-- <div class='menu-item' v-if="!$route.name.startsWith('Dashboard')">
@@ -361,16 +364,25 @@ export default {
 
         newOrder(){
             this.$store.state.formsDialog = true;
-            this.$store.state.formName = 'Order';
+            this.$store.state.formName = 'Sale';
             this.$store.state.formsTemp = 'OrderStepper';
         },
 
         addProduct(){
             this.$store.state.formsDialog = true;
             this.$store.state.product.addProductForm = true;
+            this.$store.state.product.productProforma = false;
             this.$store.state.formName = ' Product';
             this.$store.state.formsTemp = 'ProductForm';
             this.$store.reload = true;
+        },
+
+         newProforma(){
+            this.$store.state.formsDialog = true;
+            this.$store.state.formName = ' Proforma';
+            this.$store.state.formsTemp = 'ProductForm';
+            this.$store.state.product.addProductForm = false;
+            this.$store.state.product.productProforma = true;
         },
 
         addExpenses(){

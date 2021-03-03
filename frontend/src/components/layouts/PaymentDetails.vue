@@ -28,8 +28,7 @@
                     v-if='currentDate < paymentDetails[0].payment_dates.paying_dates[paymentDetails[0].payment_dates.paying_dates.length-1]'
                 >
                     Next Payment: {{parseDate(nextPaymentDate(paymentDetails[0].payment_dates.paying_dates))}}
-                </p>
-
+                </p> 
                 <div class='payment-status-core'>
                     <h3>Payment Status</h3>
                     <div class='payment-status-container' v-for='(ps, i) in paymentDetails[0].p_status' :key='i'>

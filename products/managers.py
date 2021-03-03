@@ -112,7 +112,10 @@ class ProductManager(models.Manager):
             kwargs['profiles']) > 0 else None
         # kwargs['profiles']) > 0 else '{}'.format(sorted(kwargs['profiles'][0]))
 
-        tire = Tires.objects.filter(id=kwargs['tire_id'])
+        try:
+            tire = Tires.objects.filter(id=kwargs['tire_id'])
+        except:
+            return {'updated': false, 'msg': 'Something went wrong, refresh the page and try it again'}
 
         if kwargs['vehicle'] != None:
             vehicle = Vehicule.objects.get(name=kwargs['vehicle'])
@@ -197,8 +200,11 @@ class ProductManager(models.Manager):
         qty = 0  # tire quantity
 
         # product_obj = self.select_related().all()
-        product_obj = Tires.objects.all().values(
-        ) if user_id == 0 else Tires.objects.filter(warehouse_id=user_id).values()
+        try:
+            product_obj = Tires.objects.all().values(
+            ) if user_id == 0 else Tires.objects.filter(warehouse_id=user_id).values()
+        except:
+            pass
 
         for product in product_obj:
             qty += product['quantity']
@@ -256,10 +262,15 @@ class ProductManager(models.Manager):
 
     def filter_products(self, vehicle, brands, profiles, warehouse_id):
         from .models import Tires, Vehicule
+
+        vehicle_id = Vehicule.objects.get(
+            name=vehicle).id if vehicle != 'noname' else None
+
         try:
-            vehicle = Vehicule.objects.get(name=vehicle).id
+            vehicle_id = Vehicule.objects.get(
+                name=vehicle).id
         except:
-            vehicle = 0
+            vehicle_id = None
 
         # tires = Tires.objects.filter(
         #     Q(brands__in=[Brands.objects.get(name=brand)
@@ -269,39 +280,80 @@ class ProductManager(models.Manager):
         #     Q(vehicule_id=vehicle)
         # )
 
-        if len(brands['brands']) > 0 and len(profiles['profiles']) > 0 and vehicle != None:
-            tires = Tires.objects.filter(
-                Q(brands_str=','.join(sorted(brands['brands']))) &
-                Q(profiles_str=','.join(sorted(profiles['profiles']))) &
-                Q(vehicule_id=vehicle) &
+        brand = ','.join(sorted(brands['brands'])) if len(
+            brands['brands']) > 0 else None
+        profile = ','.join(sorted(profiles['profiles'])) if len(
+            profiles['profiles']) > 0 else None
+
+        if len(brands['brands']) > 0 and len(profiles['profiles']) > 0 and vehicle != 'noname':
+            print('halloo1')
+            results = Tires.objects.filter(
+                Q(brands_str=brand) &
+                Q(profiles_str=profile) &
+                Q(vehicule_id=vehicle_id) &
                 Q(warehouse_id=warehouse_id)
             )
-        elif len(brands['brands']) == 0 and len(profiles['profiles']) > 0 and vehicle != None:
-            tires = Tires.objects.filter(
-                Q(profiles_str=','.join(sorted(profiles['profiles']))) &
-                Q(vehicule_id=vehicle) &
+        elif len(brands['brands']) == 0 and len(profiles['profiles']) == 0 and vehicle != None:
+            print('halloo2')
+            results = Tires.objects.filter(
+                Q(vehicule_id=vehicle_id) &
                 Q(warehouse_id=warehouse_id)
             )
-        elif len(brands['brands']) > 0 and len(profiles['profiles']) == 0 and vehicle != None:
-            tires = Tires.objects.filter(
-                Q(brands_str=','.join(sorted(brands['brands']))) &
-                Q(vehicule_id=vehicle) &
-                Q(warehouse_id=warehouse_id)
-            )
-        elif len(brands['brands']) > 0 and len(profiles['profiles']) > 0 and vehicle == None:
-            tires = Tires.objects.filter(
-                Q(brands_str=','.join(sorted(brands['brands']))) &
-                Q(profiles_str=','.join(sorted(profiles['profiles']))) &
-                Q(warehouse_id=warehouse_id)
-            )
-        else:
+        elif len(brands['brands']) == 0 and len(profiles['profiles']) == 0:
+            print('halloo3')
             tires = Tires.objects.filter(
                 Q(brands_str=None) &
                 Q(profiles_str=None) &
                 Q(warehouse_id=warehouse_id)
             )
+            results = tires if tires.count() > 0 else Tires.objects.all()
+        else:
+            print('halloo4')
+            results = Tires.objects.filter(
+                Q(brands_str=brand) &
+                Q(profiles_str=profile) &
+                Q(warehouse_id=warehouse_id)
+            )
 
-        return {'tire': tires.values()}
+        # if len(brands['brands']) > 0 and len(profiles['profiles']) > 0 and vehicle != None:
+        #     results = Tires.objects.filter(
+        #         Q(brands_str=','.join(sorted(brands['brands']))) &
+        #         Q(profiles_str=','.join(sorted(profiles['profiles']))) &
+        #         Q(vehicule_id=vehicle) &
+        #         Q(warehouse_id=warehouse_id)
+        #     )
+        # elif len(brands['brands']) == 0 and len(profiles['profiles']) > 0 and vehicle != None:
+        #     results = Tires.objects.filter(
+        #         Q(profiles_str=','.join(sorted(profiles['profiles']))) &
+        #         Q(vehicule_id=vehicle) &
+        #         Q(warehouse_id=warehouse_id)
+        #     )
+        # elif len(brands['brands']) > 0 and len(profiles['profiles']) == 0 and vehicle != None:
+        #     results = Tires.objects.filter(
+        #         Q(brands_str=','.join(sorted(brands['brands']))) &
+        #         Q(vehicule_id=vehicle) &
+        #         Q(warehouse_id=warehouse_id)
+        #     )
+        # elif len(brands['brands']) > 0 and len(profiles['profiles']) > 0 and vehicle == None:
+        #     results = Tires.objects.filter(
+        #         Q(brands_str=','.join(sorted(brands['brands']))) &
+        #         Q(profiles_str=','.join(sorted(profiles['profiles']))) &
+        #         Q(warehouse_id=warehouse_id)
+        #     )
+        # elif len(brands['brands']) == 0 and len(profiles['profiles']) == 0 and vehicle != None:
+        #     results = Tires.objects.filter(
+        #         Q(vehicule_id=vehicle) &
+        #         Q(warehouse_id=warehouse_id)
+        #     )
+        # else:
+        #     tires = Tires.objects.filter(
+        #         Q(brands_str=None) &
+        #         Q(profiles_str=None) &
+        #         Q(warehouse_id=warehouse_id)
+        #     )
+        #     results = tires if tires.count() > 0 else Tires.objects.all()
+
+        return {'tire': results.values(), 'v': vehicle_id}
 
     def transfer_product(self, **kwargs):
         from .models import Tires, Vehicule, Brands, Profiles, Products
