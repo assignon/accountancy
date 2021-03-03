@@ -70,7 +70,7 @@
                 </div>
                 <div class='no-orders' v-else>
                     <v-icon>fas fa-truck-loading</v-icon>
-                    <p class='mt-3'>No Orders</p>
+                    <p class='mt-3'>No Sales</p>
                 </div>
             </v-flex>
 

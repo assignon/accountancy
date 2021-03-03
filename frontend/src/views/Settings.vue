@@ -163,8 +163,7 @@ export default {
         align-items: flex-start;
         margin-left: 15%;
         margin-top: 70px;
-        /* background-color: #1e1d2b; */
-        background-color: #fafafa;
+        background-color: #fff;
     }
     .user-logo{
         width: 200px;

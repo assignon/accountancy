@@ -79,9 +79,12 @@ class OrdersManager(models.Manager):
             )
             # create ordered products
             # try:
-            ordered_products = ProductOrdered.objects.create(
-                product=tire[0], quantity=product['qty'])
-            order.product_ordered.add(ordered_products)
+            try:
+                ordered_products = ProductOrdered.objects.create(
+                    product=tire[0], quantity=product['qty'])
+                order.product_ordered.add(ordered_products)
+            except Exception:
+                return {'created': False, 'msg': 'Something went wrong!', 'order_id': None, 'payment_id': None}
             # update tire quantity
             tire_update = Tires.objects.filter(
                 Q(size=product['name']) &
@@ -97,26 +100,38 @@ class OrdersManager(models.Manager):
             # except Exception:
             #     return {'create': False, 'msg': 'ordered product(s) quantity must be > 0'}
 
-        # create payment
-        payment_obj = Payment.objects.create(
-            method=method,
-            pay_in=kwargs['pay_in'],
-            payment_interval=kwargs['payment_interval'] if kwargs['pay_in'] != 'Once' else 'daily',
-        )
-        payment_obj.save()
-        # create credential
-        credentials = Credentials.objects.create(
-            name=kwargs['name'],
-            email=kwargs['email'],
-            address=kwargs['address'],
-            tel_number=kwargs['tel_number']
-        )
-        credentials.save()
-        # print('ccreeeddeennt', credentials)
+        try:
+            # create payment
+            payment_obj = Payment.objects.create(
+                method=method,
+                pay_in=kwargs['pay_in'],
+                payment_interval=kwargs['payment_interval'] if kwargs['pay_in'] != 'Once' else 'daily',
+            )
+            payment_obj.save()
+            # create credential
+            credentials = Credentials.objects.create(
+                name=kwargs['name'],
+                email=kwargs['email'],
+                address=kwargs['address'],
+                tel_number=kwargs['tel_number']
+            )
+            credentials.save()
+        except Exception:
+            return {'created': False, 'msg': 'Something went wrong!', 'order_id': None, 'payment_id': None}
+
         # create customer
+        try:
+            currrent_credentials = Credentials.objects.get(id=credentials.id)
+        except:
+            currrent_credentials = Credentials.objects.get(
+                Q(name=kwargs['name']) &
+                Q(email=kwargs['email']) &
+                Q(address=kwargs['address']) &
+                Q(tel_number=kwargs['tel_number'])
+            )
+
         customer = Customers.objects.create(
-            credential=Credentials.objects.get(Q(name=kwargs['name']) & Q(
-                email=kwargs['email'])) if kwargs['email'] != None else Credentials.objects.get(name=kwargs['name']),
+            credential=currrent_credentials,
             order=order,
             payment=payment_obj,
             times=kwargs['times'] if kwargs['pay_in'] != 'Once' else 0,
@@ -152,58 +167,61 @@ class OrdersManager(models.Manager):
         current_date = datetime.now().date()
         orders_arr = []
         whouse_id = int(user_id)
-
+        print('ooorrrdddeerr', dte)
         if dte == None:
             # get products of the current date
             if whouse_id == 0:
                 orders = self.prefetch_related().filter(order_on=current_date
-                                                        ) if limit == None else self.prefetch_related().all()[:limit]
+                                                        ) if limit == None else self.prefetch_related().filter(order_on=current_date
+                                                                                                               )[:limit]
             else:
                 orders = self.prefetch_related().filter(
-                    Q(order_on=current_date) & Q(warehouse_id=whouse_id)) if limit == None else self.prefetch_related().filter(
-                    Q(order_on=current_date) & Q(warehouse_id=whouse_id))[:limit]
+                    Q(order_on=dte) & Q(warehouse_id=whouse_id)) if limit == None else self.prefetch_related().filter(
+                    Q(order_on=dte) & Q(warehouse_id=whouse_id))[:limit]
 
             # get credentials and orders
             for order in orders.values():
-                print('ordddeeerrr', order)
-                customer = Customers.objects.get_customer(
-                    order_id=order['id'])
-                payment = Payment.objects.filter(id=customer.payment_id)
+                try:
+                    customer = Customers.objects.get_customer(
+                        order_id=order['id'])
+                    payment = Payment.objects.filter(id=customer.payment_id)
 
-                ordered_products = ProductOrdered.objects.filter(
-                    orders__id=order['id'])
+                    ordered_products = ProductOrdered.objects.filter(
+                        orders__id=order['id'])
 
-                payment_data = {
-                    'method': get_related(PaymentMethods, payment, 'method_id'),
-                    'pay_in': payment.values()[0]['pay_in'],
-                    'payment_interval': payment.values()[0]['payment_interval'],
-                    'times': customer.times,
-                    'start': customer.start
-                }
+                    payment_data = {
+                        'method': get_related(PaymentMethods, payment, 'method_id'),
+                        'pay_in': payment.values()[0]['pay_in'],
+                        'payment_interval': payment.values()[0]['payment_interval'],
+                        'times': customer.times,
+                        'start': customer.start
+                    }
 
-                # get payment stats
-                p_status = Payment_status.objects.filter(
-                    payment__id=payment.values()[0]['id']).values()
+                    # get payment stats
+                    p_status = Payment_status.objects.filter(
+                        payment__id=payment.values()[0]['id']).values()
 
-                orders_arr.append({
-                    'customer_id': Customers.objects.get(order_id=order['id']).id,
-                    'order': order,
-                    'credentials': Customers.objects.get_credentials(
-                        order_id=order['id']),
-                    'payment': payment_data,
-                    'p_status': p_status,
-                    'paying': Orders.paying(order['id']),
-                    'ordered_products': [
-                        {
-                            'ordered_product': p_d,
-                            'product': Tires.objects.filter(id=p_d['product_id']).values(),
-                            'vehicule': get_related(Vehicule, Tires.objects.filter(id=p_d['product_id']), 'vehicule_id'),
-                            'brands': [brand for brand in get_prefetch_related(Tires.objects.filter(id=p_d['product_id'])).brands.all().values()],
-                            'profiles':  [profile for profile in get_prefetch_related(Tires.objects.filter(id=p_d['product_id'])).profiles.all().values()],
-                        }
-                        for p_d in ordered_products.values()
-                    ]
-                })
+                    orders_arr.append({
+                        'customer_id': Customers.objects.get(order_id=order['id']).id,
+                        'order': order,
+                        'credentials': Customers.objects.get_credentials(
+                            order_id=order['id']),
+                        'payment': payment_data,
+                        'p_status': p_status,
+                        'paying': Orders.paying(order['id']),
+                        'ordered_products': [
+                            {
+                                'ordered_product': p_d,
+                                'product': Tires.objects.filter(id=p_d['product_id']).values(),
+                                'vehicule': get_related(Vehicule, Tires.objects.filter(id=p_d['product_id']), 'vehicule_id'),
+                                'brands': [brand for brand in get_prefetch_related(Tires.objects.filter(id=p_d['product_id'])).brands.all().values()],
+                                'profiles':  [profile for profile in get_prefetch_related(Tires.objects.filter(id=p_d['product_id'])).profiles.all().values()],
+                            }
+                            for p_d in ordered_products.values()
+                        ]
+                    })
+                except:
+                    pass
 
             return {
                 'order': orders_arr,
@@ -213,52 +231,57 @@ class OrdersManager(models.Manager):
         else:
             # get products base on give date
             if whouse_id == 0:
-                orders = self.prefetch_related().filter(order_on=current_date
-                                                        ) if limit == None else self.prefetch_related().all()[:limit]
+                orders = self.prefetch_related().filter(order_on=dte
+                                                        ) if limit == None else self.prefetch_related().filter(order_on=dte
+                                                                                                               )[:limit]
             else:
                 orders = self.prefetch_related().filter(
                     Q(order_on=dte) & Q(warehouse_id=whouse_id)) if limit == None else self.prefetch_related().filter(
                     Q(order_on=dte) & Q(warehouse_id=whouse_id))[:limit]
 
             for order in orders.values():
-                customer = Customers.objects.get_customer(
-                    order_id=order['id'])
-                payment = Payment.objects.filter(id=customer.payment_id)
+                try:
+                    customer = Customers.objects.get_customer(
+                        order_id=order['id'])
+                    payment_on_date = Payment.objects.filter(
+                        id=customer.payment_id)
 
-                # get payment stats
-                p_status = Payment_status.objects.filter(
-                    payment__id=payment.values()[0]['id']).values()
+                    # get payment stats
+                    p_status = Payment_status.objects.filter(
+                        payment__id=payment_on_date.values()[0]['id']).values()
 
-                ordered_products = ProductOrdered.objects.filter(
-                    orders__id=order['id'])
+                    ordered_products = ProductOrdered.objects.filter(
+                        orders__id=order['id'])
 
-                payment_data = {
-                    'method': get_related(PaymentMethods, payment, 'method_id'),
-                    'pay_in': payment.values()[0]['pay_in'],
-                    'payment_interval': payment.values()[0]['payment_interval'],
-                    'times': customer.times,
-                    'start': customer.start
-                }
+                    payment_data = {
+                        'method': get_related(PaymentMethods, payment_on_date, 'method_id'),
+                        'pay_in': payment_on_date.values()[0]['pay_in'],
+                        'payment_interval': payment_on_date.values()[0]['payment_interval'],
+                        'times': customer.times,
+                        'start': customer.start
+                    }
 
-                orders_arr.append({
-                    'customer_id': Customers.objects.get(order_id=order['id']).id,
-                    'order': order,
-                    'credentials': Customers.objects.get_credentials(
-                        order_id=order['id']),
-                    'payment': payment_data,
-                    'p_status': p_status,
-                    'paying': Orders.paying(order['id']),
-                    'ordered_products': [
-                        {
-                            'ordered_product': p_d,
-                            'product': Tires.objects.filter(id=p_d['product_id']).values(),
-                            'vehicule': get_related(Vehicule, Tires.objects.filter(id=p_d['product_id']), 'vehicule_id'),
-                            'brands': [brand for brand in get_prefetch_related(Tires.objects.filter(id=p_d['product_id'])).brands.all().values()],
-                            'profiles':  [profile for profile in get_prefetch_related(Tires.objects.filter(id=p_d['product_id'])).profiles.all().values()],
-                        }
-                        for p_d in ordered_products.values()
-                    ]
-                })
+                    orders_arr.append({
+                        'customer_id': Customers.objects.get(order_id=order['id']).id,
+                        'order': order,
+                        'credentials': Customers.objects.get_credentials(
+                            order_id=order['id']),
+                        'payment': payment_data,
+                        'p_status': p_status,
+                        'paying': Orders.paying(order['id']),
+                        'ordered_products': [
+                            {
+                                'ordered_product': p_d,
+                                'product': Tires.objects.filter(id=p_d['product_id']).values(),
+                                'vehicule': get_related(Vehicule, Tires.objects.filter(id=p_d['product_id']), 'vehicule_id'),
+                                'brands': [brand for brand in get_prefetch_related(Tires.objects.filter(id=p_d['product_id'])).brands.all().values()],
+                                'profiles':  [profile for profile in get_prefetch_related(Tires.objects.filter(id=p_d['product_id'])).profiles.all().values()],
+                            }
+                            for p_d in ordered_products.values()
+                        ]
+                    })
+                except:
+                    pass
 
             return {
                 'order': orders_arr,
@@ -376,27 +399,34 @@ class CustomerManager(models.Manager):
             customer = self.select_related().get(**kwargs)
             return customer
         except ObjectDoesNotExist:
-            return False
+            pass
 
     def get_credentials(self, **kwargs):
         from orders.models import Credentials
 
-        customer = self.select_related().get(**kwargs)
-        credentials = Credentials.objects.get(id=customer.credential_id)
+        try:
+            customer = self.select_related().get(**kwargs)
+            credentials = Credentials.objects.get(id=customer.credential_id)
 
-        return {
-            'id': credentials.id,
-            'customer_id': customer.id,
-            'name': credentials.name,
-            'email': credentials.email,
-            'address': credentials.address,
-            'tel_number': credentials.tel_number,
-        }
+            return {
+                'id': credentials.id,
+                'customer_id': customer.id,
+                'name': credentials.name,
+                'email': credentials.email,
+                'address': credentials.address,
+                'tel_number': credentials.tel_number,
+            }
+        except:
+            pass
 
     def get_credentials_by_email(self, email):
         from orders.models import Credentials
 
-        credentials = Credentials.objects.filter(email__icontains=email)
+        try:
+            credentials = Credentials.objects.filter(email__icontains=email)
+        except:
+            pass
+
         if credentials.count() > 0:
             return {'founded': True, 'credentials': credentials.values()}
         else:
@@ -414,29 +444,38 @@ class CustomerManager(models.Manager):
         Returns:
             [obj]: [products data]
         """
-        customer = self.select_related().filter(id=customerid)
+
+        try:
+            customer = self.select_related().filter(id=customerid)
+        except:
+            pass
+
         products_ordered_arr = []
 
         # get orders
         order = Orders.objects.get(
             id=customer.values()[0]['order_id'])
-        print('ord', order.id)
-        payment = Payment.objects.filter(id=customer.values()[0]['payment_id'])
+        # print('ord', order.id)
+        payment = Payment.objects.filter(
+            id=customer.values()[0]['payment_id'])
         # payment_id = payment.values()[0]['id']
         products_ordered = order.product_ordered.all()
 
         for product_ordered in products_ordered.values():
-            products = Tires.objects.filter(
-                id=product_ordered['product_id'])
-            products_ordered_arr.append(
-                {
-                    'ordered_product': product_ordered,
-                    'products': products.values(),
-                    'profiles': get_prefetch_related(products).profiles.all().values(),
-                    'brands': get_prefetch_related(products).brands.all().values(),
-                    'vehicule': get_related(Vehicule, products, 'vehicule_id'),
-                }
-            )
+            try:
+                products = Tires.objects.filter(
+                    id=product_ordered['product_id'])
+                products_ordered_arr.append(
+                    {
+                        'ordered_product': product_ordered,
+                        'products': products.values(),
+                        'profiles': get_prefetch_related(products).profiles.all().values(),
+                        'brands': get_prefetch_related(products).brands.all().values(),
+                        'vehicule': get_related(Vehicule, products, 'vehicule_id'),
+                    }
+                )
+            except:
+                pass
 
         return {
             'order': {
@@ -461,17 +500,20 @@ class CustomerManager(models.Manager):
         from .models import Credentials, Payment, PaymentMethods, Orders, Payment_status
         # querysets
         # customers = self.select_related().filter(credential_id=paymentid)
-        customers = self.select_related().filter(payment_id=paymentid)
+        try:
+            customers = self.select_related().filter(payment_id=paymentid)
 
-        order = Orders.objects.get(id=customers.values()[0]['order_id'])
-        credential = get_related(Credentials, customers, 'credential_id')
-        payments = get_related(Payment, customers, 'payment_id')
-        payment_methods = PaymentMethods.objects.filter(
-            id=payments[0]['method_id'])
+            order = Orders.objects.get(id=customers.values()[0]['order_id'])
+            credential = get_related(Credentials, customers, 'credential_id')
+            payments = get_related(Payment, customers, 'payment_id')
+            payment_methods = PaymentMethods.objects.filter(
+                id=payments[0]['method_id'])
 
-        # get payment stats
-        p_status = Payment_status.objects.filter(
-            payment__id=paymentid).values()
+            # get payment stats
+            p_status = Payment_status.objects.filter(
+                payment__id=paymentid).values()
+        except:
+            pass
 
         return {
             'customer': customers.values(),
@@ -494,8 +536,12 @@ class CustomerManager(models.Manager):
         # querysets
         # payments = Payment.objects.all(
         # )[:int(limit)] if int(limit) != 0 else Payment.objects.all()
-        wh_id = warehouse_id if warehouse_id != 0 else su_id
-        orders = Orders.objects.filter(warehouse_id=wh_id)
+        try:
+            wh_id = warehouse_id if warehouse_id != 0 else su_id
+            orders = Orders.objects.filter(warehouse_id=wh_id)
+        except:
+            pass
+
         for order in orders.values():
             if warehouse_id != 0:
                 customers = Customers.objects.filter(order_id=order['id']
@@ -545,7 +591,10 @@ class CustomerManager(models.Manager):
         customer_payments = []
         # querysets
         wh_id = warehouse_id if warehouse_id != 0 else su_id
-        orders = Orders.objects.filter(warehouse_id=wh_id)
+        try:
+            orders = Orders.objects.filter(warehouse_id=wh_id)
+        except:
+            pass
 
         for order in orders.values():
             if warehouse_id != 0:

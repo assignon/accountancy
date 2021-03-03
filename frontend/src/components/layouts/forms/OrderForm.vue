@@ -310,7 +310,7 @@ export default {
             this.$store.dispatch("getReq", {
             url: "product/filter_products",
             params: {
-                vehicle: store.state.order.vehicule,
+                vehicle: store.state.order.vehicule != null ? store.state.order.vehicule : 'noname',
                 brands: brandsPayload,
                 profiles: profilesPayload,
                 user_id: self.$session.get('userId')

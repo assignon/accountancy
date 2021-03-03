@@ -12,6 +12,14 @@ export default {
         productDetailsArr: [],
         addProductForm: true,
         transferDialog: false,
+        productProforma: false,
+        // proforma data
+        proVehicle: null,
+        proSize: null,
+        proPrice: null,
+        proProfiles: [],
+        proBrands: [],
+
     },
 
     getters: {

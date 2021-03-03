@@ -3,10 +3,12 @@
         <div class='pdf-header'>
             <div class='header-text'>
                 <h2>CHICAM</h2>
-                <p class='font-weight-bold'>+237 000 00 00 00</p>
+                <p class='font-weight-bold'>TEL. 675 22 04 91 / 679 59 80 73 / 651 12 25 79</p>
+                <p class='font-weight-bold'>Dealers in brand new tyres of all dimensions</p>
+                <p class='font-weight-bold'>No contribuable: M111812730146E BP3629 YAOUNDE</p>
                 <p class='font-weight-bold'>Import & Export commerce general</p>
             </div>
-            <p style='position:relative;top:10px;'>
+            <p style='position:relative;top:10px; width:20%'>
                 <span class='font-weight-bold'>Date</span><br>
                 {{new Date().toDateString()}}
             </p>
@@ -121,12 +123,13 @@ export default {
                 elem.style.display = 'None'
             }
             setTimeout(() => {
-                window.print();
-                window.location.reload()
-                return false
-                // window.addEventListener('onafterprint', function(){
-                //     window.location.reload()
-                // }) 
+               if (window.print) {
+                    window.print(0);
+                    window.location.reload()
+                } else {
+                    alert("your browser doesn't support this function")
+                }
+              
             }, 100);
         },
 
@@ -148,10 +151,14 @@ export default {
 </script>
 
 <style scoped>
+    :-webkit-scrollbar {
+         width: 0px;
+    }
     .pdf-core{
         width: 100%;
         min-height: 100vh;
-        height: 100vh;
+        height: auto;
+        margin-bottom: 50px;
         overflow-y: scroll;
         overflow-x: hidden;
         padding: 20px;
@@ -161,37 +168,9 @@ export default {
         align-items: center;
         background-color: #fff;
         background-image: url('../../assets/chicam.jpg');
-        background-size: contain;
-        background-position: center;
+        background-size: 20%;
+        background-position: 40%;
         background-repeat: no-repeat;
-    }
-    /* @media all{
-        .pdf-core{
-            display:none;
-        }
-    }
-
-    @media print{
-        .pdf-core{
-            width: 100%;
-            min-height: 100vh;
-            height: 100vh;
-            overflow-y: scroll;
-            overflow-x: hidden;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: center;
-            background-color: #fff;
-            background-image: url('../../assets/chicam.jpg');
-            background-size: contain;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-    } */
-    ::-webkit-scrollbar {
-         width: 10px;
     }
     .pdf-header{
         height: auto;
@@ -199,12 +178,12 @@ export default {
         display: flex;
         flex-direction: row;
         justify-content: space-between;
-        align-items: flex-end;
+        align-items: flex-start;
         margin-bottom: 50px;
     }
     .header-text{
         height: auto;
-        width: 100%;
+        width: 80%;
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
@@ -249,7 +228,7 @@ export default {
         text-align: left;
         margin: 0px;
         padding: 0px;
-        background-color: white;
+        /* background-color: white; */
         text-transform: capitalize;
     }
     .pdf-footer{

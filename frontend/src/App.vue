@@ -32,6 +32,7 @@ import FormsModal from "./components/modals/FormsModal";
 import OrderPdf from "@/components/layouts/OrderPdf.vue";
 import ProductPdf from "@/components/layouts/ProductPdf.vue";
 import ExpensesForm from "@/components/layouts/forms/ExpensesForm.vue";
+import ProformaPdf from "@/components/layouts/ProformaPdf.vue";
 
 export default {
   name: "App",
@@ -42,6 +43,7 @@ export default {
     OrderPdf, 
     ProductPdf,
     ExpensesForm,
+    ProformaPdf,
   },
 
   data: () => ({
