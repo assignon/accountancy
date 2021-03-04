@@ -29,11 +29,18 @@
             </v-btn>
         </div>
 
-            <div class='menu-container'>
-                <router-link to="/dashboard" style="text-decoration: none;" class='menu-item'>
-                    <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Dashboard"'></span>
-                    <v-icon color='white'>fas fa-tachometer-alt</v-icon>
-                    <p>Dashboard</p>
+        <div class='menu-container'>
+            <router-link to="/dashboard" style="text-decoration: none;" class='menu-item'>
+                <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Dashboard"'></span>
+                <v-icon color='white'>fas fa-tachometer-alt</v-icon>
+                <p>Dashboard</p>
+            </router-link>
+
+            <div class='link-container' v-if="$session.get('su')">
+                <router-link to="/warehouses" style="text-decoration: none;" class='menu-item'>
+                    <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Warehouse"'></span>
+                    <v-icon color='white'>fas fa-warehouse</v-icon>
+                    <p>W.house</p>
                 </router-link>
                 <v-icon 
                     style='font-size:28px;position:relative;bottom:1px' 
@@ -86,37 +93,23 @@
                 <p style='color:white;font-weight:bold;font-size:15px'>Proforma</p>
             </div>
 
-                <div class='link-container'>
-                    <router-link to="/expenses" style="text-decoration: none;" class='menu-item'>
-                        <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Expenses"'></span>
-                        <v-icon color='white'>fas fa-wallet</v-icon>
-                        <p>Expenses</p>
-                    </router-link>
-                    <v-icon 
-                        style='font-size:28px;position:relative;bottom:1px' 
-                        color='#0163d1'
-                        class='add-icon'
-                        @click='addExpenses()'
-                    >fas fa-plus-square</v-icon>
-                </div>
-                <div class='link-container' @click='newProforma()'>
-                    <p style='color:white;font-weight:bold;font-size:15px'>Proforma</p>
-                </div>
+            <!-- <div class='menu-item' v-if="!$route.name.startsWith('Dashboard')">
+                <v-icon color='white'>fas fa-sort-amount-down-alt</v-icon>
+                <p>Filters</p>
+            </div> -->
+        </div>
 
-                <!-- <div class='menu-item' v-if="!$route.name.startsWith('Dashboard')">
-                    <v-icon color='white'>fas fa-sort-amount-down-alt</v-icon>
-                    <p>Filters</p>
-                </div> -->
-            </div>
+        <div class='setting-logout'>
+            <router-link to="/settings" style="text-decoration: none;" class='settings'>
+                <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Settings"'></span>
+                <v-icon color='white'>fas fa-sliders-h</v-icon>
+                <p>Settings</p>
+            </router-link>
 
             <div @click='logout(), $store.state.sidebarDrawer=false' style="text-decoration: none;" class='logout'>
                 <v-icon color='white'>fas fa-sign-out-alt</v-icon>
                 <p>Log out</p>
             </div>
-       </div>
-       <!-- mobile menu topbar -->
-       <div class='mobile-topbar hidden-md-and-up'>
-           <v-icon medium color='#'>fas fa-</v-icon>
         </div>
             <!-- add new warehouse/user dialog -->
         <v-dialog
@@ -183,14 +176,12 @@
 import { mapGetters } from "vuex";
 export default {
     name: 'Sidebar',
-
     computed: {
         ...mapGetters({
             warehouses: 'dashboard/getWarehouse',
         }),
        
     },
-
     filters: {
         suWarehouseName: function(name, su){
             if(!su) return name
@@ -203,29 +194,23 @@ export default {
             return value.charAt(0).toUpperCase() + value.slice(1)
         }
     },
-
     data(){
         return{
             warehouse: this.$session.get('warehouseName'), //selected warehouse name
-            sidebarDrawer: false,
         }
     },
-
     created(){
         let self = this
-
         this.getWarehouses()
         setTimeout(() => {
             self.warehouse = this.$session.get('warehouseName')+','+this.$session.get('warehouseId')
         }, 100)
     },
-
     methods:{
          // product methods
         // allProducts(){
         //     let self = this;
         //     let store = self.$store;
-
         //     this.$store.dispatch("getReq", {
         //         url: "product/products",
         //         params: {
@@ -240,7 +225,6 @@ export default {
         //         },
         //     });
         // },
-
         changeWarehouse(){
             let self = this
             // update warehouse local session var
@@ -248,12 +232,10 @@ export default {
             this.$session.set('warehouseId', self.warehouse.split(',')[1])
             window.location.reload()
         },
-
         addWarehouse(){
             let self = this
             let formErrMsg = document.querySelector(".err-msg");
             let validationErrMsg = document.querySelector('.v-messages__message');
-
             if(self.$store.state.dashboard.warehouseName != null &&
                 self.$store.state.dashboard.upassword != null &&
                 self.$store.state.dashboard.rPassword != null &&
@@ -265,7 +247,6 @@ export default {
                         email: self.$store.state.dashboard.email,
                         password: self.$store.state.dashboard.upassword
                     }
-
                     self.$store.dispatch("postReq", {
                         url: 'dashboard/new_warehouse',
                         params: body,
@@ -295,10 +276,8 @@ export default {
                 formErrMsg.innerHTML = 'warehouse name and password should not be empty'
             }
         },
-
         getWarehouses(){
             let self = this;
-
             self.$store.dispatch("getReq", {
                 url: 'dashboard/get_warehouses',
                 params: {},
@@ -310,10 +289,8 @@ export default {
                 },
             });
         },
-
         whouseDetails(whouseId){
             let self = this;
-
             self.$store.dispatch("getReq", {
                 url: 'dashboard/get_user_data',
                 params: {user_id: whouseId},
@@ -326,7 +303,6 @@ export default {
                 },
             });
         },
-
         updateWarehouse(whouseId){
             let self = this
             let formErrMsg = document.querySelector(".err-msg");
@@ -368,10 +344,8 @@ export default {
                 formErrMsg.innerHTML = 'warehouse name or password or email should not be empty'
             }
         },
-
         logout(){
             let self = this;
-
             this.$store.dispatch("getReq", {
                 url: "dashboard/signout",
                 params: {
@@ -386,13 +360,11 @@ export default {
                 },
             });
         },
-
         newOrder(){
             this.$store.state.formsDialog = true;
             this.$store.state.formName = 'Sale';
             this.$store.state.formsTemp = 'OrderStepper';
         },
-
         addProduct(){
             this.$store.state.formsDialog = true;
             this.$store.state.product.addProductForm = true;
@@ -401,7 +373,6 @@ export default {
             this.$store.state.formsTemp = 'ProductForm';
             this.$store.reload = true;
         },
-
          newProforma(){
             this.$store.state.formsDialog = true;
             this.$store.state.formName = ' Proforma';
@@ -409,7 +380,6 @@ export default {
             this.$store.state.product.addProductForm = false;
             this.$store.state.product.productProforma = true;
         },
-
         addExpenses(){
             this.$store.state.expenses.expensesDialog = true
         }
@@ -574,17 +544,6 @@ export default {
         cursor: pointer;
         color: #1976d2;
     }
-    /* mobile styles */
-    .nav-drawer {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        align-items: flex-start;
-        padding-left: 20px;
-        top: 0px;
-        z-index: 3;
-    }
     @media only screen and (max-width: 1500px) {
         /* .sidebar-core{
             width: 20%;
@@ -600,4 +559,4 @@ export default {
         .warehouse-select{
         }
     }
-</style>WS
+</style>
