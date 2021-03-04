@@ -13,7 +13,7 @@
 
             <v-flex xs12 sm12 md3 lg3 xl3 class='product-name' @click.stop='$store.state.infoDrawer=true, customerOrder(order.customer_id)'>
                 <p>
-                    <v-icon small color='#1e1d2b' class='mr-1'>fas fa-boxes</v-icon>
+                    <v-icon small color='#1e1d2b' class='mr-1 hidden-sm-and-down'>fas fa-boxes</v-icon>
                     {{order.ordered_products[0].product[0].size}} 
                     <span>( {{order.ordered_products[0].ordered_product.quantity}}x )</span>
                     <span class='ml-2' v-if='order.ordered_products.length>=2'>[ +{{order.ordered_products.length-1}} ]</span></p>
@@ -21,12 +21,12 @@
 
             <v-flex xs12 sm12 md4 lg3 xl3 class='date' @click.stop='$store.state.infoDrawer=true, customerOrder(order.customer_id)'>
                 <p>
-                    <v-icon small color='#1e1d2b' class='mr-1'>fas fa-calendar-alt</v-icon>
+                    <v-icon small color='#1e1d2b' class='mr-1 hidden-sm-and-down'>fas fa-calendar-alt</v-icon>
                     {{parseDate(order.order.order_on)}}
                 </p>
             </v-flex>
 
-            <v-flex xs12 sm12 md3 lg3 xl3 class='price' @click.stop='$store.state.infoDrawer=true, customerOrder(order.customer_id)'>
+            <v-flex xs12 sm12 md3 lg3 xl3 class='price hidden-sm-and-down' @click.stop='$store.state.infoDrawer=true, customerOrder(order.customer_id)'>
                 <p>
                     <v-icon small color='#1e1d2b' class='mr-1'>fas fa-coins</v-icon>
                     {{formatPrice(order.paying)}}FRS
@@ -304,6 +304,11 @@ export default {
     }
     .v-btn{
         text-transform: capitalize;
+    }
+    @media only screen and (max-width: 500px){
+        .date p, .customer-name p, .product-name p, .price p, .payment-method p{
+            font-size: 12px;
+        }
     }
    
 </style>

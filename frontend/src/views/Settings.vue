@@ -51,7 +51,7 @@
                         <v-btn
                             depressed
                             height="50"
-                            width="70%"
+                            :width="btnWidth"
                             class="fot-weight-bold white--text mr-2"
                             color="#1976d2"
                             @click="updateUserData()"
@@ -83,6 +83,7 @@ export default {
             password: null,
             currentPassword: null,
             repeatPassword: null,
+            btnWidth: window.innerWidth > 500 ? '70%' : '100%'
         }
     },
 
@@ -220,11 +221,34 @@ export default {
         width: 100%;
         height: auto;
         display: flex;
+        flex-direction: row;
         justify-content: flex-end;
         align-items: flex-start;
     }
     .v-btn{
         text-transform: capitalize;
         color: white;
+    }
+    @media only screen and (max-width: 500px){
+         .settings-core{
+            width: 95%;
+            align-items: center;
+            margin-left: 5%;
+            margin-top: 30px;
+        }
+        .user-data{
+            width: 100%;
+        }
+        .user-data-form{
+            width: 90%;
+        }
+        .btn-container{
+            flex-direction: column;
+            justify-content: flex-start;
+            margin-bottom: 20px;
+        }
+        .btn-container .v-text-field{
+            width: 100%;
+        }
     }
 </style>

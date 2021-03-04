@@ -1,6 +1,6 @@
 <template>
     <div class='expenses-core'>
-        <div class='claendar-ctrl mt-5' style='display:flex;justify-content:flex-end;align-items:center;width:97%;'>
+        <div class='claendar-ctrl mt-5 hidden-sm-and-down' style='display:flex;justify-content:flex-end;align-items:center;width:97%;'>
             <v-btn
                 class="font-weight-bold"
                 large
@@ -30,14 +30,14 @@
 
                         <v-flex xs12 sm12 md4 lg3 xl3 class='date'>
                             <p>
-                                <v-icon small color='#1e1d2b' class='mr-1'>fas fa-calendar-alt</v-icon>
+                                <v-icon small color='#1e1d2b' class='mr-1 hidden-sm-and-down'>fas fa-calendar-alt</v-icon>
                                 {{parseDate(expense.add_on)}}
                             </p>
                         </v-flex>
 
                         <v-flex xs12 sm12 md3 lg3 xl3 class='price'>
                             <p>
-                                <v-icon small color='#1e1d2b' class='mr-1'>fas fa-coins</v-icon>
+                                <v-icon small color='#1e1d2b' class='mr-1 hidden-sm-and-down'>fas fa-coins</v-icon>
                                 {{formatPrice(expense.price)}}FRS
                             </p>
                         </v-flex>
@@ -133,6 +133,9 @@ export default {
 </script>
 
 <style scoped>
+::-webkit-scrollbar {
+        width: 0px;
+    }
     .expenses-core{
         height: 100vh;
         width: 85%;
@@ -143,9 +146,6 @@ export default {
         margin-left: 15%;
         background-color: #ffffff;
         overflow-y: hidden;
-    }
-    ::-webkit-scrollbar {
-        width: 0px;
     }
     .expenses-layout{
         height: 100%;
@@ -255,5 +255,23 @@ export default {
         color: #15141c;
         width: 100%;
         height: auto;
+    }
+    @media only screen and (max-width: 500px){
+        .expenses-core{
+            width: 100%;
+            align-items: center;
+            margin-left: 0%;
+        }
+        .expenses-layout{
+            flex-direction: column-reverse;
+            justify-content: center;
+        }
+        .calendar-flex{
+            align-items: center;
+            width: 100%;
+        }
+        .expenses-flex{
+            width: 100%;
+        }
     }
 </style>

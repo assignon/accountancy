@@ -36,7 +36,7 @@
           <v-btn
             depressed
             height="50"
-            width="20%"
+            :width="btnWidth"
             class="fot-weight-bold white--text"
             color="#1976d2"
             @click="updateStep(orderStep)"
@@ -60,7 +60,7 @@ export default {
 
     data(){
         return{
-            
+            btnWidth: window.innerWidth > 500 ? '20%' : '60%'
         }
     },
     
@@ -155,5 +155,13 @@ export default {
         display: flex;
         justify-content: flex-end;
         align-items: center;
+    }
+    @media only screen and (max-width: 500px){
+        .customerinfo-form .v-text-field{
+            width: 100%;
+        }
+        .btn-container{
+            width: 100%;
+        }
     }
 </style>

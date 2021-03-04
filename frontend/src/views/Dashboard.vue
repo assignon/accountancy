@@ -1,6 +1,6 @@
 <template>
     <div class='dash-core animated fadeIn pb-5' v-if="this.$session.has('authenticated') && this.$session.get('authenticated')">
-        <div class='claendar-ctrl mt-5' style='display:flex;justify-content:flex-end;align-items:center;width:97%;'>
+        <div class='claendar-ctrl mt-5 hidden-sm-and-down' style='display:flex;justify-content:flex-end;align-items:center;width:97%;'>
             <v-btn
                 class="font-weight-bold"
                 large
@@ -76,7 +76,7 @@
 
             <v-flex xs12 sm12 md3 lg3 xl3 class='rigth-side'>
                 <div class='calendar-payments'>
-                    <div class='calendar' v-if='$store.state.calendarStatus'>
+                    <div class='calendar hidden-sm-and-down' v-if='$store.state.calendarStatus'>
                         <Calendar 
                             @orders='getOrders'
                             @payments='getPayments'
@@ -525,6 +525,44 @@ export default {
             flex-direction: column;
             justify-content:center;
             align-items: center;
+        }
+    }
+    @media only screen and (max-width: 500px) {
+        .dash-core{
+            margin-left: 0%;
+            align-items: center;
+        }
+        .dash-layout{
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding-top: 50px;
+            /* width: 90%; */
+        }
+        .left-side, .rigth-side{
+            align-items: center;
+        }
+        .counts{
+            justify-content: flex-start;
+            padding-right: 10px;
+            align-items: flex-start;
+            overflow-x: scroll;
+        }
+        .products-count, .paying-counts, .orders-count{
+            margin-left:20px;
+            margin-right:20px;
+            padding-left:65px;
+            padding-right:65px;
+        }
+        .orders, .no-orders, .payment-container{
+            width: 90%;
+            justify-content:center;
+            
+             align-items: center;
+        }
+        .payment-container{
+            margin-top: 50px;
+            margin-left: 5%;
         }
     }
 </style>

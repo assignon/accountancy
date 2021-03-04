@@ -9,12 +9,12 @@
         >
             <v-flex xs12 sm12 md5 lg5 xl5 class='warehouse-name' @click.stop='$store.state.infoDrawer=true, whouseDetails(whouse.id)'>
                 <p>
-                    <v-icon style='font-size:20px' color='#1e1d2b' class='mr-1'>fas fa-warehouse</v-icon>
+                    <v-icon style='font-size:20px' color='#1e1d2b' class='mr-1 hidden-sm-and-down'>fas fa-warehouse</v-icon>
                     {{capitalize(whouse.name)}}<span v-if='whouse.su'>[main]</span>
                 </p>
             </v-flex>
 
-            <v-flex xs12 sm12 md3 lg3 xl3 class='date' @click.stop='$store.state.infoDrawer=true, whouseDetails(whouse.id)'>
+            <v-flex xs12 sm12 md3 lg3 xl3 class='date hidden-sm-and-down' @click.stop='$store.state.infoDrawer=true, whouseDetails(whouse.id)'>
                 <p>
                     <v-icon style='font-size:20px' color='#1e1d2b' class='mr-1'>fas fa-calendar-alt</v-icon>
                     {{parseDate(whouse.added_on)}}
@@ -150,7 +150,7 @@ export default {
     align-items: flex-start;
     margin-left: 15%;
     margin-top: 70px;
-    background-color: #fafafa;
+    background-color: #fff;
   }
   .wh-temp-layout{
         height: auto;
@@ -196,6 +196,16 @@ export default {
     }
     .wh-action .v-icon{
         cursor: pointer;
+    }
+    @media only screen and (max-width: 500px){
+        .warehouse-core{
+            width: 100%;
+            margin-left: 0%;
+        }
+        .wh-temp-layout{
+            width: 90%;
+            margin-bottom: 20px;
+        }
     }
   
 </style>

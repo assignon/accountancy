@@ -1,17 +1,33 @@
 <template>
-    <div class='sidebar-core'>
-       <div class='default-sidebar hidden-sm-and-down'>
-            <div class='logo'>
-                <div class='logo-img'></div>
-                <h3 class='mt-3'>CHICAM</h3>
-                <div class='warehouses-container mt-5' v-if="$session.get('su')">
-                    <select class="warehouse-select" v-model='warehouse' @change='changeWarehouse()'>
-                        <option value='all,0'>All</option>
-                        <option v-for='(whouse, i) in warehouses[0]' :key='i' :value="whouse.name+','+whouse.id">{{whouse.name | suWarehouseName(whouse.su, whouse.name) | capitalize(whouse.name)}}</option>
-                    </select>
-                    <v-icon small color='white' style='position:relative;right:20px;'>fas fa-angle-down</v-icon>
-                </div>
+    <div class='default-sidebar'>
+        <div class='logo'>
+            <div class='logo-img'></div>
+            <h3 class='mt-3'>CHICAM</h3>
+            <div class='warehouses-container mt-5 ml-5' v-if="$session.get('su')">
+                <select class="warehouse-select" v-model='warehouse' @change='changeWarehouse()'>
+                    <option value='all,0'>All</option>
+                    <option v-for='(whouse, i) in warehouses[0]' :key='i' :value="whouse.name+','+whouse.id">{{whouse.name | suWarehouseName(whouse.su, whouse.name) | capitalize(whouse.name)}}</option>
+                </select>
+                <v-icon small color='white' style='position:relative;right:20px;'>fas fa-angle-down</v-icon>
             </div>
+        </div>
+        <!-- calendar ctrl -->
+        <div class='claendar-ctrl mt-5 ml-2 hidden-md-and-up' style='display:flex;justify-content:flex-end;align-items:center;width:97%;'>
+            <v-btn
+                class="font-weight-bold"
+                large
+                color="#1976d2"
+                style='cursor:pointer;text-transform:capitalize'
+                rounded
+                @click='$store.state.calendarStatus = !$store.state.calendarStatus, $store.state.sidebarDrawer=false'
+            >
+                <v-icon left style='font-size:20px;' class='pl-2 pt-2 pb-2' color='white'>
+                    fas fa-calendar-alt
+                </v-icon>
+                <span v-if='$store.state.calendarStatus' style='color:white;'>Hide Calendar</span>
+                <span v-else style='color:white;'>Show Calendar</span>
+            </v-btn>
+        </div>
 
             <div class='menu-container'>
                 <router-link to="/dashboard" style="text-decoration: none;" class='menu-item'>
@@ -19,46 +35,56 @@
                     <v-icon color='white'>fas fa-tachometer-alt</v-icon>
                     <p>Dashboard</p>
                 </router-link>
+                <v-icon 
+                    style='font-size:28px;position:relative;bottom:1px' 
+                    color='#0163d1' class='add-icon' 
+                    @click='$store.state.dashboard.warehouseDialog=true, $store.state.dashboard.formActionType="add", $store.state.sidebarDrawer=false'
+                >fas fa-plus-square</v-icon>
+            </div>
 
-                <div class='link-container' v-if="$session.get('su')">
-                    <router-link to="/warehouses" style="text-decoration: none;" class='menu-item'>
-                        <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Warehouse"'></span>
-                        <v-icon color='white'>fas fa-warehouse</v-icon>
-                        <p>W.house</p>
-                    </router-link>
-                    <v-icon 
-                        style='font-size:28px;position:relative;bottom:1px' 
-                        color='#0163d1' class='add-icon' 
-                        @click='$store.state.dashboard.warehouseDialog=true, $store.state.dashboard.formActionType="add"'
-                    >fas fa-plus-square</v-icon>
-                </div>
+            <div class='link-container'>
+                <router-link to="/orders" style="text-decoration: none;" class='menu-item'>
+                    <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Order"'></span>
+                    <v-icon color='white'>fas fa-truck-loading</v-icon>
+                    <p>Sales</p>
+                </router-link>
+                <v-icon 
+                    style='font-size:28px;position:relative;bottom:1px' 
+                    color='#0163d1' class='add-icon' 
+                    @click='newOrder(), $store.state.sidebarDrawer=false'
+                >fas fa-plus-square</v-icon>
+            </div>
 
-                <div class='link-container'>
-                    <router-link to="/orders" style="text-decoration: none;" class='menu-item'>
-                        <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Order"'></span>
-                        <v-icon color='white'>fas fa-truck-loading</v-icon>
-                        <p>Sales</p>
-                    </router-link>
-                    <v-icon 
-                        style='font-size:28px;position:relative;bottom:1px' 
-                        color='#0163d1' class='add-icon' 
-                        @click='newOrder()'
-                    >fas fa-plus-square</v-icon>
-                </div>
+            <div class='link-container'>
+                <router-link to="/products" style="text-decoration: none;" class='menu-item'>
+                    <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Product"'></span>
+                    <v-icon color='white'>fas fa-boxes</v-icon>
+                    <p>Products</p>
+                </router-link>
+                <v-icon 
+                    style='font-size:28px;position:relative;bottom:1px' 
+                    color='#0163d1'
+                    class='add-icon'
+                    @click='addProduct(), $store.state.sidebarDrawer=false'
+                >fas fa-plus-square</v-icon>
+            </div>
 
-                <div class='link-container'>
-                    <router-link to="/products" style="text-decoration: none;" class='menu-item'>
-                        <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Product"'></span>
-                        <v-icon color='white'>fas fa-boxes</v-icon>
-                        <p>Products</p>
-                    </router-link>
-                    <v-icon 
-                        style='font-size:28px;position:relative;bottom:1px' 
-                        color='#0163d1'
-                        class='add-icon'
-                        @click='addProduct()'
-                    >fas fa-plus-square</v-icon>
-                </div>
+            <div class='link-container'>
+                <router-link to="/expenses" style="text-decoration: none;" class='menu-item'>
+                    <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Expenses"'></span>
+                    <v-icon color='white'>fas fa-wallet</v-icon>
+                    <p>Expenses</p>
+                </router-link>
+                <v-icon 
+                    style='font-size:28px;position:relative;bottom:1px' 
+                    color='#0163d1'
+                    class='add-icon'
+                    @click='addExpenses(), $store.state.sidebarDrawer=false'
+                >fas fa-plus-square</v-icon>
+            </div>
+            <div class='link-container' @click='newProforma()'>
+                <p style='color:white;font-weight:bold;font-size:15px'>Proforma</p>
+            </div>
 
                 <div class='link-container'>
                     <router-link to="/expenses" style="text-decoration: none;" class='menu-item'>
@@ -83,28 +109,16 @@
                 </div> -->
             </div>
 
-            <div class='setting-logout'>
-                <router-link to="/settings" style="text-decoration: none;" class='settings'>
-                    <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Settings"'></span>
-                    <v-icon color='white'>fas fa-sliders-h</v-icon>
-                    <p>Settings</p>
-                </router-link>
-
-                <div @click='logout()' style="text-decoration: none;" class='logout'>
-                    <v-icon color='white'>fas fa-sign-out-alt</v-icon>
-                    <p>Log out</p>
-                </div>
+            <div @click='logout(), $store.state.sidebarDrawer=false' style="text-decoration: none;" class='logout'>
+                <v-icon color='white'>fas fa-sign-out-alt</v-icon>
+                <p>Log out</p>
             </div>
        </div>
        <!-- mobile menu topbar -->
        <div class='mobile-topbar hidden-md-and-up'>
            <v-icon medium color='#'>fas fa-</v-icon>
         </div>
-       <!-- mobile menu -->
-       <v-navigation-drawer v-model="sidebarDrawer" fixed top height="100vh" temporary class="nav-drawer">
-
-       </v-navigation-drawer>
-        <!-- add new warehouse/user dialog -->
+            <!-- add new warehouse/user dialog -->
         <v-dialog
             v-model="$store.state.dashboard.warehouseDialog"
             persistent
@@ -404,17 +418,14 @@ export default {
 </script>
 
 <style scoped>
-    .sidebar-core{
-        height: 100vh;
-        width: 15%;
+    .default-sidebar{
+        height: 100%;
+        width: 100%;
         display: flex;
         flex-direction: column;
         justify-content: space-around;
         align-items: flex-start;
         background-color: #15141c;
-        position: fixed;
-        top: 0px;
-        left: 0px;
     }
     .logo{
         width: 100%;
@@ -582,4 +593,11 @@ export default {
             margin-left: 40px;
         }
     }
-</style>
+    @media only screen and (max-width: 500px) {
+        .warehouses-container{
+            width: 100%;
+        }
+        .warehouse-select{
+        }
+    }
+</style>WS
