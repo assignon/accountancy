@@ -71,26 +71,32 @@ class OrdersManager(models.Manager):
             profile_arr = ','.join(sorted(product['profile'])) if len(
                 product['profile']) > 0 else None
 
-            tire = Tires.objects.filter(
+            tire_check = Tires.objects.filter(
                 Q(size=product['name']) &
                 Q(profiles_str=profile_arr) &
                 Q(brands_str=brands_arr) &
                 Q(warehouse_id=kwargs['user_id'])
             )
+            tire = tire_check if tire_check.count(
+            ) > 0 else Tires.objects.filter(size=product['name'])
+
             # create ordered products
-            # try:
             try:
                 ordered_products = ProductOrdered.objects.create(
                     product=tire[0], quantity=product['qty'])
                 order.product_ordered.add(ordered_products)
             except Exception:
                 return {'created': False, 'msg': 'Something went wrong!', 'order_id': None, 'payment_id': None}
+
             # update tire quantity
-            tire_update = Tires.objects.filter(
+            tire_update_check = Tires.objects.filter(
                 Q(size=product['name']) &
                 Q(profiles_str=profile_arr) &
                 Q(brands_str=brands_arr)
             )
+            tire_update = tire_update_check if tire_update_check.count() > 0 else Tires.objects.filter(
+                size=product['name'])
+
             if int(tire.values()[0]['quantity']) > 0:
                 new_quantity = int(
                     tire.values()[0]['quantity']) - int(product['qty'])

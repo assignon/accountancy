@@ -92,7 +92,7 @@
                     depressed
                     height="55"
                     width="100%"
-                    class="fot-weight-bold white--text mr-2"
+                    class="fot-weight-bold white--text mr-2 add-product"
                     color="#1976d2"
                     v-if='$store.state.order.product != null'
                     @click="addProduct()"
@@ -106,7 +106,7 @@
           <v-btn
                 depressed
                 height="50"
-                width="20%"
+                :width="btnWidth"
                 class="fot-weight-bold white--text mr-2"
                 color="#1976d2"
                 @click="updatePreviousStep(orderStep)"
@@ -117,7 +117,7 @@
           <v-btn
             depressed
             height="50"
-            width="20%"
+            :width="btnWidth"
             class="fot-weight-bold white--text"
             color="#1976d2"
             :disabled='productNotAdded'
@@ -192,6 +192,7 @@ export default {
             extraItemDialog: false,
             extraItemName: null,
             newExtra: null,
+            btnWidth: window.innerWidth > 500 ? '20%' : '40%',
         }
     },
     created(){
@@ -636,5 +637,28 @@ export default {
     }
     .v-btn{
         text-transform: capitalize;
+    }
+     @media only screen and (max-width: 500px){
+        .order-form{
+             width: 100%;
+         }
+        .order-form .v-text-field{
+            width: 100%;
+        }
+        .products-fields, .brands-profiles-select{
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+        .products-fields, .brands-profiles-select{
+            width: 100%;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+        .btn-container{
+            width: 100%;
+        }
+        .add-product{
+            margin-bottom: 20px;
+        }
     }
 </style>

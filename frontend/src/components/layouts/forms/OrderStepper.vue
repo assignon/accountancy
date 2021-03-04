@@ -3,7 +3,7 @@
         v-model="orderFormStep"
         vertical
         class='order-stepper pt-5'
-        style='padding-left: 70px'
+        style=''
     >   <!-- customer information -->
         <v-stepper-step
             :complete="orderFormStep > 1"
@@ -123,6 +123,9 @@ export default {
                         self.$store.state.pdfDialog = true;
                         self.paymentConfirmationDialog = true
                     }
+                    // else{
+                    //     alert(data.msg)
+                    // }
                 },
             });
         },
@@ -139,11 +142,17 @@ export default {
       overflow-x: hidden;
       margin: auto;
       padding-bottom: 10px;
+      padding-left: 70px;
     }
     .v-stepper{
         box-shadow: none;
     }
     .theme--light.v-stepper{
         background-color: #fffafa;
+    }
+    @media only screen and (max-width: 500px){
+        .order-stepper{
+            padding-left: 0px;
+        }
     }
 </style>

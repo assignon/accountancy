@@ -44,6 +44,8 @@ export default new Vuex.Store({
      // calendar ctrl
     calendarStatusText: 'Hide Calendar',
     calendarStatus: true, //hide or display calendar
+    // mobile drawer
+    sidebarDrawer: false,
   },
 
   getters: {

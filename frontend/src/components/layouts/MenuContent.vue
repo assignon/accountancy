@@ -1,15 +1,32 @@
 <template>
-    <div class='sidebar-core'>
+    <div class='default-sidebar'>
         <div class='logo'>
             <div class='logo-img'></div>
             <h3 class='mt-3'>CHICAM</h3>
-            <div class='warehouses-container mt-5' v-if="$session.get('su')">
+            <div class='warehouses-container mt-5 ml-5' v-if="$session.get('su')">
                 <select class="warehouse-select" v-model='warehouse' @change='changeWarehouse()'>
                     <option value='all,0'>All</option>
                     <option v-for='(whouse, i) in warehouses[0]' :key='i' :value="whouse.name+','+whouse.id">{{whouse.name | suWarehouseName(whouse.su, whouse.name) | capitalize(whouse.name)}}</option>
                 </select>
                 <v-icon small color='white' style='position:relative;right:20px;'>fas fa-angle-down</v-icon>
             </div>
+        </div>
+        <!-- calendar ctrl -->
+        <div class='claendar-ctrl mt-5 ml-2 hidden-md-and-up' style='display:flex;justify-content:flex-end;align-items:center;width:97%;'>
+            <v-btn
+                class="font-weight-bold"
+                large
+                color="#1976d2"
+                style='cursor:pointer;text-transform:capitalize'
+                rounded
+                @click='$store.state.calendarStatus = !$store.state.calendarStatus, $store.state.sidebarDrawer=false'
+            >
+                <v-icon left style='font-size:20px;' class='pl-2 pt-2 pb-2' color='white'>
+                    fas fa-calendar-alt
+                </v-icon>
+                <span v-if='$store.state.calendarStatus' style='color:white;'>Hide Calendar</span>
+                <span v-else style='color:white;'>Show Calendar</span>
+            </v-btn>
         </div>
 
         <div class='menu-container'>
@@ -28,7 +45,7 @@
                 <v-icon 
                     style='font-size:28px;position:relative;bottom:1px' 
                     color='#0163d1' class='add-icon' 
-                    @click='$store.state.dashboard.warehouseDialog=true, $store.state.dashboard.formActionType="add"'
+                    @click='$store.state.dashboard.warehouseDialog=true, $store.state.dashboard.formActionType="add", $store.state.sidebarDrawer=false'
                 >fas fa-plus-square</v-icon>
             </div>
 
@@ -41,7 +58,7 @@
                 <v-icon 
                     style='font-size:28px;position:relative;bottom:1px' 
                     color='#0163d1' class='add-icon' 
-                    @click='newOrder()'
+                    @click='newOrder(), $store.state.sidebarDrawer=false'
                 >fas fa-plus-square</v-icon>
             </div>
 
@@ -55,7 +72,7 @@
                     style='font-size:28px;position:relative;bottom:1px' 
                     color='#0163d1'
                     class='add-icon'
-                    @click='addProduct()'
+                    @click='addProduct(), $store.state.sidebarDrawer=false'
                 >fas fa-plus-square</v-icon>
             </div>
 
@@ -69,7 +86,7 @@
                     style='font-size:28px;position:relative;bottom:1px' 
                     color='#0163d1'
                     class='add-icon'
-                    @click='addExpenses()'
+                    @click='addExpenses(), $store.state.sidebarDrawer=false'
                 >fas fa-plus-square</v-icon>
             </div>
             <div class='link-container' @click='newProforma()'>
@@ -89,12 +106,12 @@
                 <p>Settings</p>
             </router-link>
 
-            <div @click='logout()' style="text-decoration: none;" class='logout'>
+            <div @click='logout(), $store.state.sidebarDrawer=false' style="text-decoration: none;" class='logout'>
                 <v-icon color='white'>fas fa-sign-out-alt</v-icon>
                 <p>Log out</p>
             </div>
         </div>
-        <!-- add new warehouse/user dialog -->
+            <!-- add new warehouse/user dialog -->
         <v-dialog
             v-model="$store.state.dashboard.warehouseDialog"
             persistent
@@ -393,17 +410,14 @@ export default {
 </script>
 
 <style scoped>
-    .sidebar-core{
-        height: 100vh;
-        width: 15%;
+    .default-sidebar{
+        height: 100%;
+        width: 100%;
         display: flex;
         flex-direction: column;
         justify-content: space-around;
         align-items: flex-start;
         background-color: #15141c;
-        position: fixed;
-        top: 0px;
-        left: 0px;
     }
     .logo{
         width: 100%;
@@ -560,4 +574,11 @@ export default {
             margin-left: 40px;
         }
     }
-</style>
+    @media only screen and (max-width: 500px) {
+        .warehouses-container{
+            width: 100%;
+        }
+        .warehouse-select{
+        }
+    }
+</style>WS

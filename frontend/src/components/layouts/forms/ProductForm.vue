@@ -91,7 +91,7 @@
                 <v-btn
                     depressed
                     height="50"
-                    width="20%"
+                    :width="btnWidth"
                     class="fot-weight-bold white--text"
                     color="#1976d2"
                     v-if='$store.state.product.addProductForm && $store.state.product.productProforma==false'
@@ -103,7 +103,7 @@
                     large
                     depressed
                     height="50"
-                    width="30%"
+                    :width="btnWidth"
                     class="fot-weight-bold white--text"
                     color="#1976d2"
                     v-if='$store.state.product.addProductForm==false && $store.state.product.productProforma==false'
@@ -115,7 +115,7 @@
                     large
                     depressed
                     height="50"
-                    width="30%"
+                    :width="btnWidth"
                     class="fot-weight-bold white--text"
                     color="#1976d2"
                     v-if='$store.state.product.productProforma && $store.state.product.addProductForm==false'
@@ -196,6 +196,7 @@ export default {
             extraItemDialog: false,
             extraItemName: null,
             newExtra: null,
+            btnWidth: window.innerWidth > 500 ? '30%' : '50%',
         }
     },
     created(){
@@ -573,5 +574,10 @@ export default {
     }
     .new-extra .v-text-field{
          width: 100%;
+     }
+     @media only screen and (max-width: 500px){
+        .product-form{
+            width: 90%;
+        }
      }
 </style>

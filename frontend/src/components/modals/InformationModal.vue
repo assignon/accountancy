@@ -3,8 +3,8 @@
       v-model="$store.state.infoDrawer"
       fixed
       height='100vh'
+      :width= 'dialogWidth'
       right
-      width='50%'
       :overlay='false'
       class='info-drawer'
       :style="{backgroundColor: bColor,border: border}"
@@ -36,6 +36,7 @@ export default {
     data(){
         return {
             // datailsTemplates: ['PaymentDetails', 'ProductDetails', 'OrderDetails']
+            dialogWidth: window.innerWidth > 500 ? '50%' : '100%'
         }
     },
 
@@ -49,6 +50,9 @@ export default {
     /* .v-navigation-drawer--is-mobile:not(.v-navigation-drawer--close), .v-navigation-drawer--temporary:not(.v-navigation-drawer--close){
         box-shadow: none;
     } */
+    .info-drawer{
+        width: 50%;
+    }
     .theme--light.v-navigation-drawer{
         display: flex;
         flex-direction: column;
@@ -78,6 +82,11 @@ export default {
      @media only screen and (max-width: 1500px) {
         .info-drawer{
             width: 80%;
+        }
+    }
+    @media only screen and (max-width: 500px){
+        .info-drawer{
+            width: 100%;
         }
     }
 </style>

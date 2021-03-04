@@ -1,7 +1,8 @@
 <template>
   <v-app id='app'>
     <v-main>
-      <Sidebar v-if="!$route.name.startsWith('Login')" />
+      <DefaultMenu v-if="!$route.name.startsWith('Login')" class='hidden-sm-and-down' />
+      <MobileMenu v-if="!$route.name.startsWith('Login')" class='hidden-md-and-up' />
       <router-view class="animated fadeIn"></router-view>
       <FormsModal/>
       <v-dialog
@@ -27,7 +28,8 @@
 </template>
 
 <script>
-import Sidebar from "./components/layouts/Sidebar";
+import DefaultMenu from "./components/layouts/DefaultMenu";
+import MobileMenu from "./components/layouts/MobileMenu";
 import FormsModal from "./components/modals/FormsModal";
 import OrderPdf from "@/components/layouts/OrderPdf.vue";
 import ProductPdf from "@/components/layouts/ProductPdf.vue";
@@ -38,7 +40,8 @@ export default {
   name: "App",
 
   components: {
-    Sidebar,
+    DefaultMenu,
+    MobileMenu,
     FormsModal,
     OrderPdf, 
     ProductPdf,

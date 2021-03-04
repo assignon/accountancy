@@ -237,8 +237,8 @@ export default {
         border: 1px solid #ebf0f7;
         border-radius: 10px;
         background-color: #ebf0f7;
-         padding: 30px;
-          margin: 20px;
+        padding: 30px;
+        margin: 20px;
         /* box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px; */
         box-shadow: rgba(255, 255, 255, 0.2) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0.9) 0px 0px 0px 1px;
     }
@@ -270,5 +270,20 @@ export default {
         flex-direction: row;
         justify-content: flex-start;
         align-items: flex-start;
+    }
+    @media only screen and (max-width: 500px){
+        .product-core{
+            width: 100%;
+            margin-left: 0%;
+        }
+        .product-container{
+            margin-top: 20px;
+        }
+        .prduct-flex{
+            margin: 0px 10px 0px 10px;
+        }
+        .product-inner-container{
+            margin: 0px;
+        }
     }
 </style>

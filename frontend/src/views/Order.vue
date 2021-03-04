@@ -20,10 +20,10 @@
                     @input='searchOrder'
                 ></v-text-field>
             </div>
-            <v-btn large @click='newOrder()' rounded color='#1976d2' class='mr-5'>New Sale</v-btn>
+            <v-btn large @click='newOrder()' rounded color='#1976d2' class='mr-5 hidden-sm-and-down'>New Sale</v-btn>
             <!-- calendar ctrl -->
             <v-btn
-                class="mr-4"
+                class="mr-4 hidden-sm-and-down"
                 large
                 color="#1976d2"
                 style='cursor:pointer'
@@ -73,30 +73,30 @@
                         </div>
                     </v-tab-item>
                      
-                    <v-tab-item style='width: 1000px;margin-top:50px;' class='ml-5'>
+                    <v-tab-item style='margin-top:50px;' :style='{width:tabWidth}' class='ml-5'>
                         <v-flex xs12 sm12 md8 lg10 xl12  class='payment-container' v-if='customerPayments[0].count > 0'>
                             <div class='payments mt-5 ml-5 animated fadeInUp' 
                                 v-for="(payment, i) in customerPayments[0].payments" 
                                 :key='i'
                                 @click='$store.state.infoDrawer=true, paymentDetails(payment.id)'
                             >
-                                <v-flex xs12 sm12 md4 lg4 xl4>
+                                <v-flex xs6 sm6 md4 lg4 xl4>
                                     <p>
                                         <v-icon class='mr-2' color='#15141c'>fas fa-user-circle</v-icon>
                                         <span>{{payment.customer[0].name}}</span>
-                                        <span class='ml-3'>({{payment.payment_interval}})</span>
+                                        <span class='ml-3 hidden-sm-and-down'>({{payment.payment_interval}})</span>
                                     </p>
                                 </v-flex>
 
-                                <v-flex xs12 sm12 md3 lg3 xl3>
+                                <v-flex xs6 sm6 md3 lg3 xl3>
                                     <p style='position: relative;top:5px;margin-left:60px;text-align:left;' class=''>
-                                        <v-icon style='font-size: 20px' color='#15141c'>fas fa-credit-card</v-icon>
+                                        <v-icon style='font-size: 20px' class='hidden-sm-and-down' color='#15141c'>fas fa-credit-card</v-icon>
                                         {{payment.methods[0].name}}
                                     </p>
                                 </v-flex>
                                 
                                 <PaymentProgressBar 
-                                    class='ml-3'
+                                    class='ml-3 hidden-sm-and-down'
                                     style='position: relative;top:3px;'
                                     width='30%'
                                     :times="payment.times"
@@ -169,7 +169,8 @@ export default {
     return{
       tab: null,
       orderSearch: null, //v-model
-      searchView: false
+      searchView: false,
+      tabWidth: window.innerWidth > 500 ? '1000px' : '400px'
     }
   },
 
@@ -516,8 +517,22 @@ export default {
         align-items: center;
     }
     @media only screen and (max-width: 500px) {
-        .order-core, .orders-flex, .v-tabs, .v-tabs-items{
-            margin-left: 20%;
+        .order-core{
+            width: 100%;
+            align-items: center;
+            margin-left: 0%;
         }
+        .order-search-form{
+            width: 90%;
+        }
+        .payment-container{
+            width: 80%;
+        }
+        .payment-container .payments p{
+            font-size: 12px;
+        }
+        /* .order-core, .orders-flex, .v-tabs, .v-tabs-items{
+            margin-left: 20%;
+        } */
     }
 </style>

@@ -22,7 +22,7 @@
         ></v-text-field>
         <div class='btn-container'>
           <v-btn large @click='signin()' color='#1976d2'>Login</v-btn>
-          <p class='mt-2' @click='$store.state.passForgotDialog=true'>password forgot?</p>
+          <p class='mt-2' @click='$store.state.passForgotDialog=true'>Forget Password</p>
         </div>
       </v-form>
       <PasswordForgot/>
@@ -158,5 +158,10 @@ export default {
     font-weight: bolder;
     cursor: pointer;
     color: #1976d2;
+  }
+  @media only screen and (max-width: 500px){
+    .login-form{
+      width: 90%;
+    }
   }
 </style>
