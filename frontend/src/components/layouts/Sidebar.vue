@@ -1,99 +1,109 @@
 <template>
     <div class='sidebar-core'>
-        <div class='logo'>
-            <div class='logo-img'></div>
-            <h3 class='mt-3'>CHICAM</h3>
-            <div class='warehouses-container mt-5' v-if="$session.get('su')">
-                <select class="warehouse-select" v-model='warehouse' @change='changeWarehouse()'>
-                    <option value='all,0'>All</option>
-                    <option v-for='(whouse, i) in warehouses[0]' :key='i' :value="whouse.name+','+whouse.id">{{whouse.name | suWarehouseName(whouse.su, whouse.name) | capitalize(whouse.name)}}</option>
-                </select>
-                <v-icon small color='white' style='position:relative;right:20px;'>fas fa-angle-down</v-icon>
+       <div class='default-sidebar hidden-sm-and-down'>
+            <div class='logo'>
+                <div class='logo-img'></div>
+                <h3 class='mt-3'>CHICAM</h3>
+                <div class='warehouses-container mt-5' v-if="$session.get('su')">
+                    <select class="warehouse-select" v-model='warehouse' @change='changeWarehouse()'>
+                        <option value='all,0'>All</option>
+                        <option v-for='(whouse, i) in warehouses[0]' :key='i' :value="whouse.name+','+whouse.id">{{whouse.name | suWarehouseName(whouse.su, whouse.name) | capitalize(whouse.name)}}</option>
+                    </select>
+                    <v-icon small color='white' style='position:relative;right:20px;'>fas fa-angle-down</v-icon>
+                </div>
             </div>
+
+            <div class='menu-container'>
+                <router-link to="/dashboard" style="text-decoration: none;" class='menu-item'>
+                    <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Dashboard"'></span>
+                    <v-icon color='white'>fas fa-tachometer-alt</v-icon>
+                    <p>Dashboard</p>
+                </router-link>
+
+                <div class='link-container' v-if="$session.get('su')">
+                    <router-link to="/warehouses" style="text-decoration: none;" class='menu-item'>
+                        <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Warehouse"'></span>
+                        <v-icon color='white'>fas fa-warehouse</v-icon>
+                        <p>W.house</p>
+                    </router-link>
+                    <v-icon 
+                        style='font-size:28px;position:relative;bottom:1px' 
+                        color='#0163d1' class='add-icon' 
+                        @click='$store.state.dashboard.warehouseDialog=true, $store.state.dashboard.formActionType="add"'
+                    >fas fa-plus-square</v-icon>
+                </div>
+
+                <div class='link-container'>
+                    <router-link to="/orders" style="text-decoration: none;" class='menu-item'>
+                        <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Order"'></span>
+                        <v-icon color='white'>fas fa-truck-loading</v-icon>
+                        <p>Sales</p>
+                    </router-link>
+                    <v-icon 
+                        style='font-size:28px;position:relative;bottom:1px' 
+                        color='#0163d1' class='add-icon' 
+                        @click='newOrder()'
+                    >fas fa-plus-square</v-icon>
+                </div>
+
+                <div class='link-container'>
+                    <router-link to="/products" style="text-decoration: none;" class='menu-item'>
+                        <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Product"'></span>
+                        <v-icon color='white'>fas fa-boxes</v-icon>
+                        <p>Products</p>
+                    </router-link>
+                    <v-icon 
+                        style='font-size:28px;position:relative;bottom:1px' 
+                        color='#0163d1'
+                        class='add-icon'
+                        @click='addProduct()'
+                    >fas fa-plus-square</v-icon>
+                </div>
+
+                <div class='link-container'>
+                    <router-link to="/expenses" style="text-decoration: none;" class='menu-item'>
+                        <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Expenses"'></span>
+                        <v-icon color='white'>fas fa-wallet</v-icon>
+                        <p>Expenses</p>
+                    </router-link>
+                    <v-icon 
+                        style='font-size:28px;position:relative;bottom:1px' 
+                        color='#0163d1'
+                        class='add-icon'
+                        @click='addExpenses()'
+                    >fas fa-plus-square</v-icon>
+                </div>
+                <div class='link-container' @click='newProforma()'>
+                    <p style='color:white;font-weight:bold;font-size:15px'>Proforma</p>
+                </div>
+
+                <!-- <div class='menu-item' v-if="!$route.name.startsWith('Dashboard')">
+                    <v-icon color='white'>fas fa-sort-amount-down-alt</v-icon>
+                    <p>Filters</p>
+                </div> -->
+            </div>
+
+            <div class='setting-logout'>
+                <router-link to="/settings" style="text-decoration: none;" class='settings'>
+                    <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Settings"'></span>
+                    <v-icon color='white'>fas fa-sliders-h</v-icon>
+                    <p>Settings</p>
+                </router-link>
+
+                <div @click='logout()' style="text-decoration: none;" class='logout'>
+                    <v-icon color='white'>fas fa-sign-out-alt</v-icon>
+                    <p>Log out</p>
+                </div>
+            </div>
+       </div>
+       <!-- mobile menu topbar -->
+       <div class='mobile-topbar hidden-md-and-up'>
+           <v-icon medium color='#'>fas fa-</v-icon>
         </div>
+       <!-- mobile menu -->
+       <v-navigation-drawer v-model="sidebarDrawer" fixed top height="100vh" temporary class="nav-drawer">
 
-        <div class='menu-container'>
-            <router-link to="/dashboard" style="text-decoration: none;" class='menu-item'>
-                <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Dashboard"'></span>
-                <v-icon color='white'>fas fa-tachometer-alt</v-icon>
-                <p>Dashboard</p>
-            </router-link>
-
-            <div class='link-container' v-if="$session.get('su')">
-                <router-link to="/warehouses" style="text-decoration: none;" class='menu-item'>
-                    <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Warehouse"'></span>
-                    <v-icon color='white'>fas fa-warehouse</v-icon>
-                    <p>W.house</p>
-                </router-link>
-                <v-icon 
-                    style='font-size:28px;position:relative;bottom:1px' 
-                    color='#0163d1' class='add-icon' 
-                    @click='$store.state.dashboard.warehouseDialog=true, $store.state.dashboard.formActionType="add"'
-                >fas fa-plus-square</v-icon>
-            </div>
-
-            <div class='link-container'>
-                <router-link to="/orders" style="text-decoration: none;" class='menu-item'>
-                    <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Order"'></span>
-                    <v-icon color='white'>fas fa-truck-loading</v-icon>
-                    <p>Sales</p>
-                </router-link>
-                <v-icon 
-                    style='font-size:28px;position:relative;bottom:1px' 
-                    color='#0163d1' class='add-icon' 
-                    @click='newOrder()'
-                >fas fa-plus-square</v-icon>
-            </div>
-
-            <div class='link-container'>
-                <router-link to="/products" style="text-decoration: none;" class='menu-item'>
-                    <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Product"'></span>
-                    <v-icon color='white'>fas fa-boxes</v-icon>
-                    <p>Products</p>
-                </router-link>
-                <v-icon 
-                    style='font-size:28px;position:relative;bottom:1px' 
-                    color='#0163d1'
-                    class='add-icon'
-                    @click='addProduct()'
-                >fas fa-plus-square</v-icon>
-            </div>
-
-            <div class='link-container'>
-                <router-link to="/expenses" style="text-decoration: none;" class='menu-item'>
-                    <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Expenses"'></span>
-                    <v-icon color='white'>fas fa-wallet</v-icon>
-                    <p>Expenses</p>
-                </router-link>
-                <v-icon 
-                    style='font-size:28px;position:relative;bottom:1px' 
-                    color='#0163d1'
-                    class='add-icon'
-                    @click='addExpenses()'
-                >fas fa-plus-square</v-icon>
-            </div>
-            <div class='link-container' @click='newProforma()'>
-                <p style='color:white;font-weight:bold;font-size:15px'>Proforma</p>
-            </div>
-
-            <!-- <div class='menu-item' v-if="!$route.name.startsWith('Dashboard')">
-                <v-icon color='white'>fas fa-sort-amount-down-alt</v-icon>
-                <p>Filters</p>
-            </div> -->
-        </div>
-
-        <div class='setting-logout'>
-            <router-link to="/settings" style="text-decoration: none;" class='settings'>
-                <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Settings"'></span>
-                <v-icon color='white'>fas fa-sliders-h</v-icon>
-                <p>Settings</p>
-            </router-link>
-
-            <div @click='logout()' style="text-decoration: none;" class='logout'>
-                <v-icon color='white'>fas fa-sign-out-alt</v-icon>
-                <p>Log out</p>
-            </div>
-        </div>
+       </v-navigation-drawer>
         <!-- add new warehouse/user dialog -->
         <v-dialog
             v-model="$store.state.dashboard.warehouseDialog"
@@ -183,6 +193,7 @@ export default {
     data(){
         return{
             warehouse: this.$session.get('warehouseName'), //selected warehouse name
+            sidebarDrawer: false,
         }
     },
 
@@ -551,6 +562,17 @@ export default {
         font-weight: bolder;
         cursor: pointer;
         color: #1976d2;
+    }
+    /* mobile styles */
+    .nav-drawer {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        padding-left: 20px;
+        top: 0px;
+        z-index: 3;
     }
     @media only screen and (max-width: 1500px) {
         /* .sidebar-core{
