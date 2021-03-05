@@ -76,6 +76,7 @@
                     <v-icon medium color='white'>fas fa-undo-alt</v-icon>
                     <p style='font-size:17px;margin:auto;color:white;' class='ml-1 font-weight-bold'>Backup Manually</p>
                 </v-btn>
+                <!-- <a v-if='sqlite3!=null' href='../../../db.sqlite3' download >DB</a> -->
             </div>
         </div>
     </div>
@@ -99,7 +100,8 @@ export default {
             password: null,
             currentPassword: null,
             repeatPassword: null,
-            btnWidth: window.innerWidth > 500 ? '70%' : '100%'
+            btnWidth: window.innerWidth > 500 ? '70%' : '100%',
+            sqlite3: null
         }
     },
 
@@ -119,6 +121,16 @@ export default {
                 csrftoken: self.$session.get('token'),
                 callback: function(data) {
                     console.log(data);
+                    // let headers = data.headers();
+                    let blob = new Blob([data], { type: 'application/x-sqlite3' })
+                    // url = window.URL.createObjectURL(blob)
+
+                    let link = document.createElement('a')
+                    link.href = window.URL.createObjectURL(blob)
+                    link.download = 'db.sqlite3'
+                    link.click()
+
+                    // window.open(url)
                 },
             });
         },

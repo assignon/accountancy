@@ -2,6 +2,7 @@
 from django.contrib.auth import login, authenticate, logout, get_user_model
 
 from django.contrib.auth.models import User
+from django.http.response import HttpResponse
 # from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.core import serializers
@@ -22,17 +23,36 @@ from rest_framework.status import (
     HTTP_200_OK
 )
 from django.conf import settings
+from django.core.files import File
 import shutil
 import os
 import sys
 from pathlib import Path
 import urllib.request
+from django.contrib.auth.decorators import login_required
 
 from dashboard.serializers import DashboardSerializer
 from orders.models import Credentials
 from products.models import Products
 
 # Create your views here.
+
+
+@login_required
+def backup(request):
+    # download the sqlite DB to local disk
+    print('ussseeerrrr', request.user)
+    # if not request.user.is_anonymous:
+    db_path = settings.BASE_DIR+'/db.sqlite3'
+
+    dbfile = File(open(db_path, "rb"))
+    response = HttpResponse(dbfile, content_type="application/x-sqlite3")
+    response['Content-Disposition'] = 'attachment; filename='+db_path
+    response['Content-Length'] = dbfile.size
+
+    return response
+    # else:
+    #     return HttpResponse('u are not allow')
 
 
 @csrf_exempt
@@ -232,58 +252,67 @@ class DashboardView(viewsets.ModelViewSet):
     @csrf_exempt
     @action(methods=['get'], detail=False)
     def db_backup(self, request):
-        destination_folder = str(Path.home() / "Downloads/chicam_backups")
-        destination_path = str(destination_folder)+'/db.sqlite3'
+        # destination_folder = str(Path.home() / "Downloads/chicam_backups")
+        # destination_path = str(destination_folder)+'/db.sqlite3'
 
-        if not os.path.exists(destination_folder):
-            try:
-                os.mkdir(destination_folder)
-            except OSError:
-                return Response(
-                    {
-                        'created': False,
-                        'msg': "Creation of the directory %s failed {}".format(destination_folder)
-                    }
-                )
+        # if not os.path.exists(destination_folder):
+        #     try:
+        #         os.mkdir(destination_folder)
+        #     except OSError:
+        #         return Response(
+        #             {
+        #                 'created': False,
+        #                 'msg': "Creation of the directory %s failed {}".format(destination_folder)
+        #             }
+        #         )
 
-        if os.path.exists(destination_path):
-            os.remove(destination_path)
-            try:
-                shutil.copy(f'{settings.BASE_DIR}/db.sqlite3',
-                            destination_path)
-            except IOError as e:
-                return Response(
-                    {
-                        'created': False,
-                        'msg': "Unable to copy file. {}".format(e)
-                    }
-                )
+        # if os.path.exists(destination_path):
+        #     os.remove(destination_path)
+        #     try:
+        #         shutil.copy(f'{settings.BASE_DIR}/db.sqlite3',
+        #                     destination_path)
+        #     except IOError as e:
+        #         return Response(
+        #             {
+        #                 'created': False,
+        #                 'msg': "Unable to copy file. {}".format(e)
+        #             }
+        #         )
 
-            return Response(
-                {
-                    'created': True,
-                    'msg': 'Backup created'
-                }
-            )
-            # shutil.move(f'{settings.BASE_DIR}/db.sqlite3', downloads_path)
-        else:
-            try:
-                shutil.copy(f'{settings.BASE_DIR}/db.sqlite3',
-                            destination_path)
-            except IOError as e:
-                return Response(
-                    {
-                        'created': False,
-                        'msg': "Unable to copy file. {}".format(e)
-                    }
-                )
+        #     return Response(
+        #         {
+        #             'created': True,
+        #             'msg': 'Backup created'
+        #         }
+        #     )
+        #     # shutil.move(f'{settings.BASE_DIR}/db.sqlite3', downloads_path)
+        # else:
+        #     try:
+        #         shutil.copy(f'{settings.BASE_DIR}/db.sqlite3',
+        #                     destination_path)
+        #     except IOError as e:
+        #         return Response(
+        #             {
+        #                 'created': False,
+        #                 'msg': "Unable to copy file. {}".format(e)
+        #             }
+        #         )
 
-            return Response(
-                {
-                    'created': True,
-                    'msg': 'Backup created'
-                }
-            )
+        #     return Response(
+        #         {
+        #             'created': True,
+        #             'msg': 'Backup created'
+        #         }
+        #     )
+
+        db_path = settings.BASE_DIR+'/db.sqlite3'
+
+        dbfile = File(open(db_path, "rb"))
+        response = HttpResponse(dbfile, content_type="application/x-sqlite3")
+        response['Content-Disposition'] = 'attachment; filename='+db_path
+        response['Content-Length'] = dbfile.size
+
+        return response
 
     @action(methods=['get'], detail=False)
     def signout(self, request):
