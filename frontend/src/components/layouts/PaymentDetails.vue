@@ -41,6 +41,7 @@
                             style='position:relative;bottom:20px;'
                             @click='displayConfirmationDialog(ps.payed, paymentDetails[0].customer[0].id, ps.payment_date)'
                         ></v-checkbox>
+                         <p>{{ps.employee_name}}</p>
                     </div>
                 </div>
                 

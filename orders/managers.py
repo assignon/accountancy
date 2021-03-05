@@ -158,7 +158,7 @@ class OrdersManager(models.Manager):
 
         return 'Order removed'
 
-    def get_orders(self, user_id, dte=None, limit=None):
+    def get_orders(self, user_id, pagination, dte=None, limit=None):
         from products.models import Vehicule, Tires
         from orders.models import Customers, Payment, PaymentMethods, ProductOrdered, Orders, Payment_status
         """
@@ -173,17 +173,25 @@ class OrdersManager(models.Manager):
         current_date = datetime.now().date()
         orders_arr = []
         whouse_id = int(user_id)
-        print('ooorrrdddeerr', dte)
+        if limit != None:
+            start = 0 if pagination == 1 else (pagination-1)*limit
+            end = limit if pagination == 1 else start*pagination
+        order_count = 0
+
         if dte == None:
             # get products of the current date
             if whouse_id == 0:
                 orders = self.prefetch_related().filter(order_on=current_date
                                                         ) if limit == None else self.prefetch_related().filter(order_on=current_date
-                                                                                                               )[:limit]
+                                                                                                               )[int(start):int(end)]
+                order_count = self.prefetch_related().filter(order_on=current_date).count()
             else:
                 orders = self.prefetch_related().filter(
-                    Q(order_on=dte) & Q(warehouse_id=whouse_id)) if limit == None else self.prefetch_related().filter(
-                    Q(order_on=dte) & Q(warehouse_id=whouse_id))[:limit]
+                    Q(order_on=current_date) & Q(warehouse_id=whouse_id)) if limit == None else self.prefetch_related().filter(
+                    Q(order_on=current_date) & Q(warehouse_id=whouse_id))[int(start):int(end)]
+
+                order_count = self.prefetch_related().filter(
+                    Q(order_on=current_date) & Q(warehouse_id=whouse_id)).count()
 
             # get credentials and orders
             for order in orders.values():
@@ -231,7 +239,7 @@ class OrdersManager(models.Manager):
 
             return {
                 'order': orders_arr,
-                'count': orders.count()
+                'count': order_count
             }
 
         else:
@@ -239,11 +247,16 @@ class OrdersManager(models.Manager):
             if whouse_id == 0:
                 orders = self.prefetch_related().filter(order_on=dte
                                                         ) if limit == None else self.prefetch_related().filter(order_on=dte
-                                                                                                               )[:limit]
+                                                                                                               )[int(start):int(end)]
+                # order total count
+                order_count = self.prefetch_related().filter(order_on=dte).count()
             else:
                 orders = self.prefetch_related().filter(
                     Q(order_on=dte) & Q(warehouse_id=whouse_id)) if limit == None else self.prefetch_related().filter(
-                    Q(order_on=dte) & Q(warehouse_id=whouse_id))[:limit]
+                    Q(order_on=dte) & Q(warehouse_id=whouse_id))[int(start):int(end)]
+                # order total count
+                order_count = self.prefetch_related().filter(
+                    Q(order_on=dte) & Q(warehouse_id=whouse_id)).count()
 
             for order in orders.values():
                 try:
@@ -291,7 +304,7 @@ class OrdersManager(models.Manager):
 
             return {
                 'order': orders_arr,
-                'count': orders.count()
+                'count': order_count
             }
 
     def search_order(self, customer_name, whouse_id):
@@ -532,13 +545,16 @@ class CustomerManager(models.Manager):
             'p_status': p_status
         }
 
-    def ongoing_payments(self, dte, limit, warehouse_id, su_id):
+    def ongoing_payments(self, dte, limit, warehouse_id, su_id, pagination):
         # get base on the date ongoing payments
         from .models import PaymentMethods, Payment, Credentials, Customers, Orders
 
         customer_payments = []
         customer_payment_method = []
         credentials = []
+        if limit != 0:
+            start = 0 if pagination == 1 else (pagination-1)*limit
+            end = limit if pagination == 1 else start*pagination
         # querysets
         # payments = Payment.objects.all(
         # )[:int(limit)] if int(limit) != 0 else Payment.objects.all()
@@ -548,16 +564,44 @@ class CustomerManager(models.Manager):
         except:
             pass
 
-        for order in orders.values():
-            if warehouse_id != 0:
+        if warehouse_id != 0:
+            for order in orders.values():
                 customers = Customers.objects.filter(order_id=order['id']
-                                                     )[:int(limit)] if int(limit) != 0 else Customers.objects.filter(order_id=order['id'])
-            else:
-                customers = Customers.objects.all()[:int(limit)] if int(
-                    limit) != 0 else Customers.objects.all()
+                                                     )[int(start):int(end)] if int(limit) != 0 else Customers.objects.filter(order_id=order['id'])
 
-            # get customer who are paying on the current day
-            # for payment in payments.values():
+                # get customer who are paying on the current day
+                # for payment in payments.values():
+                for customer in customers.values():
+                    payments_dates = Payment.paymentDates_end(customer['id'])
+                    payment = Payment.objects.get(id=customer['payment_id'])
+                    # dte_obj = datetime.strptime(dte, '%Y-%m-%d')
+
+                    for dates in payments_dates['paying_dates']:
+                        if dte == datetime.strftime(dates, '%Y-%m-%d'):
+                            payment_method = Payment.objects.filter(
+                                id=customer['payment_id'])
+
+                            customer_payments.append(
+                                {
+                                    'id': customer['payment_id'],
+                                    'customer_id': customer['id'],
+                                    'method_id': payment.method_id,
+                                    'pay_in': payment.pay_in,
+                                    'payment_interval': payment.payment_interval,
+                                    'start': customer['start'],
+                                    'times': customer['times'],
+                                    'payment_dates': payments_dates['paying_dates'],
+                                    # get payments methods
+                                    'methods': get_related(
+                                        PaymentMethods, payment_method, 'method_id'),
+                                    # get customer credentials
+                                    'customer': Credentials.objects.filter(id=customer['credential_id']).values()
+                                }
+                            )
+        else:
+            customers = Customers.objects.all()[int(start):int(end)] if int(
+                limit) != 0 else Customers.objects.all()
+
             for customer in customers.values():
                 payments_dates = Payment.paymentDates_end(customer['id'])
                 payment = Payment.objects.get(id=customer['payment_id'])
@@ -587,14 +631,19 @@ class CustomerManager(models.Manager):
                         )
 
         return {
+            # 'payments': list(dict.fromkeys(customer_payments)),
             'payments': customer_payments,
             'count': len(customer_payments),
         }
 
-    def all_payments(self, limit, warehouse_id, su_id):
+    def all_payments(self, limit, warehouse_id, su_id, pagination):
         from .models import PaymentMethods, Payment, Credentials, Customers, Orders
 
         customer_payments = []
+        payment_count = 0
+        if limit != 0:
+            start = 0 if pagination == 1 else (pagination-1)*limit
+            end = limit if pagination == 1 else start*pagination
         # querysets
         wh_id = warehouse_id if warehouse_id != 0 else su_id
         try:
@@ -602,13 +651,43 @@ class CustomerManager(models.Manager):
         except:
             pass
 
-        for order in orders.values():
-            if warehouse_id != 0:
+        if warehouse_id != 0:
+            for order in orders.values():
                 customers = Customers.objects.filter(order_id=order['id']
-                                                     )[:int(limit)] if int(limit) != 0 else Customers.objects.filter(order_id=order['id'])
-            else:
-                customers = Customers.objects.all(
-                )[:int(limit)] if int(limit) != 0 else Customers.objects.all()
+                                                     )[int(start):int(end)] if int(limit) != 0 else Customers.objects.filter(order_id=order['id'])
+                # payment count
+                payment_count = Customers.objects.filter(
+                    order_id=order['id']).count()
+
+                for customer in customers.values():
+                    payments_dates = Payment.paymentDates_end(customer['id'])
+                    payment_method = Payment.objects.filter(
+                        id=customer['payment_id'])
+                    payment = Payment.objects.get(id=customer['payment_id'])
+
+                    customer_payments.append(
+                        {
+                            'id': customer['payment_id'],
+                            'method_id': payment.method_id,
+                            'pay_in': payment.pay_in,
+                            'payment_interval': payment.payment_interval,
+                            'start': customer['start'],
+                            'times': customer['times'],
+                            'payment_dates': payments_dates['paying_dates'],
+                            # get payments methods
+                            'methods': get_related(
+                                PaymentMethods, payment_method, 'method_id'),
+                            # get customer credentials
+                            # 'customer': get_related(
+                            #     Credentials, customers, 'credential_id')
+                            'customer': Credentials.objects.filter(id=customer['credential_id']).values()
+                        }
+                    )
+        else:
+            customers = Customers.objects.all(
+            )[int(start):int(end)] if int(limit) != 0 else Customers.objects.all()
+            # payment count
+            payment_count = Customers.objects.all().count()
 
             for customer in customers.values():
                 payments_dates = Payment.paymentDates_end(customer['id'])
@@ -639,5 +718,5 @@ class CustomerManager(models.Manager):
             # 'customers': credentials,
             'payments': customer_payments,
             # 'methods': customer_payment_method,
-            'count': len(customer_payments),
+            'count': payment_count,
         }

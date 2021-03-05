@@ -19,12 +19,16 @@
                 color="#1976d2"
                 style='cursor:pointer;text-transform:capitalize'
                 rounded
-                @click='$store.state.calendarStatus = !$store.state.calendarStatus, $store.state.sidebarDrawer=false'
+                @click='
+                    $store.state.calendarStatus = !$store.state.calendarStatus, 
+                    $store.state.mobileCalendarStatus = true, 
+                    $store.state.sidebarDrawer=false
+                '
             >
                 <v-icon left style='font-size:20px;' class='pl-2 pt-2 pb-2' color='white'>
                     fas fa-calendar-alt
                 </v-icon>
-                <span v-if='$store.state.calendarStatus' style='color:white;'>Hide Calendar</span>
+                <span v-if='$store.state.calendarStatus==true && $store.state.mobileCalendarStatus==true' style='color:white;'>Hide Calendar</span>
                 <span v-else style='color:white;'>Show Calendar</span>
             </v-btn>
         </div>

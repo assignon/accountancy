@@ -87,7 +87,10 @@ class OrderView(viewsets.ModelViewSet):
         """
         dte = request.query_params.get('date')
         user_id = request.query_params.get('user_id')
-        orders = Orders.objects.get_orders(user_id, dte)
+        pagination = int(request.query_params.get('pagination'))
+        limit = int(request.query_params.get('limit')
+                    ) if request.query_params.get('limit') != None else None
+        orders = Orders.objects.get_orders(user_id, pagination, dte, limit)
 
         return Response(orders)
 
@@ -110,12 +113,13 @@ class OrderView(viewsets.ModelViewSet):
         """
         dte = datetime.strftime(datetime.now().date(), '%Y-%m-%d') if request.query_params.get(
             'date') == None else request.query_params.get('date')
-        limit = request.query_params.get('limit')
+        limit = int(request.query_params.get('limit'))
         warehouse_id = int(request.query_params.get('user_id'))
         su_id = int(request.query_params.get('su_id'))
+        pagination = int(request.query_params.get('pagination'))
         # payments_dates = Payment.paymentDates_end(payment['id'])
         payments = Customers.objects.ongoing_payments(
-            dte, limit, warehouse_id, su_id)
+            dte, limit, warehouse_id, su_id, pagination)
 
         return Response(payments)
 
@@ -128,11 +132,13 @@ class OrderView(viewsets.ModelViewSet):
         Args:
             request (dict): [request data]
         """
-        limit = request.query_params.get('limit')
+        limit = int(request.query_params.get('limit'))
         warehouse_id = int(request.query_params.get('user_id'))
         su_id = int(request.query_params.get('su_id'))
+        pagination = int(request.query_params.get('pagination'))
 
-        payments = Customers.objects.all_payments(limit, warehouse_id, su_id)
+        payments = Customers.objects.all_payments(
+            limit, warehouse_id, su_id, pagination)
 
         return Response(payments)
 
@@ -191,12 +197,13 @@ class PaymentView(viewsets.ModelViewSet):
         # payment_date = request.data['body']['payment_date']
         # payment_date = datetime.strftime(datetime.now().date(), '%Y-%m-%d')
         payment_date = request.data['body']['payment_date']
+        employee_name = request.data['body']['employee_name']
         new_value = request.data['body']['new_value']  # bollean
 
         Payment_status.objects.filter(
             Q(payment__id=payment_id) &
             Q(payment_date=payment_date)
-        ).update(payed=new_value)
+        ).update(payed=new_value, employee_name=employee_name)
 
         return Response({'updated': True, 'msg': 'payment status updated'})
 

@@ -61,6 +61,22 @@
                     </v-flex>
                 </div>
             </v-form>
+            <!-- backup settings -->
+            <div class='backup'>
+                <h1 class='mt-5 mb-3' style='color: #1976d2'>DataBase Backups</h1>
+                <p> Backups are made on a weekly bases and it's stored in a local <strong>Downloads/chicam_backups</strong> folder.</p>
+                <v-btn
+                    depressed
+                    height="50"
+                    large
+                    class="fot-weight-bold white--text mt-5"
+                    color="#1976d2"
+                    @click="makeBackup()"
+                >
+                    <v-icon medium color='white'>fas fa-undo-alt</v-icon>
+                    <p style='font-size:17px;margin:auto;color:white;' class='ml-1 font-weight-bold'>Backup Manually</p>
+                </v-btn>
+            </div>
         </div>
     </div>
 </template>
@@ -93,6 +109,20 @@ export default {
     },
 
     methods: {
+        makeBackup(){
+            let self = this
+
+            this.$store.dispatch("getReq", {
+                url: "dashboard/db_backup",
+                params: {},
+                auth: self.$session.get('token'),
+                csrftoken: self.$session.get('token'),
+                callback: function(data) {
+                    console.log(data);
+                },
+            });
+        },
+
         getUserData(userId){
             let self = this
 
@@ -228,6 +258,19 @@ export default {
     .v-btn{
         text-transform: capitalize;
         color: white;
+    }
+    .backup{
+        width: 100%;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        margin-bottom: 70px;
+    }
+    .backup p{
+        padding: 0px;
+        margin: 0px;
     }
     @media only screen and (max-width: 500px){
          .settings-core{

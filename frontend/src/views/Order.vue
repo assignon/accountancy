@@ -39,7 +39,7 @@
         </div>
 
         <div class='flex-container' v-if='!searchView'>
-             <v-flex xs12 sm12 md8 lg9 xl9 class='orders-flex'>
+             <v-card  flat  width='100%' class='orders-flex'>
                  <v-tabs
                     v-model="tab"
                     background-color="white"
@@ -61,10 +61,19 @@
                 </v-tabs>
 
                 <v-tabs-items v-model='tab'>
-                    <v-tab-item v-if='orders[0].count > 0' style='width: 1000px;margin-top:50px;' class='ml-5'>
-                        <v-flex xs12 sm12 md8 xl8 lg12>
+                    <v-tab-item v-if='orders[0].count > 0' :style='{width: winWidth}' style='margin-top:50px;' class='ml-5'>
+                        <v-flex xs9 sm9 md12 xl12 lg12 style='min-height:50vh'>
                             <OrdersTemp :orderArr='orders'/>
                         </v-flex>
+                        <div class='pagination-container'>
+                            <!-- <v-pagination
+                                v-if='orders[0].count>$store.state.limit'
+                                v-model="page"
+                                :length="Math.ceil(orders[0].count/$store.state.limit)"
+                                :total-visible="$store.state.totalVisible"
+                                @input='getOrders(selectedDate)'
+                            ></v-pagination> -->
+                        </div>
                     </v-tab-item>
                     <v-tab-item v-else>
                         <div class='no-orders' style='width: 900px;margin-top:50px;'>
@@ -103,6 +112,21 @@
                                     :paymentDatesArr="payment.payment_dates"
                                 />
                             </div>
+                            <!-- ---------------------------------paginations ---------------------------------------------->
+                            <!-- <v-pagination
+                                v-if='customerPayments[0].count>$store.state.limit && !isAllPayments'
+                                v-model="page"
+                                :length="Math.ceil(customerPayments[0].count/$store.state.limit)"
+                                :total-visible="$store.state.totalVisible"
+                                @input='getPayments(selectedDate)'
+                            ></v-pagination> -->
+                            <!-- <v-pagination
+                                v-if='customerPayments[0].count>$store.state.limit && isAllPayments'
+                                v-model="page"
+                                :length="Math.ceil(customerPayments[0].count/$store.state.limit)"
+                                :total-visible="$store.state.totalVisible"
+                                @input='allPayments($store.state.limit)'
+                            ></v-pagination> -->
                         </v-flex>
                         <div class='no-payments' v-else>
                             <v-icon>fas fa-coins</v-icon>
@@ -110,7 +134,7 @@
                         </div>
                     </v-tab-item>
                 </v-tabs-items>
-            </v-flex>
+            </v-card>
 
             <v-flex xs12 sm12 md4 lg3 xl3 class='calendar-flex mt-5 mr-5' v-if='$store.state.calendarStatus'>
                 <Calendar 
@@ -170,7 +194,11 @@ export default {
       tab: null,
       orderSearch: null, //v-model
       searchView: false,
-      tabWidth: window.innerWidth > 500 ? '1000px' : '400px'
+      tabWidth: window.innerWidth > 500 ? '100vh' : '400px',
+      page: 1, // current pagination clicked number
+      winWidth: window.innerWidth > 500 ? '100vh' : '450px',
+      selectedDate: null,
+      isAllPayments: true, // check if payments are fetch base on current date
     }
   },
 
@@ -188,12 +216,15 @@ export default {
     getOrders(date){
         let self = this;
         let store = self.$store;
+        this.selectedDate = date
 
         this.$store.dispatch("getReq", {
             url: "order/orders",
             params: {
                 date: date,
-                limit: 0,
+                // limit: self.$store.state.limit,
+                limit: null,
+                pagination: self.page,
                 user_id: this.$session.get('warehouseId')
                 // user_id: this.$session.get('warehouseId') == 0 ? this.$session.get('userId') : this.$session.get('warehouseId')
             },
@@ -215,7 +246,8 @@ export default {
             params: {
                 limit: limit,
                 user_id: this.$session.get('warehouseId'),
-                su_id: this.$session.get('userId')
+                su_id: this.$session.get('userId'),
+                pagination: self.page,
             },
             auth: self.$session.get('token'),
             csrftoken: self.$session.get('token'),
@@ -229,12 +261,16 @@ export default {
     getPayments(date){
         let self = this;
         let store = self.$store;
+        this.selectedDate = date
+        this.isAllPayments = false
 
         this.$store.dispatch("getReq", {
             url: "order/ongoing_payments",
             params: {
                 date: date,
+                // limit: self.$store.state.limit,
                 limit: 0,
+                pagination: self.page,
                 user_id: this.$session.get('warehouseId'),
                 su_id: this.$session.get('userId')
             },
@@ -370,7 +406,7 @@ export default {
         width: 100%;
         display: flex;
         flex-direction: row;
-        justify-content: space-around;
+        justify-content: space-between;
         align-items: flex-start;
     }
     .orders-flex{
@@ -379,6 +415,7 @@ export default {
         flex-direction: column;
         justify-content: center;
         align-items: center;
+        width: 90%;
     }
     .v-window__container{
         width: 100%;
@@ -443,6 +480,7 @@ export default {
         flex-direction: column;
         justify-content:flex-start;
         align-items: flex-start;
+        margin-bottom: 50px;
     }
     .payment-container .payments{
         width: 100%;
@@ -516,6 +554,13 @@ export default {
         justify-content: center;
         align-items: center;
     }
+    .pagination-container{
+        height: auto;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
     @media only screen and (max-width: 500px) {
         .order-core{
             width: 100%;
@@ -530,6 +575,9 @@ export default {
         }
         .payment-container .payments p{
             font-size: 12px;
+        }
+        .pagination-container{
+            width: 80%;
         }
         /* .order-core, .orders-flex, .v-tabs, .v-tabs-items{
             margin-left: 20%;

@@ -21,6 +21,12 @@ from rest_framework.status import (
     HTTP_404_NOT_FOUND,
     HTTP_200_OK
 )
+from django.conf import settings
+import shutil
+import os
+import sys
+from pathlib import Path
+import urllib.request
 
 from dashboard.serializers import DashboardSerializer
 from orders.models import Credentials
@@ -223,6 +229,62 @@ class DashboardView(viewsets.ModelViewSet):
                 return Response({'updated': True, 'msg': 'Email and name updated', 'user_id': user.id})
             else:
                 return Response({'updated': False, 'msg': 'Wrong password', 'user_id': user.id})
+
+    @csrf_exempt
+    @action(methods=['get'], detail=False)
+    def db_backup(self, request):
+        destination_folder = str(Path.home() / "Downloads/chicam_backups")
+        destination_path = str(destination_folder)+'/db.sqlite3'
+
+        if not os.path.exists(destination_folder):
+            try:
+                os.mkdir(destination_folder)
+            except OSError:
+                return Response(
+                    {
+                        'created': False,
+                        'msg': "Creation of the directory %s failed {}".format(destination_folder)
+                    }
+                )
+
+        if os.path.exists(destination_path):
+            os.remove(destination_path)
+            try:
+                shutil.copy(f'{settings.BASE_DIR}/db.sqlite3',
+                            destination_path)
+            except IOError as e:
+                return Response(
+                    {
+                        'created': False,
+                        'msg': "Unable to copy file. {}".format(e)
+                    }
+                )
+
+            return Response(
+                {
+                    'created': True,
+                    'msg': 'Backup created'
+                }
+            )
+            # shutil.move(f'{settings.BASE_DIR}/db.sqlite3', downloads_path)
+        else:
+            try:
+                shutil.copy(f'{settings.BASE_DIR}/db.sqlite3',
+                            destination_path)
+            except IOError as e:
+                return Response(
+                    {
+                        'created': False,
+                        'msg': "Unable to copy file. {}".format(e)
+                    }
+                )
+
+            return Response(
+                {
+                    'created': True,
+                    'msg': 'Backup created'
+                }
+            )
 
     @action(methods=['get'], detail=False)
     def signout(self, request):
