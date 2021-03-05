@@ -38,11 +38,9 @@ from products.models import Products
 # Create your views here.
 
 
-@login_required
+@login_required(login_url='/')
 def backup(request):
     # download the sqlite DB to local disk
-    print('ussseeerrrr', request.user)
-    # if not request.user.is_anonymous:
     db_path = settings.BASE_DIR+'/db.sqlite3'
 
     dbfile = File(open(db_path, "rb"))
@@ -51,8 +49,6 @@ def backup(request):
     response['Content-Length'] = dbfile.size
 
     return response
-    # else:
-    #     return HttpResponse('u are not allow')
 
 
 @csrf_exempt
@@ -250,9 +246,9 @@ class DashboardView(viewsets.ModelViewSet):
             else:
                 return Response({'updated': False, 'msg': 'Wrong password', 'user_id': user.id})
 
-    @csrf_exempt
-    @action(methods=['get'], detail=False)
-    def db_backup(self, request):
+    # @csrf_exempt
+    # @action(methods=['get'], detail=False)
+    # def db_backup(self, request):
         # destination_folder = str(Path.home() / "Downloads/chicam_backups")
         # destination_path = str(destination_folder)+'/db.sqlite3'
 
@@ -305,15 +301,6 @@ class DashboardView(viewsets.ModelViewSet):
         #             'msg': 'Backup created'
         #         }
         #     )
-
-        db_path = settings.BASE_DIR+'/db.sqlite3'
-
-        dbfile = File(open(db_path, "rb"))
-        response = HttpResponse(dbfile, content_type="application/x-sqlite3")
-        response['Content-Disposition'] = 'attachment; filename='+db_path
-        response['Content-Length'] = dbfile.size
-
-        return response
 
     @action(methods=['get'], detail=False)
     def signout(self, request):

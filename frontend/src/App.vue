@@ -54,9 +54,10 @@ export default {
   }),
 
   created(){
-    let self = this
     setInterval(() => {
-      self.makeBackup()
+      let link = document.createElement('a')
+      link.href = '/backup'
+      link.click()
     }, 604800000)
   },
 

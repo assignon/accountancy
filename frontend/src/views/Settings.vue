@@ -64,17 +64,16 @@
             <!-- backup settings -->
             <div class='backup'>
                 <h1 class='mt-5 mb-3' style='color: #1976d2'>DataBase Backups</h1>
-                <p> Backups are made on a weekly bases and it's stored in a local <strong>Downloads/chicam_backups</strong> folder.</p>
+                <p> Backups are made on a weekly bases and it's stored in a local <strong>Downloads</strong> folder.</p>
                 <v-btn
                     depressed
                     height="50"
                     large
                     class="fot-weight-bold white--text mt-5"
                     color="#1976d2"
-                    @click="makeBackup()"
                 >
-                    <v-icon medium color='white'>fas fa-undo-alt</v-icon>
-                    <p style='font-size:17px;margin:auto;color:white;' class='ml-1 font-weight-bold'>Backup Manually</p>
+                    <v-icon medium color='white'>fas fa-download</v-icon>
+                    <a href="/backup" style='font-size:17px;margin:auto;color:white;' class='ml-1 font-weight-bold'>Backup Manually</a>
                 </v-btn>
                 <!-- <a v-if='sqlite3!=null' href='../../../db.sqlite3' download >DB</a> -->
             </div>
@@ -111,29 +110,29 @@ export default {
     },
 
     methods: {
-        makeBackup(){
-            let self = this
+        // makeBackup(){
+        //     let self = this
 
-            this.$store.dispatch("getReq", {
-                url: "dashboard/db_backup",
-                params: {},
-                auth: self.$session.get('token'),
-                csrftoken: self.$session.get('token'),
-                callback: function(data) {
-                    console.log(data);
-                    // let headers = data.headers();
-                    let blob = new Blob([data], { type: 'application/x-sqlite3' })
-                    // url = window.URL.createObjectURL(blob)
+        //     this.$store.dispatch("getReq", {
+        //         url: "dashboard/db_backup",
+        //         params: {},
+        //         auth: self.$session.get('token'),
+        //         csrftoken: self.$session.get('token'),
+        //         callback: function(data) {
+        //             console.log(data);
+        //             // let headers = data.headers();
+        //             let blob = new Blob([data], { type: 'application/x-sqlite3' })
+        //             // url = window.URL.createObjectURL(blob)
 
-                    let link = document.createElement('a')
-                    link.href = window.URL.createObjectURL(blob)
-                    link.download = 'db.sqlite3'
-                    link.click()
+        //             let link = document.createElement('a')
+        //             link.href = window.URL.createObjectURL(blob)
+        //             link.download = 'db.sqlite3'
+        //             link.click()
 
-                    // window.open(url)
-                },
-            });
-        },
+        //             // window.open(url)
+        //         },
+        //     });
+        // },
 
         getUserData(userId){
             let self = this
