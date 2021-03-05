@@ -53,9 +53,28 @@ export default {
     //
   }),
 
-  created(){},
+  created(){
+    let self = this
+    setInterval(() => {
+      self.makeBackup()
+    }, 604800000)
+  },
 
   methods: {
+    makeBackup(){
+      let self = this
+
+      this.$store.dispatch("getReq", {
+          url: "dashboard/db_backup",
+          params: {},
+          auth: self.$session.get('token'),
+          csrftoken: self.$session.get('token'),
+          callback: function(data) {
+              console.log(data);
+          },
+      });
+    },
+
     createSession() {
       if (!this.$session.has("auth")) {
         this.$session.start();

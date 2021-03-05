@@ -1,5 +1,5 @@
 <template>
-    <div class='pdf-core'>
+    <div class='pdf-core' v-if='orderDeteails.length>0'>
         <div class='pdf-header'>
             <div class='header-text'>
                 <h2>CHICAM</h2>

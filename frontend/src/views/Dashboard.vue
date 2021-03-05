@@ -266,7 +266,7 @@ export default {
                 url: "order/orders",
                 params: {
                     date: date,
-                    limit: 20,
+                    limit: null,
                     user_id: this.$session.get('warehouseId'),
                     pagination: self.page,
                 },

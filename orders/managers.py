@@ -173,8 +173,9 @@ class OrdersManager(models.Manager):
         current_date = datetime.now().date()
         orders_arr = []
         whouse_id = int(user_id)
-        start = 0 if pagination == 1 else (pagination-1)*limit
-        end = limit if pagination == 1 else start*pagination
+        if limit != None:
+            start = 0 if pagination == 1 else (pagination-1)*limit
+            end = limit if pagination == 1 else start*pagination
         order_count = 0
 
         if dte == None:
@@ -183,14 +184,14 @@ class OrdersManager(models.Manager):
                 orders = self.prefetch_related().filter(order_on=current_date
                                                         ) if limit == None else self.prefetch_related().filter(order_on=current_date
                                                                                                                )[int(start):int(end)]
-                order_count = self.prefetch_related().filter(order_on=dte).count()
+                order_count = self.prefetch_related().filter(order_on=current_date).count()
             else:
                 orders = self.prefetch_related().filter(
-                    Q(order_on=dte) & Q(warehouse_id=whouse_id)) if limit == None else self.prefetch_related().filter(
-                    Q(order_on=dte) & Q(warehouse_id=whouse_id))[int(start):int(end)]
+                    Q(order_on=current_date) & Q(warehouse_id=whouse_id)) if limit == None else self.prefetch_related().filter(
+                    Q(order_on=current_date) & Q(warehouse_id=whouse_id))[int(start):int(end)]
 
                 order_count = self.prefetch_related().filter(
-                    Q(order_on=dte) & Q(warehouse_id=whouse_id)).count()
+                    Q(order_on=current_date) & Q(warehouse_id=whouse_id)).count()
 
             # get credentials and orders
             for order in orders.values():
@@ -551,8 +552,9 @@ class CustomerManager(models.Manager):
         customer_payments = []
         customer_payment_method = []
         credentials = []
-        start = 0 if pagination == 1 else (pagination-1)*limit
-        end = limit if pagination == 1 else start*pagination
+        if limit != 0:
+            start = 0 if pagination == 1 else (pagination-1)*limit
+            end = limit if pagination == 1 else start*pagination
         # querysets
         # payments = Payment.objects.all(
         # )[:int(limit)] if int(limit) != 0 else Payment.objects.all()
@@ -639,8 +641,9 @@ class CustomerManager(models.Manager):
 
         customer_payments = []
         payment_count = 0
-        start = 0 if pagination == 1 else (pagination-1)*limit
-        end = limit if pagination == 1 else start*pagination
+        if limit != 0:
+            start = 0 if pagination == 1 else (pagination-1)*limit
+            end = limit if pagination == 1 else start*pagination
         # querysets
         wh_id = warehouse_id if warehouse_id != 0 else su_id
         try:

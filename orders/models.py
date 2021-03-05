@@ -27,6 +27,8 @@ class Payment_status(models.Model):
     # track the customer payments status
     payment_date = models.DateField()
     payed = models.BooleanField(default=False)
+    employee_name = models.CharField(
+        max_length=200, default=None, blank=True, null=True)  # employee who receive the paymanet
 
     def __str__(self):
         pass

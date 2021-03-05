@@ -66,13 +66,13 @@
                             <OrdersTemp :orderArr='orders'/>
                         </v-flex>
                         <div class='pagination-container'>
-                            <v-pagination
+                            <!-- <v-pagination
                                 v-if='orders[0].count>$store.state.limit'
                                 v-model="page"
                                 :length="Math.ceil(orders[0].count/$store.state.limit)"
                                 :total-visible="$store.state.totalVisible"
                                 @input='getOrders(selectedDate)'
-                            ></v-pagination>
+                            ></v-pagination> -->
                         </div>
                     </v-tab-item>
                     <v-tab-item v-else>
@@ -112,20 +112,21 @@
                                     :paymentDatesArr="payment.payment_dates"
                                 />
                             </div>
-                            <v-pagination
+                            <!-- ---------------------------------paginations ---------------------------------------------->
+                            <!-- <v-pagination
                                 v-if='customerPayments[0].count>$store.state.limit && !isAllPayments'
                                 v-model="page"
                                 :length="Math.ceil(customerPayments[0].count/$store.state.limit)"
                                 :total-visible="$store.state.totalVisible"
                                 @input='getPayments(selectedDate)'
-                            ></v-pagination>
-                            <v-pagination
+                            ></v-pagination> -->
+                            <!-- <v-pagination
                                 v-if='customerPayments[0].count>$store.state.limit && isAllPayments'
                                 v-model="page"
                                 :length="Math.ceil(customerPayments[0].count/$store.state.limit)"
                                 :total-visible="$store.state.totalVisible"
                                 @input='allPayments($store.state.limit)'
-                            ></v-pagination>
+                            ></v-pagination> -->
                         </v-flex>
                         <div class='no-payments' v-else>
                             <v-icon>fas fa-coins</v-icon>
@@ -203,7 +204,7 @@ export default {
 
   created(){
     this.getOrders(null)
-    this.allPayments(this.$store.state.limit)
+    this.allPayments(0)
     // console.log( this.customerPayments);
     // this.customerPayments[0].payments.forEach((items) => {
     //     console.log(items);
@@ -221,7 +222,8 @@ export default {
             url: "order/orders",
             params: {
                 date: date,
-                limit: self.$store.state.limit,
+                // limit: self.$store.state.limit,
+                limit: null,
                 pagination: self.page,
                 user_id: this.$session.get('warehouseId')
                 // user_id: this.$session.get('warehouseId') == 0 ? this.$session.get('userId') : this.$session.get('warehouseId')
@@ -266,7 +268,8 @@ export default {
             url: "order/ongoing_payments",
             params: {
                 date: date,
-                limit: self.$store.state.limit,
+                // limit: self.$store.state.limit,
+                limit: 0,
                 pagination: self.page,
                 user_id: this.$session.get('warehouseId'),
                 su_id: this.$session.get('userId')

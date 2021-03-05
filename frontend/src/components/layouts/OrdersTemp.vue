@@ -19,7 +19,7 @@
                     <span class='ml-2' v-if='order.ordered_products.length>=2'>[ +{{order.ordered_products.length-1}} ]</span></p>
             </v-flex>
 
-            <v-flex xs12 sm12 md4 lg3 xl3 class='date' @click.stop='$store.state.infoDrawer=true, customerOrder(order.customer_id)'>
+            <v-flex xs12 sm12 md3 lg2 xl2 class='date' @click.stop='$store.state.infoDrawer=true, customerOrder(order.customer_id)'>
                 <p>
                     <v-icon small color='#1e1d2b' class='mr-1 hidden-sm-and-down'>fas fa-calendar-alt</v-icon>
                     {{parseDate(order.order.order_on)}}
@@ -50,20 +50,20 @@
                         v-if='currentDate == ps.payment_date'
                         v-model="ps.payed"
                         :value="ps.payed"
-                        label="PAID"
+                        :label="ps.employee_name"
                         @click='displayConfirmationDialog(ps.payed, order.customer_id, ps.payment_date)'
                     ></v-checkbox>
                 </v-flex>
             </div>
     
-            <v-flex xs12 sm12 md2 lg2 xl2 
+            <v-flex xs12 sm12 md3 lg3 xl3 
                 v-else
                 :class='currentDate' 
             > 
                 <v-checkbox
                     v-model="order.p_status[0].payed"
                     :value="order.p_status[0].payed"
-                    label="PAID"
+                    :label="order.p_status[0].employee_name"
                     @click='displayConfirmationDialog(order.p_status[0].payed, order.customer_id, order.p_status[0].payment_date)'
                 ></v-checkbox>
             </v-flex>
@@ -76,6 +76,14 @@
         >
             <div class='payment-confirmation-container'>
                 <p class='confirmation-text' style='font-size: 17px;font-weight:bold;text-align:left;'></p>
+                <v-text-field
+                    v-model="employeeName"
+                    :rules="[$store.state.rules.required]"
+                    label="Employee Name*"
+                    required
+                    outlined
+                    style='width:90%;'
+                ></v-text-field>
                 <div class="btn-container">
                 <v-btn
                     depressed
@@ -123,6 +131,7 @@ export default {
             paymentStatus: null, 
             customerID: null,
             updatedPaymentdate: null,
+            employeeName: null,
         }
     },
 
@@ -216,27 +225,31 @@ export default {
 
         updatePaymentStatus(){
             let self = this;
+            let validationErrMsg = document.querySelector('.v-messages__message');
             let body = {
                 new_value: self.paymentStatus,
                 customer_id: self.customerID,
-                payment_date: self.updatedPaymentdate
+                payment_date: self.updatedPaymentdate,
+                employee_name: self.employeeName
             }
 
-            this.$store.dispatch("putReq", {
-                url: "payment/update_payment_status",
-                params: body,
-                auth: self.$session.get('token'),
-                csrftoken: self.$session.get('token'),
-                callback: function(data) {
-                    console.log(data);
-                    if(data.updated){
-                       document.querySelector('.confirmation-text').innerHTML = data.msg
-                       setTimeout(() => {
-                           self.paymentConfirmationDialog = false
-                       }, 1500)
-                    }
-                },
-            });
+            if(this.employeeName != null && !document.body.contains(validationErrMsg)){
+                this.$store.dispatch("putReq", {
+                    url: "payment/update_payment_status",
+                    params: body,
+                    auth: self.$session.get('token'),
+                    csrftoken: self.$session.get('token'),
+                    callback: function(data) {
+                        console.log(data);
+                        if(data.updated){
+                        document.querySelector('.confirmation-text').innerHTML = data.msg
+                        setTimeout(() => {
+                            self.paymentConfirmationDialog = false
+                        }, 1500)
+                        }
+                    },
+                });
+            }
         }
     }
 }
