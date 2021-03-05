@@ -1,13 +1,29 @@
 <template>
     <div class='calendar-core'>
         <v-date-picker
-        ref="picker"
-        v-model="date"
-        full-width
-        flat
-        @click:date="emitEvents"
-        color="#15141c"
-      ></v-date-picker>
+            ref="picker"
+            v-model="date"
+            full-width
+            flat
+            @click:date="emitEvents"
+            color="#15141c"
+            class='hidden-sm-and-down'
+        ></v-date-picker>
+        <v-dialog
+            v-model="$store.state.mobileCalendarStatus"
+            persistent
+            max-width="600px"
+            class='hidden-md-and-up'
+            >
+                <v-date-picker
+                    ref="picker"
+                    v-model="date"
+                    full-width
+                    flat
+                    @click:date="emitEvents"
+                    color="#15141c"
+                ></v-date-picker>
+        </v-dialog>
     </div>
 </template>
 
@@ -49,6 +65,9 @@ export default {
           this.$emit('payments', date)
           this.$emit('addedProducts', date)
           this.$emit('expenses', date)
+          setTimeout(() => {
+              this.$store.state.mobileCalendarStatus=false
+          }, 100)
       }
     },
 }

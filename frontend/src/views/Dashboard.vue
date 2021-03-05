@@ -158,7 +158,8 @@ export default {
 
     data(){
         return {
-            paymentDate: 'today'
+            paymentDate: 'today',
+            page: 1,
         }
     },
 
@@ -226,7 +227,8 @@ export default {
                     date: date,
                     limit: 0,
                     user_id: this.$session.get('warehouseId'),
-                    su_id: this.$session.get('userId')
+                    su_id: this.$session.get('userId'),
+                    pagination: self.page,
                 },
                 auth: self.$session.get('token'),
                 csrftoken: self.$session.get('token'),
@@ -265,7 +267,8 @@ export default {
                 params: {
                     date: date,
                     limit: 20,
-                    user_id: this.$session.get('warehouseId')
+                    user_id: this.$session.get('warehouseId'),
+                    pagination: self.page,
                 },
                 auth: self.$session.get('token'),
                 csrftoken: self.$session.get('token'),
@@ -556,7 +559,6 @@ export default {
         }
         .orders, .no-orders, .payment-container{
             width: 90%;
-            justify-content:center;
             
              align-items: center;
         }
