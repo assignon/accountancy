@@ -24,12 +24,20 @@
                     </tr>
                     <tr v-for="(product,i) in orderDeteails[0].products" :key="i" >
                         <td>{{product.products[0].size}}</td>
-                        <td>
+                        <td v-if=' product.brands.length>0'>
                             <p v-for="(brand, b) in product.brands" :key="b">{{brand.name}}</p>
                         </td>
-                        <td>{{product.vehicule[0].name}}</td>
-                        <td>
+                        <td v-else>
+                            <p>None</p>
+                        </td>
+
+                        <td v-if='product.vehicule.length>0'>{{product.vehicule[0].name}}</td>
+                        <td v-else>None</td>
+                        <td v-if='product.profiles.length>0'>
                             <p v-for="(profile, p) in product.profiles" :key="p">{{profile.name}}</p>
+                        </td>
+                        <td v-else>
+                            <p >None</p>
                         </td>
                         <td>{{formatPrice(product.products[0].price)}}FRS</td>
                         <td>{{product.ordered_product.quantity}}</td>

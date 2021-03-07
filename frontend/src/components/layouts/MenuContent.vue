@@ -1,5 +1,5 @@
 <template>
-    <div class='default-sidebar'>
+    <div class='default-sidebar mb-5'>
         <div class='logo'>
             <div class='logo-img'></div>
             <h3 class='mt-3'>CHICAM</h3>
@@ -12,7 +12,7 @@
             </div>
         </div>
         <!-- calendar ctrl -->
-        <div class='claendar-ctrl mt-5 ml-2 hidden-md-and-up' style='display:flex;justify-content:flex-end;align-items:center;width:97%;'>
+        <div class='claendar-ctrl mt-5 mb-5 ml-2 hidden-md-and-up' style='display:flex;justify-content:flex-end;align-items:center;width:97%;'>
             <v-btn
                 class="font-weight-bold"
                 large
@@ -557,6 +557,9 @@ export default {
         }
     }
     @media only screen and (max-width: 500px) {
+        .logo{
+            margin-top:70px;
+        }
         .warehouses-container{
             width: 100%;
         }

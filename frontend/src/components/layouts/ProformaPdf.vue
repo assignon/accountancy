@@ -24,13 +24,13 @@
                 </div>
                 <div class='brands-details mt-5'>
                     <h3>Brands</h3>
-                    <div class='brands'>
+                    <div class='brands' v-if='$store.state.product.proBrands.length>0'>
                         <p v-for='(brand, b) in $store.state.product.proBrands' :key="b">{{brand}}<span class='ml-2'></span></p>
                     </div>
                 </div>
                 <div class='profiles-details mt-3'>
                     <h3>Profiles</h3>
-                    <div class='profiles'>
+                    <div class='profiles' v-if='$store.state.product.proProfiles.length>0'>
                         <p v-for='(profile, p) in $store.state.product.proProfiles' :key="p">{{profile}}<span class='ml-2'></span></p>
                     </div>
                 </div>

@@ -20,7 +20,7 @@
 
             <div class='payment-flex'>
                 <h3>Brands</h3>
-                <div class='brands'>
+                <div class='brands' v-if='productDetails[0].products[0].brands.length>0'>
                     <p v-for='(brand, b) in productDetails[0].products[0].brands' :key="b">{{brand.name}}<span class='ml-2'></span></p>
                 </div>
             </div>
@@ -28,7 +28,7 @@
         <div class='divider'></div>
         <div class='pdf-footer'>
              <h3>Profiles</h3>
-            <div class='profiles'>
+            <div class='profiles' v-if='productDetails[0].products[0].profiles.length>0'>
                 <p v-for='(profile, p) in productDetails[0].products[0].profiles' :key="p">{{profile.name}}<span class='ml-2'></span></p>
             </div>
             <div class='total-price'>

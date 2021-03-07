@@ -21,15 +21,15 @@
                     <p class='font-weight-bold mb-1'>Name</p>
                     <p class='mb-3'>{{orderDeteails[0].credential[0].name}}</p>
                 </div>
-                <div class='info-format'>
+                <div class='info-format' v-if='orderDeteails[0].credential[0].email!=null'>
                     <p class='font-weight-bold mb-1'>Email</p>
                     <p class='mb-3'>{{orderDeteails[0].credential[0].email}}</p>
                 </div>
-                <div class='info-format' v-if='orderDeteails[0].credential[0].address'>
+                <div class='info-format' v-if='orderDeteails[0].credential[0].address!=null'>
                     <p class='font-weight-bold mb-1'>Address</p>
                     <p class='mb-3'>{{orderDeteails[0].credential[0].address}}</p>
                 </div>
-                <div class='info-format'>
+                <div class='info-format' v-if='orderDeteails[0].credential[0].tel_number!=null'>
                     <p class='font-weight-bold mb-1'>Tel. Number</p>
                     <p class='mb-3'>{{orderDeteails[0].credential[0].tel_number}}</p>
                 </div>
@@ -73,12 +73,19 @@
                 </tr>
                 <tr v-for="(product,i) in orderDeteails[0].products" :key="i" >
                     <td>{{product.products[0].size}}</td>
-                    <td>
+                    <td v-if=' product.brands.length>0'>
                         <p v-for="(brand, b) in product.brands" :key="b">{{brand.name}}</p>
                     </td>
-                    <td>{{product.vehicule[0].name}}</td>
-                    <td>
+                    <td v-else>
+                        <p>None</p>
+                    </td>
+                    <td v-if='product.vehicule.length>0'>{{product.vehicule[0].name}}</td>
+                    <td v-else>None</td>
+                    <td v-if='product.profiles.length>0'>
                         <p v-for="(profile, p) in product.profiles" :key="p">{{profile.name}}</p>
+                    </td>
+                    <td v-else>
+                        <p >None</p>
                     </td>
                     <td>{{product.products[0].price}}</td>
                     <td>{{product.ordered_product.quantity}}</td>
