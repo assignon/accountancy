@@ -21,7 +21,7 @@
                 ></v-text-field>
                 <p>Change Password</p>
                 <v-text-field
-                    v-model="password"
+                    v-model="userPassword"
                     label="Password*"
                     type="password"
                     required
@@ -96,7 +96,7 @@ export default {
         return{
             email: null,
             name: null,
-            password: null,
+            userPassword: null,
             currentPassword: null,
             repeatPassword: null,
             btnWidth: window.innerWidth > 500 ? '70%' : '100%',
@@ -173,7 +173,7 @@ export default {
                             email: self.email,
                             name: self.name,
                             current_password: self.currentPassword,
-                            password: self.password ? self.password != null : null,
+                            password: self.userPassword ? self.userPassword != null : null,
                         },
                         auth: self.$session.get('token'),
                         csrftoken: self.$session.get('token'),
@@ -181,7 +181,7 @@ export default {
                             console.log(data);
                             if(data.updated){
                                 self.getUserData(data.user_id)
-                                
+                                alert('usedata updated')
                             }
                         },
                     });

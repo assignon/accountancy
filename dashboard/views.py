@@ -221,7 +221,7 @@ class DashboardView(viewsets.ModelViewSet):
         name = request.data['body']['name']
         current_password = request.data['body']['current_password']
         password = request.data['body']['password']
-
+        print('uussseerrriiddd', user_id)
         user = User.objects.filter(id=user_id)
 
         if password == None:
@@ -235,16 +235,16 @@ class DashboardView(viewsets.ModelViewSet):
             else:
                 return Response({'updated': False, 'msg': 'Wrong password', 'user_id': user.values()[0]['id']})
         else:
-            if user.check_password(current_password):
+            if User.objects.get(id=user_id).check_password(current_password):
                 user.update(
                     username=name,
                     email=email,
                 )
-                user.set_password(password)
+                User.objects.get(id=user_id).set_password(password)
 
-                return Response({'updated': True, 'msg': 'Email and name updated', 'user_id': user.id})
+                return Response({'updated': True, 'msg': 'Email and name updated', 'user_id': user.values()[0]['id']})
             else:
-                return Response({'updated': False, 'msg': 'Wrong password', 'user_id': user.id})
+                return Response({'updated': False, 'msg': 'Wrong password', 'user_id': user.values()[0]['id']})
 
     # @csrf_exempt
     # @action(methods=['get'], detail=False)
