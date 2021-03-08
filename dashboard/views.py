@@ -38,11 +38,9 @@ from products.models import Products
 # Create your views here.
 
 
-@login_required
+@login_required(login_url='/')
 def backup(request):
     # download the sqlite DB to local disk
-    print('ussseeerrrr', request.user)
-    # if not request.user.is_anonymous:
     db_path = settings.BASE_DIR+'/db.sqlite3'
 
     dbfile = File(open(db_path, "rb"))
@@ -51,8 +49,6 @@ def backup(request):
     response['Content-Length'] = dbfile.size
 
     return response
-    # else:
-    #     return HttpResponse('u are not allow')
 
 
 @csrf_exempt
@@ -150,7 +146,6 @@ class DashboardView(viewsets.ModelViewSet):
         # check if user already exist
         whouse = User.objects.filter(id=whouse_id)
         get_warehouse = User.objects.get(id=whouse_id)
-        
         if whouse.count() > 0:
             if username != None:
                 whouse.update(
