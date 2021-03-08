@@ -183,6 +183,7 @@ export default {
                             if(data.updated){
                                 self.getUserData(data.user_id)
                                 formErrMsg.innerHTML = data.msg
+                                alert('User data updated')
                                 setTimeout(() => {
                                     formErrMsg.innerHTML = ''
                                 })
