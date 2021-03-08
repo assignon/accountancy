@@ -4,7 +4,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/favicon.png"
   },
   {
-    "revision": "7fbc733cefdfe147d845cb71116c36d2",
+    "revision": "ebeee9376e35a6d1eda40aea407e7145",
     "url": "/index.html"
   },
   {
@@ -16,8 +16,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/robots.txt"
   },
   {
-    "revision": "632ae2d21b059a0df901",
-    "url": "/static/css/app.f30cc3c6.css"
+    "revision": "3673e79a3e6c740d02d6",
+    "url": "/static/css/app.0e1334eb.css"
   },
   {
     "revision": "c7129b390fc362233eb2",
@@ -104,8 +104,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/static/img/fa-solid-900.2306f642.svg"
   },
   {
-    "revision": "632ae2d21b059a0df901",
-    "url": "/static/js/app.85ad2d40.js"
+    "revision": "3673e79a3e6c740d02d6",
+    "url": "/static/js/app.aab00182.js"
   },
   {
     "revision": "c7129b390fc362233eb2",

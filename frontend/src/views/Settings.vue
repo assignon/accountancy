@@ -161,7 +161,7 @@ export default {
 
             if (self.email != null && self.name != null &&  self.currentPassword !== null) {
                 if(!document.body.contains(validationErrMsg)){
-                    if(self.password != null && self.repeatPassword != null){
+                    if(self.password != null || self.repeatPassword != null){
                         if(self.password != self.repeatPassword){
                             formErrMsg.innerHTML = "The passwords are not equals"
                             return false
