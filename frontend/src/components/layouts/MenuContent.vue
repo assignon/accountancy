@@ -263,11 +263,12 @@ export default {
                                 formErrMsg.innerHTML = data.msg
                                 document.querySelector('.warehouse-form').reset()
                                 self.getWarehouses()
+                                window.location.reload()
                                 //close dialog after 2sec
-                                setTimeout(() => {
-                                    self.$store.state.dashboard.warehouseDialog = false
-                                    formErrMsg.innerHTML = ''
-                                }, 2000)
+                                // setTimeout(() => {
+                                //     self.$store.state.dashboard.warehouseDialog = false
+                                //     formErrMsg.innerHTML = ''
+                                // }, 2000)
                             }else{
                                 formErrMsg.innerHTML = data.msg
                             }
@@ -334,6 +335,7 @@ export default {
                             formErrMsg.innerHTML = data.msg
                             document.querySelector('.warehouse-form').reset()
                             self.getWarehouses()
+                            window.location.reload()
                             //close dialog after 2sec
                             setTimeout(() => {
                                 self.$store.state.dashboard.warehouseDialog = false

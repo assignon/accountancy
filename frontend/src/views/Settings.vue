@@ -21,7 +21,7 @@
                 ></v-text-field>
                 <p>Change Password</p>
                 <v-text-field
-                    v-model="userPassword"
+                    v-model="password"
                     label="Password*"
                     type="password"
                     required
@@ -60,6 +60,7 @@
                         </v-btn>
                     </v-flex>
                 </div>
+                <p class='form-msg'></p>
             </v-form>
             <!-- backup settings -->
             <div class='backup'>
@@ -96,7 +97,7 @@ export default {
         return{
             email: null,
             name: null,
-            userPassword: null,
+            password: null,
             currentPassword: null,
             repeatPassword: null,
             btnWidth: window.innerWidth > 500 ? '70%' : '100%',
@@ -155,7 +156,7 @@ export default {
 
         updateUserData(){
             let self = this;
-            let formErrMsg = document.querySelector(".form-err-msg");
+            let formErrMsg = document.querySelector(".form-msg");
             let validationErrMsg = document.querySelector('.v-messages__message');
 
             if (self.email != null && self.name != null &&  self.currentPassword !== null) {
@@ -173,15 +174,20 @@ export default {
                             email: self.email,
                             name: self.name,
                             current_password: self.currentPassword,
-                            password: self.userPassword ? self.userPassword != null : null,
+                            password: self.password != null ? self.password : null,
                         },
                         auth: self.$session.get('token'),
                         csrftoken: self.$session.get('token'),
                         callback: function(data) {
-                            console.log(data);
+                            // console.log(data);
                             if(data.updated){
                                 self.getUserData(data.user_id)
-                                alert('usedata updated')
+                                formErrMsg.innerHTML = data.msg
+                                setTimeout(() => {
+                                    formErrMsg.innerHTML = ''
+                                })
+                            }else{
+                                formErrMsg.innerHTML = data.msg
                             }
                         },
                     });

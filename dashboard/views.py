@@ -38,9 +38,11 @@ from products.models import Products
 # Create your views here.
 
 
-@login_required(login_url='/')
+@login_required
 def backup(request):
     # download the sqlite DB to local disk
+    print('ussseeerrrr', request.user)
+    # if not request.user.is_anonymous:
     db_path = settings.BASE_DIR+'/db.sqlite3'
 
     dbfile = File(open(db_path, "rb"))
@@ -49,6 +51,8 @@ def backup(request):
     response['Content-Length'] = dbfile.size
 
     return response
+    # else:
+    #     return HttpResponse('u are not allow')
 
 
 @csrf_exempt
@@ -57,7 +61,6 @@ def backup(request):
 def signin(request):
     email = request.data['body']['email']  # can contain email or username
     password = request.data['body']['password']
-    print('reqqq', request)
     # get username and password count
     email_count = User.objects.filter(email=email).count()
     username_count = User.objects.filter(username=email).count()
@@ -146,6 +149,8 @@ class DashboardView(viewsets.ModelViewSet):
 
         # check if user already exist
         whouse = User.objects.filter(id=whouse_id)
+        get_warehouse = User.objects.get(id=whouse_id)
+        
         if whouse.count() > 0:
             if username != None:
                 whouse.update(
@@ -158,9 +163,8 @@ class DashboardView(viewsets.ModelViewSet):
                 )
 
             if password != None:
-                whouse.update(
-                    password=password
-                )
+                get_warehouse.set_password(password)
+                get_warehouse.save()
 
             return Response({
                 'msg': 'Warehouse updated',
@@ -221,11 +225,12 @@ class DashboardView(viewsets.ModelViewSet):
         name = request.data['body']['name']
         current_password = request.data['body']['current_password']
         password = request.data['body']['password']
-        print('uussseerrriiddd', user_id)
+
         user = User.objects.filter(id=user_id)
+        get_user = User.objects.get(id=user_id)
 
         if password == None:
-            if User.objects.get(id=user_id).check_password(current_password):
+            if get_user.check_password(current_password):
                 user.update(
                     username=name,
                     email=email,
@@ -235,20 +240,21 @@ class DashboardView(viewsets.ModelViewSet):
             else:
                 return Response({'updated': False, 'msg': 'Wrong password', 'user_id': user.values()[0]['id']})
         else:
-            if User.objects.get(id=user_id).check_password(current_password):
+            if get_user.check_password(current_password):
                 user.update(
                     username=name,
                     email=email,
                 )
-                User.objects.get(id=user_id).set_password(password)
+                get_user.set_password(password)
+                get_user.save()
 
-                return Response({'updated': True, 'msg': 'Email and name updated', 'user_id': user.values()[0]['id']})
+                return Response({'updated': True, 'msg': 'Data updated', 'user_id': user.values()[0]['id']})
             else:
                 return Response({'updated': False, 'msg': 'Wrong password', 'user_id': user.values()[0]['id']})
 
-    # @csrf_exempt
-    # @action(methods=['get'], detail=False)
-    # def db_backup(self, request):
+    @csrf_exempt
+    @action(methods=['get'], detail=False)
+    def db_backup(self, request):
         # destination_folder = str(Path.home() / "Downloads/chicam_backups")
         # destination_path = str(destination_folder)+'/db.sqlite3'
 
@@ -301,6 +307,15 @@ class DashboardView(viewsets.ModelViewSet):
         #             'msg': 'Backup created'
         #         }
         #     )
+
+        db_path = settings.BASE_DIR+'/db.sqlite3'
+
+        dbfile = File(open(db_path, "rb"))
+        response = HttpResponse(dbfile, content_type="application/x-sqlite3")
+        response['Content-Disposition'] = 'attachment; filename='+db_path
+        response['Content-Length'] = dbfile.size
+
+        return response
 
     @action(methods=['get'], detail=False)
     def signout(self, request):
