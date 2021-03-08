@@ -27,13 +27,13 @@
                     required
                     outlined
                 ></v-text-field>
-                <v-text-field
+                <!-- <v-text-field
                     v-model="repeatPassword"
                     label="Repeat Password*"
                     type="password"
                     required
                     outlined
-                ></v-text-field>
+                ></v-text-field> -->
                 <p>Confirm the changes</p>
 
                 <div class="btn-container">
@@ -161,12 +161,12 @@ export default {
 
             if (self.email != null && self.name != null &&  self.currentPassword !== null) {
                 if(!document.body.contains(validationErrMsg)){
-                    if(self.password != null || self.repeatPassword != null){
-                        if(self.password != self.repeatPassword){
-                            formErrMsg.innerHTML = "The passwords are not equals"
-                            return false
-                        }
-                    }
+                    // if(self.password != null || self.repeatPassword != null){
+                    //     if(self.password != self.repeatPassword){
+                    //         formErrMsg.innerHTML = "The passwords are not equals"
+                    //         return false
+                    //     }
+                    // }
                     this.$store.dispatch("putReq", {
                         url: "dashboard/update_user_data",
                         params: {
