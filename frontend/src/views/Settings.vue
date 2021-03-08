@@ -60,6 +60,7 @@
                         </v-btn>
                     </v-flex>
                 </div>
+                <p class='form-msg'></p>
             </v-form>
             <!-- backup settings -->
             <div class='backup'>
@@ -156,7 +157,7 @@ export default {
 
         updateUserData(){
             let self = this;
-            let formErrMsg = document.querySelector(".form-err-msg");
+            let formErrMsg = document.querySelector(".form-msg");
             let validationErrMsg = document.querySelector('.v-messages__message');
 
             if (self.email != null && self.name != null &&  self.currentPassword !== null) {
@@ -174,7 +175,7 @@ export default {
                             email: self.email,
                             name: self.name,
                             current_password: self.currentPassword,
-                            password: self.password ? self.password != null : null,
+                            password: self.password != null ? self.password : null,
                         },
                         auth: self.$session.get('token'),
                         csrftoken: self.$session.get('token'),
@@ -182,7 +183,14 @@ export default {
                             console.log(data);
                             if(data.updated){
                                 self.getUserData(data.user_id)
-                                
+                                formErrMsg.innerHTML = data.msg
+
+                                setTimeout(() => {
+                                    formErrMsg.innerHTML = ''
+                                    document.querySelector('.user-data-form').reset()
+                                }, 2000)
+                            }else{
+                                formErrMsg.innerHTML = data.msg
                             }
                         },
                     });

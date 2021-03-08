@@ -149,6 +149,8 @@ class DashboardView(viewsets.ModelViewSet):
 
         # check if user already exist
         whouse = User.objects.filter(id=whouse_id)
+        get_warehouse = User.objects.get(id=whouse_id)
+        
         if whouse.count() > 0:
             if username != None:
                 whouse.update(
@@ -161,9 +163,8 @@ class DashboardView(viewsets.ModelViewSet):
                 )
 
             if password != None:
-                whouse.update(
-                    password=password
-                )
+                get_warehouse.set_password(password)
+                get_warehouse.save()
 
             return Response({
                 'msg': 'Warehouse updated',
@@ -226,9 +227,10 @@ class DashboardView(viewsets.ModelViewSet):
         password = request.data['body']['password']
 
         user = User.objects.filter(id=user_id)
+        get_user = User.objects.get(id=user_id)
 
         if password == None:
-            if User.objects.get(id=user_id).check_password(current_password):
+            if get_user.check_password(current_password):
                 user.update(
                     username=name,
                     email=email,
@@ -238,16 +240,17 @@ class DashboardView(viewsets.ModelViewSet):
             else:
                 return Response({'updated': False, 'msg': 'Wrong password', 'user_id': user.values()[0]['id']})
         else:
-            if user.check_password(current_password):
+            if get_user.check_password(current_password):
                 user.update(
                     username=name,
                     email=email,
                 )
-                user.set_password(password)
+                get_user.set_password(password)
+                get_user.save()
 
-                return Response({'updated': True, 'msg': 'Email and name updated', 'user_id': user.id})
+                return Response({'updated': True, 'msg': 'Data updated', 'user_id': user.values()[0]['id']})
             else:
-                return Response({'updated': False, 'msg': 'Wrong password', 'user_id': user.id})
+                return Response({'updated': False, 'msg': 'Wrong password', 'user_id': user.values()[0]['id']})
 
     @csrf_exempt
     @action(methods=['get'], detail=False)
