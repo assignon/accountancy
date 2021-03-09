@@ -20,10 +20,10 @@
             required
             outlined
         ></v-text-field>
-        <!-- <div class='btn-container'>
+        <div class='btn-container'>
           <v-btn large @click='signin()' color='#1976d2'>Login</v-btn>
-          <p class='mt-2' @click='$store.state.passForgotDialog=true'>Forget Password</p>
-        </div> -->
+          <!-- <p class='mt-2' @click='$store.state.passForgotDialog=true'>Forget Password</p> -->
+        </div>
       </v-form>
       <PasswordForgot/>
   </div>
