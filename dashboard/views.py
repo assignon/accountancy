@@ -224,9 +224,9 @@ class DashboardView(viewsets.ModelViewSet):
         user = User.objects.filter(id=user_id)
         get_user = User.objects.get(id=user_id)
 
-        if password == None:
+        if password == None or password == "":
             if get_user.check_password(current_password):
-                user.update(
+                User.objects.filter(id=user_id).update(
                     username=name,
                     email=email,
                 )
