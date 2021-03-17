@@ -23,6 +23,7 @@ export default {
         brands: [],
         profiles: [],
         serachOrderArr: [],
+        customePrice: 0,
         // payment informations
         payInterval: null,
         payIn: null,

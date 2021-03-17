@@ -117,15 +117,19 @@ class ProductOrdered(models.Model):
     product = models.ForeignKey(
         Tires, on_delete=models.DO_NOTHING)
     quantity = models.IntegerField()
+    custome_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     @staticmethod
     def product_price(id):
         self = ProductOrdered
 
         p_o = self.objects.get(id=id)
-        product = Tires.objects.get(id=p_o.product_id)
-
-        return product.price*p_o.quantity
+        if p_o.custome_price == 0:
+            product = Tires.objects.get(id=p_o.product_id)
+            return product.price*p_o.quantity
+        else:
+            product = p_o.custome_price
+            return product*p_o.quantity
 
     # def save(self, *args, **kwargs):
     #     # check if quantity > 0

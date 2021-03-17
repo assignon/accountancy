@@ -8,7 +8,7 @@
                 v-model="$store.state.order.vehicule"
                 :items="vehiculeItemsArr"
                 :menu-props="{ bottom: true, offsetY: true }"
-                label="Choose Vehicle*"
+                label="Choose Vehicle"
                 outlined
                 style='width: 100%'
                 @change='filteredProducts()'
@@ -28,7 +28,7 @@
                         v-model="$store.state.order.brands"
                         :items="brandsItemsArr"
                         :menu-props="{ bottom: true, offsetY: true }"
-                        label="Choose Brands*"
+                        label="Choose Brands"
                         outlined
                         chips
                         multiple
@@ -48,7 +48,7 @@
                         v-model="$store.state.order.profiles"
                         :items="profileItemsArr"
                         :menu-props="{ bottom: true, offsetY: true }"
-                        label="Choose profiles*"
+                        label="Choose profiles"
                         outlined
                         multiple
                         chips
@@ -65,7 +65,7 @@
         </div>
 
         <div class='products-fields'>
-            <v-flex xs12 sm12 md6 lg6 xl6>
+            <v-flex xs12 sm12 md7 lg7 xl7>
                 <v-select
                     v-model="$store.state.order.product"
                     :rules="[$store.state.rules.required]"
@@ -76,7 +76,7 @@
                     @click='filteredProducts()'
                 ></v-select>
             </v-flex>
-            <v-flex xs12 sm12 md2 lg2 xl2>
+            <v-flex xs12 sm12 md4 lg4 xl4>
                 <v-text-field
                     v-model="$store.state.order.quantity"
                     :rules="[$store.state.rules.required]"
@@ -86,7 +86,18 @@
                     outlined
                 ></v-text-field>
             </v-flex>
+        </div>
 
+        <div class='custome-price'>
+            <v-flex xs12 sm12 md8 lg8 xl8>
+                <v-text-field
+                    v-model="$store.state.order.customePrice"
+                    label="Price (leave it to 0 if you want to use the default price)"
+                    type="number"
+                    required
+                    outlined
+                ></v-text-field>
+            </v-flex>
             <v-flex xs12 sm12 md3 lg3 xl3>
                 <v-btn
                     depressed
@@ -369,7 +380,7 @@ export default {
             });
         },
 
-        createChip(name, title, price,vehicule, brands, profiles, entryIndex){
+        createChip(name, title, price,vehicule, brands, profiles, customePrice, entryIndex){
             console.log(name);
             let self = this;
             let productChipsContainer = document.querySelector('.product-chips-container');
@@ -499,7 +510,8 @@ export default {
                         qty: store.quantity, 
                         brand: [...store.brands], 
                         profile: [...store.profiles], 
-                        vehicule: store.vehicule
+                        vehicule: store.vehicule,
+                        custome_price: store.customePrice
                     };
                     self.$store.state.order.productArr.push(currentEntry);
                     // create and add new quality Criteria chip
@@ -512,6 +524,7 @@ export default {
                         store.vehicule, 
                         [...store.brands], 
                         [...store.profiles], 
+                        store.customePrice,
                         currentEntryIndex
                     );
                     
@@ -597,7 +610,7 @@ export default {
         color: #15141c;
         font-size: 15px;
     }
-    .products-fields, .brands-profiles-select{
+    .products-fields, .brands-profiles-select, .custome-price{
         width: 100%;
         height: auto;
         display: flex;
@@ -645,7 +658,7 @@ export default {
         .order-form .v-text-field{
             width: 100%;
         }
-        .products-fields, .brands-profiles-select{
+        .products-fields, .brands-profiles-select, .custome-price{
             flex-direction: column;
             justify-content: flex-start;
         }

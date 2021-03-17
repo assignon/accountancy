@@ -83,7 +83,7 @@ class OrdersManager(models.Manager):
             # create ordered products
             try:
                 ordered_products = ProductOrdered.objects.create(
-                    product=tire[0], quantity=product['qty'])
+                    product=tire[0], quantity=product['qty'], custome_price=product['custome_price'])
                 order.product_ordered.add(ordered_products)
             except Exception:
                 return {'created': False, 'msg': 'Something went wrong!', 'order_id': None, 'payment_id': None}

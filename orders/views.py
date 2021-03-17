@@ -204,6 +204,8 @@ class PaymentView(viewsets.ModelViewSet):
             Q(payment__id=payment_id) &
             Q(payment_date=payment_date)
         ).update(payed=new_value, employee_name=employee_name)
+        # update tire qty
+        
 
         return Response({'updated': True, 'msg': 'payment status updated'})
 
