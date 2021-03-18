@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import Q, Sum, Count
 from django.core.exceptions import NON_FIELD_ERRORS, ObjectDoesNotExist
+from django.contrib.auth.models import User
 # from .models import Tires
 from datetime import datetime
 import json
@@ -115,7 +116,7 @@ class ProductManager(models.Manager):
         try:
             tire = Tires.objects.filter(id=kwargs['tire_id'])
         except:
-            return {'updated': false, 'msg': 'Something went wrong, refresh the page and try it again'}
+            return {'updated': False, 'msg': 'Something went wrong, refresh the page and try it again'}
 
         if kwargs['vehicle'] != None:
             vehicle = Vehicule.objects.get(name=kwargs['vehicle'])
@@ -254,7 +255,8 @@ class ProductManager(models.Manager):
                     'tire': get_related(Tires, product_obj, 'tire_id'),
                     'brands': Tires.objects.get(id=product['tire_id']).brands.all().values(),
                     'profiles': Tires.objects.get(id=product['tire_id']).profiles.all().values(),
-                    'vehicle': vehicle
+                    'vehicle': vehicle,
+                    'warehouse': User.objects.get(id=get_related(Tires, product_obj, 'tire_id')[0]['warehouse_id']).username
                 }
             )
 

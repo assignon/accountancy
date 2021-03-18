@@ -3,6 +3,7 @@
         <div class='details-container'>
             <div class='product-details'>
                 <h3>Product</h3>
+                <p>Warehouse: {{productDetails[0].products[0].warehouse}}</p>
                 <p>Size: {{productDetails[0].products[0].tire[0].size}}</p>
                 <p>Price: {{formatPrice(productDetails[0].products[0].tire[0].price)}}FRS</p>
                 <p>Add on: {{productDetails[0].products[0].add_on}}</p>

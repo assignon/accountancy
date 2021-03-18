@@ -4,7 +4,7 @@
             <div class='add-product'>
                 <v-btn large @click='addProduct()' rounded color='#1976d2' class='mr-5'>Add Product</v-btn>
             </div>
-            <div class='product-container'>
+            <div class='product-container' v-if='products[0].products.length>0'>
                 <v-flex
                     xs12 sm12 md3 lg3 xl4
                     v-for="(product, i) in products[0].products"
@@ -23,7 +23,7 @@
                                     style='font-size:30px'
                                     color='#0163d1' class='mr-4' 
                                     @click='productDetails(product.id), UpdateProduct()'
-                                >fas fa-plus-square</v-icon>
+                                >fas fa-edit</v-icon>
                                 <v-icon  
                                     style='font-size:30px'
                                     color='#0163d1' class='' 
@@ -50,6 +50,10 @@
                         </div>
                     </div>
                 </v-flex>
+            </div>
+            <div class='no-product' v-else>
+                <v-icon color='#15141c'>fas fa-boxes</v-icon>
+                <h1>No products</h1>
             </div>
         </v-layout>
         <InformationModal 
@@ -270,6 +274,17 @@ export default {
         flex-direction: row;
         justify-content: flex-start;
         align-items: flex-start;
+    }
+    .no-product{
+        width: 100%;
+        height: 90vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    .no-product .v-icon{
+        font-size: 100px;
     }
     @media only screen and (max-width: 500px){
         .product-core{
