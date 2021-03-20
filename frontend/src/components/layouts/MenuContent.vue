@@ -93,6 +93,13 @@
                     @click='addExpenses(), $store.state.sidebarDrawer=false'
                 >fas fa-plus-square</v-icon>
             </div>
+            <div class='link-container'>
+                <router-link to="/transfers" style="text-decoration: none;" class='menu-item'>
+                    <span style='border: 2px solid #1976d2; height:25px;' class='mr-5 animated rubberBand' v-if='$route.name=="Transfers"'></span>
+                    <v-icon color='white'>fas fa-share-square</v-icon>
+                    <p class='tranfer'>Transfers <span class='transfer-notification' v-if='$store.state.transfers.productReceivedArr[0].pending_transfers>0'></span></p>
+                </router-link>
+            </div>
             <div class='link-container' @click='newProforma()'>
                 <p style='color:white;font-weight:bold;font-size:15px'>Proforma</p>
             </div>
@@ -183,8 +190,8 @@ export default {
     computed: {
         ...mapGetters({
             warehouses: 'dashboard/getWarehouse',
+            // productReceived: 'transfers/getReceivedProduct',
         }),
-       
     },
     filters: {
         suWarehouseName: function(name, su){
@@ -484,6 +491,16 @@ export default {
         margin-left: 10px;
         text-align: left;
         width: 70%;
+    }
+    .tranfer{
+        display: flex;
+        flex-direction: row;
+    }
+    .transfer-notification{
+        width: 7px;
+        height: 7px;
+        border-radius: 100%;
+        background-color: red;
     }
     .add-icon{
         margin-left: 30px;

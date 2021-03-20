@@ -25,6 +25,7 @@
                                     @click='productDetails(product.id), UpdateProduct()'
                                 >fas fa-edit</v-icon>
                                 <v-icon  
+                                    v-if='$session.get("warehouseName")!="all"'
                                     style='font-size:30px'
                                     color='#0163d1' class='' 
                                     @click='$store.state.product.transferDialog=true, productDetails(product.id)'

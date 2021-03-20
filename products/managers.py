@@ -356,6 +356,32 @@ class ProductManager(models.Manager):
         #     results = tires if tires.count() > 0 else Tires.objects.all()
 
         return {'tire': results.values(), 'v': vehicle_id}
+    
+    def transfer_product_waiting(self, **kwargs):
+        from .models import Transfers
+        
+        brands_arr = ','.join(sorted(kwargs['brands'])) if len(
+            kwargs['brands']) > 0 else None
+        
+        profile_arr = ','.join(sorted(kwargs['profiles'])) if len(
+            kwargs['profiles']) > 0 else None
+        
+        vehicle = kwargs['vehicle'] if kwargs['vehicle'] != None else None
+
+        transfer = Transfers.objects.create(
+            sender=kwargs['sender_id'],
+            sender_name=User.objects.get(id=kwargs['sender_id']).username,
+            receiver=kwargs['receiver_name'],
+            size=kwargs['size'],
+            price=kwargs['price'],
+            vehicle=vehicle,
+            profiles=profile_arr,
+            brands=brands_arr,
+            quantity=kwargs['qty']
+        )
+        transfer.save()
+        
+        return {'transfered': True, 'msg': 'Product transfered', 'status': 'Pending'}
 
     def transfer_product(self, **kwargs):
         from .models import Tires, Vehicule, Brands, Profiles, Products
@@ -463,7 +489,80 @@ class ProductManager(models.Manager):
         product_by_sender.update(quantity=new_qty)
 
         return {'transfered': True, 'msg': 'Product transfered'}
+    
 
+class TransferManager(models.Manager):
+    def transfers(self, sender_id, dte, wh_id):
+        """
+        get sended products filter by date and sender/warehouse/user id
+
+        Args:
+            sender_id (int): [warehouse/sender/user id]
+            dte (date): [date]
+            wh_id (int): [id of warehouse, if 0 => admin connect and can see everything]
+        """
+        transfers = self.get_queryset().filter(
+            send_on=dte
+        ) if wh_id==0 else self.get_queryset().filter(
+            Q(send_on=dte) &
+            Q(sender=wh_id)
+        )
+        
+        # transfer = {
+        #     'sender_name': User.objects.get(id=transfers.values()[0]['sender']).username,
+        #     'data': transfers.values()
+        # }
+            
+        return {'transfers': transfers.values(), 'count': transfers.count()}
+    
+    def receives(self, receiver_name, dte, wh_id):
+        """
+        get received products filter by date and sender/warehouse/user name
+
+        Args:
+            receiver_name (str): [name of the warehouse/username]
+            dte (date): [date]
+            wh_id (int): [id of warehouse, if 0 => admin connect and can see everything]
+        """
+        receives = self.get_queryset().filter(
+            send_on=dte
+        ) if wh_id==0 else self.get_queryset().filter(
+            Q(send_on=dte) &
+            Q(receiver=receiver_name)
+        )
+        
+        processed_transfers_count =  self.get_queryset().filter(
+            Q(status='accept') | Q(status='reject')
+        ).count()
+        
+        pending_transfers_count =  self.get_queryset().filter(status='pending').count()
+            
+        return {
+            'receives': receives.values(), 
+            'count': receives.count(), 
+            'processed_transfers': processed_transfers_count, 
+            'pending_transfers': pending_transfers_count
+        }
+    
+    def transfer_details(self, transfer_id):
+        """
+        get a transfer/receive product details
+
+        Args:
+            id (int): [id of sender/user/warehouse]
+        """
+        details = self.get_queryset().filter(id=transfer_id)
+        
+        return details.values()
+    
+    def update_transfer_status(self, transfer_id, status):
+        """
+        set sended product status to accept or reject
+
+        Args:
+            status (str): [accept or reject]
+        """
+        pass
 
 class BrandsManager(models.Manager):
     def all_brands(self):

@@ -23,7 +23,8 @@ from rest_framework.status import (
 )
 
 from orders.serializers import OrderSerializer, PaymentSerializer, CustomerSerializer
-from .models import Customers, Orders, Payment, PaymentMethods, Payment_status
+from .models import Customers, Orders, Payment, PaymentMethods, Payment_status, ProductOrdered
+from products.models import Tires
 
 # Create your views here.
 
@@ -196,16 +197,49 @@ class PaymentView(viewsets.ModelViewSet):
             id=request.data['body']['customer_id']).payment_id
         # payment_date = request.data['body']['payment_date']
         # payment_date = datetime.strftime(datetime.now().date(), '%Y-%m-%d')
+        order_id =  request.data['body']['order_id']
         payment_date = request.data['body']['payment_date']
         employee_name = request.data['body']['employee_name']
-        new_value = request.data['body']['new_value']  # bollean
+        new_value = request.data['body']['new_value']  # boolean
 
         Payment_status.objects.filter(
             Q(payment__id=payment_id) &
             Q(payment_date=payment_date)
         ).update(payed=new_value, employee_name=employee_name)
-        # update tire qty
         
+        ## update tire qty after payment received
+        # get payment interval
+        payment = Payment.objects.get(id=payment_id)
+        # get products ordered
+        product_ordered = ProductOrdered.objects.filter(orders__id=order_id)
+        
+        if payment.pay_in == 'once':
+            for po in product_ordered.values():
+                tire = Tires.objects.filter(id=po['product_id'])
+                # update tire qty
+                if int(tire.values()[0]['quantity']) > 0:
+                    new_quantity = int(
+                        tire.values()[0]['quantity']) - int(po['quantity'])
+                    tire.update(quantity=new_quantity)
+                else:
+                    tire.update(quantity=0)
+        else:
+            # if the custer is paying in terms
+            ps_arr = [] #payment status payed array
+            payment_status = payment.payment_status.all()
+            for ps in payment_status.values():
+                ps_arr.append(ps['payed'])
+            # check if all payment terma are been pais
+            if False not in ps_arr:
+                for po in product_ordered.values():
+                    tire = Tires.objects.filter(id=po['product_id'])
+                # update tire qty
+                if int(tire.values()[0]['quantity']) > 0:
+                    new_quantity = int(
+                        tire.values()[0]['quantity']) - int(po['quantity'])
+                    tire.update(quantity=new_quantity)
+                else:
+                    tire.update(quantity=0)
 
         return Response({'updated': True, 'msg': 'payment status updated'})
 

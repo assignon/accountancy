@@ -23,7 +23,7 @@ from rest_framework.status import (
 )
 
 from products.serializers import ProductSerializer
-from .models import Products, Brands, Profiles, Tires, Vehicule
+from .models import Products, Brands, Profiles, Tires, Transfers, Vehicule
 
 # Create your views here.
 
@@ -96,10 +96,10 @@ class ProductView(viewsets.ModelViewSet):
         product_id = request.query_params.get('product_id')
 
         return Response(Products.objects.product_details(product_id))
-
+    
     @csrf_exempt
     @action(methods=['post'], detail=False)
-    def transfer_product(self, request):
+    def transfer_product_waiting(self, request):
         transfer_data = {
             'vehicle': request.data['body']['vehicle'],
             'brands': [brand['name'] for brand in request.data['body']['brands']['brands']],
@@ -111,8 +111,66 @@ class ProductView(viewsets.ModelViewSet):
             'price': request.data['body']['price'],
         }
 
-        return Response(Products.objects.transfer_product(**transfer_data))
+        return Response(Products.objects.transfer_product_waiting(**transfer_data))
+
+    # @csrf_exempt
+    # @action(methods=['post'], detail=False)
+    def transfer_product(self, data):
+        transfer_data = {
+            'vehicle': data['vehicle'],
+            # 'brands': [brand['name'] for brand in request.data['body']['brands']['brands']],
+            'brands':  data['brands'].split(',') if data['brands']!= None else [],
+            # 'profiles': [profile['name'] for profile in request.data['body']['profiles']['profiles']],
+            'profiles': data['profiles'].split(',') if data['profiles']!= None else [],
+            'qty': data['quantity'],
+            'receiver_name': data["receiver"],
+            'sender_id': data['sender'],
+            'size': data['size'],
+            'price': data['price'],
+        }
+
+        Products.objects.transfer_product(**transfer_data)
         # return Response({'data': transfer_data['brands']})
+        
+    @csrf_exempt
+    @action(methods=['get'], detail=False)
+    def product_transfered(self, request):
+        dte = datetime.now() if request.query_params.get('date')==None else request.query_params.get('date')
+        sender_id = request.query_params.get('sender_id')
+        wh_id = int(request.query_params.get('wh_id'))
+        
+        return Response(Transfers.objects.transfers(sender_id, dte, wh_id))
+    
+    @csrf_exempt
+    @action(methods=['get'], detail=False)
+    def product_received(self, request):
+        dte = datetime.now() if request.query_params.get('date')==None else request.query_params.get('date')
+        receiver_name = request.query_params.get('receiver_name')
+        wh_id = int(request.query_params.get('wh_id'))
+        
+        return Response(Transfers.objects.receives(receiver_name, dte, wh_id))
+    
+    @csrf_exempt
+    @action(methods=['get'], detail=False)
+    def transfer_details(self, request):
+        transfer_id = request.query_params.get('id')
+        
+        return Response(Transfers.objects.transfer_details(transfer_id))
+    
+    @csrf_exempt
+    @action(methods=['get'], detail=False)
+    def update_transfer_status(self, request):
+        status = request.query_params.get('status')
+        transfer_id = request.query_params.get('transfer_id')
+        # update transfer status
+        transfer = Transfers.objects.filter(id=transfer_id)
+        transfer.update(status=status)
+        # update product quantity if transfer accepted
+        if status == 'accept':
+            self.transfer_product(transfer.values()[0])
+            
+        return Response({'updated': True, 'msg': 'Product {}'.format(status)})
+            
 
     @csrf_exempt
     @action(methods=['get'], detail=False)

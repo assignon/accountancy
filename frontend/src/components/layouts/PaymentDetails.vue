@@ -29,17 +29,18 @@
                 >
                     Next Payment: {{parseDate(nextPaymentDate(paymentDetails[0].payment_dates.paying_dates))}}
                 </p> 
-                <div class='payment-status-core'>
+                <div class='payment-status-core'> 
                     <h3>Payment Status</h3>
                     <div class='payment-status-container' v-for='(ps, i) in paymentDetails[0].p_status' :key='i'>
                         <p>{{ps.payment_date}}</p>
                         <v-checkbox
                             v-model="ps.payed"
+                            v-if='$session.get("su")'
                             :value="ps.payed"
                             label=""
                             class='ml-5'
                             style='position:relative;bottom:20px;'
-                            @click='displayConfirmationDialog(ps.payed, paymentDetails[0].customer[0].id, ps.payment_date)'
+                            @click='displayConfirmationDialog(ps.payed, paymentDetails[0].customer[0].id, ps.payment_date,paymentDetails[0].customer[0].order_id)'
                         ></v-checkbox>
                          <p>{{ps.employee_name}}</p>
                     </div>
@@ -61,6 +62,14 @@
         >
             <div class='payment-confirmation-container'>
                 <p class='confirmation-text' style='font-size: 17px;font-weight:bold;text-align:left;'></p>
+                <v-text-field
+                    v-model="employeeName"
+                    :rules="[$store.state.rules.required]"
+                    label="Employee Name*"
+                    required
+                    outlined
+                    style='width:90%;'
+                ></v-text-field>
                 <div class="btn-container">
                 <v-btn
                     depressed
@@ -108,6 +117,8 @@ export default {
             paymentStatus: null, 
             customerID: null,
             updatedPaymentdate: null,
+            employeeName: null,
+            orderId: null,
         }
     },
 
@@ -141,12 +152,13 @@ export default {
             alert()
         },
 
-        displayConfirmationDialog(updateValue, customerId, updatedPaymentdate){
+        displayConfirmationDialog(updateValue, customerId, updatedPaymentdate,orderId){
             let self = this;
             self.paymentConfirmationDialog = true
             setTimeout(() => {
                 self.paymentStatus = updateValue
                 self.customerID = customerId
+                self.orderId= orderId
                 self.updatedPaymentdate = updatedPaymentdate
                 document.querySelector('.confirmation-text').innerHTML = updateValue ? 
                 'Current payment status: NOT PAYED <br> Do you wanna update the current paymentstatus?' :
@@ -161,27 +173,31 @@ export default {
 
         updatePaymentStatus(){
             let self = this;
+            let validationErrMsg = document.querySelector('.v-messages__message');
             let body = {
                 new_value: self.paymentStatus,
                 customer_id: self.customerID,
-                payment_date: self.updatedPaymentdate
+                payment_date: self.updatedPaymentdate,
+                employee_name: self.employeeName,
+                order_id: self.orderId,
             }
-
-            this.$store.dispatch("putReq", {
-                url: "payment/update_payment_status",
-                params: body,
-                auth: self.$session.get('token'),
-                csrftoken: self.$session.get('token'),
-                callback: function(data) {
-                    console.log(data);
-                    if(data.updated){
-                       document.querySelector('.confirmation-text').innerHTML = data.msg
-                       setTimeout(() => {
-                           self.paymentConfirmationDialog = false
-                       }, 1500)
-                    }
-                },
-            });
+            if(this.employeeName != null && !document.body.contains(validationErrMsg)){
+                this.$store.dispatch("putReq", {
+                    url: "payment/update_payment_status",
+                    params: body,
+                    auth: self.$session.get('token'),
+                    csrftoken: self.$session.get('token'),
+                    callback: function(data) {
+                        console.log(data);
+                        if(data.updated){
+                            document.querySelector('.confirmation-text').innerHTML = data.msg
+                            setTimeout(() => {
+                                self.paymentConfirmationDialog = false
+                            }, 1500)
+                        }
+                    },
+                });
+            }
         }
     }
 }

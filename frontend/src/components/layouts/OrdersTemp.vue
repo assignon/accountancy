@@ -39,34 +39,36 @@
                     {{order.payment.method[0].name}}
                 </p>
             </v-flex> -->
-            <div  v-if='order.payment.pay_in != "Once"'>
-                <v-flex xs12 sm12 md2 lg2 xl2 
-                    :style="[currentDate == ps.payment_date ? {display:'flex'} : {display:'none'}]" 
+            <div v-if='$session.get("su")'>
+                <div  v-if='order.payment.pay_in != "Once"'>
+                    <v-flex xs12 sm12 md2 lg2 xl2 
+                        :style="[currentDate == ps.payment_date ? {display:'flex'} : {display:'none'}]" 
+                        :class='currentDate' 
+                        v-for='(ps, i) in order.p_status' 
+                        :key='i'
+                    > <!-- ther could be multiple payment dates -->
+                        <v-checkbox
+                            v-if='currentDate == ps.payment_date'
+                            v-model="ps.payed"
+                            :value="ps.payed"
+                            :label="ps.employee_name"
+                            @click='displayConfirmationDialog(ps.payed, order.customer_id, ps.payment_date, order.order.id)'
+                        ></v-checkbox>
+                    </v-flex>
+                </div>
+        
+                <v-flex xs12 sm12 md3 lg3 xl3 
+                    v-else
                     :class='currentDate' 
-                    v-for='(ps, i) in order.p_status' 
-                    :key='i'
-                > <!-- ther could be multiple payment dates -->
+                > 
                     <v-checkbox
-                        v-if='currentDate == ps.payment_date'
-                        v-model="ps.payed"
-                        :value="ps.payed"
-                        :label="ps.employee_name"
-                        @click='displayConfirmationDialog(ps.payed, order.customer_id, ps.payment_date)'
+                        v-model="order.p_status[0].payed"
+                        :value="order.p_status[0].payed"
+                        :label="order.p_status[0].employee_name"
+                        @click='displayConfirmationDialog(order.p_status[0].payed, order.customer_id, order.p_status[0].payment_date, order.order.id)'
                     ></v-checkbox>
                 </v-flex>
             </div>
-    
-            <v-flex xs12 sm12 md3 lg3 xl3 
-                v-else
-                :class='currentDate' 
-            > 
-                <v-checkbox
-                    v-model="order.p_status[0].payed"
-                    :value="order.p_status[0].payed"
-                    :label="order.p_status[0].employee_name"
-                    @click='displayConfirmationDialog(order.p_status[0].payed, order.customer_id, order.p_status[0].payment_date)'
-                ></v-checkbox>
-            </v-flex>
 
         </v-layout>
         <v-dialog
@@ -132,6 +134,7 @@ export default {
             customerID: null,
             updatedPaymentdate: null,
             employeeName: null,
+            orderId: null,
         }
     },
 
@@ -205,13 +208,14 @@ export default {
             })
         },
 
-        displayConfirmationDialog(updateValue, customerId, updatedPaymentdate){
+        displayConfirmationDialog(updateValue, customerId, updatedPaymentdate, orderId){
             let self = this;
             self.paymentConfirmationDialog = true
             setTimeout(() => {
                 self.paymentStatus = updateValue
                 self.customerID = customerId
                 self.updatedPaymentdate = updatedPaymentdate
+                self.orderId = orderId
                 document.querySelector('.confirmation-text').innerHTML = updateValue ? 
                 'Current payment status: NOT PAID <br> Do you wanna update the current paymentstatus?' :
                 'Current payment status: PAID <br> Do you wanna update the current payment status?'
@@ -226,11 +230,13 @@ export default {
         updatePaymentStatus(){
             let self = this;
             let validationErrMsg = document.querySelector('.v-messages__message');
+            // let confirmationText = document.querySelector('.confirmation-text')
             let body = {
                 new_value: self.paymentStatus,
                 customer_id: self.customerID,
                 payment_date: self.updatedPaymentdate,
-                employee_name: self.employeeName
+                employee_name: self.employeeName,
+                order_id: self.orderId
             }
 
             if(this.employeeName != null && !document.body.contains(validationErrMsg)){

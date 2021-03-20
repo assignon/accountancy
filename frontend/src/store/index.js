@@ -5,6 +5,7 @@ import dashboard from "./modules/dashboard";  // store file from modules map imp
 import product from "./modules/products";
 import order from "./modules/orders";
 import expenses from "./modules/expenses";
+import transfers from "./modules/transfers";
 
 import axios from "axios";
 
@@ -287,5 +288,6 @@ export default new Vuex.Store({
     product: product,
     order: order,
     expenses: expenses,
+    transfers: transfers,
   }
 });

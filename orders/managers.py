@@ -88,24 +88,6 @@ class OrdersManager(models.Manager):
             except Exception:
                 return {'created': False, 'msg': 'Something went wrong!', 'order_id': None, 'payment_id': None}
 
-            # update tire quantity
-            tire_update_check = Tires.objects.filter(
-                Q(size=product['name']) &
-                Q(profiles_str=profile_arr) &
-                Q(brands_str=brands_arr)
-            )
-            tire_update = tire_update_check if tire_update_check.count() > 0 else Tires.objects.filter(
-                size=product['name'])
-
-            if int(tire.values()[0]['quantity']) > 0:
-                new_quantity = int(
-                    tire.values()[0]['quantity']) - int(product['qty'])
-                tire_update.update(quantity=new_quantity)
-            else:
-                tire_update.update(quantity=0)
-            # except Exception:
-            #     return {'create': False, 'msg': 'ordered product(s) quantity must be > 0'}
-
         try:
             # create payment
             payment_obj = Payment.objects.create(

@@ -65,6 +65,8 @@ export default {
           this.$emit('payments', date)
           this.$emit('addedProducts', date)
           this.$emit('expenses', date)
+          this.$emit('transfer', date) // transfer products
+          this.$emit('receive', date) // received products
           setTimeout(() => {
               this.$store.state.mobileCalendarStatus=false
           }, 100)

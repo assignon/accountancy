@@ -59,6 +59,8 @@ export default {
       link.href = '/backup'
       link.click()
     }, 604800000)
+
+    this.getReceives(null)
   },
 
   methods: {
@@ -83,6 +85,26 @@ export default {
       }
       this.$store.state.AUTHENTICATED = this.$session.get("auth");
       // console.log(this.$store.state.AUTHENTICATED);
+    },
+
+    getReceives(date){
+        let self = this;
+        let store = self.$store;
+
+        this.$store.dispatch("getReq", {
+            url: "product/product_received",
+            params: {
+                wh_id: this.$session.get('warehouseId'),
+                receiver_name: this.$session.get('warehouseName'),
+                date: date,
+            },
+            auth: self.$session.get('token'),
+            csrftoken: self.$session.get('token'),
+            callback: function(data) {
+                // console.log('payments',data);
+                store.getters["setData"]([store.state.transfers.productReceivedArr, [data]]);
+            },
+        });
     },
   }
 };

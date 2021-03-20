@@ -29,7 +29,7 @@ from accountancy import views
 
 urlpatterns = [
 
-    path('admin/', admin.site.urls),
+    # path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path('api/signin/', dash_view.signin),
     path('backup/', dash_view.backup),

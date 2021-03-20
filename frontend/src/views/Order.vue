@@ -426,7 +426,6 @@ export default {
         display: flex;
         justify-content: flex-start;
         align-items: flex-start;
-        border: 1px green; 
     }
     .v-tabs-items{
         width: 100%;

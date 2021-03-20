@@ -9,7 +9,8 @@
                 <h2 class='mb-3'>
                     Transfer this product from 
                     <span style='color: #0163d1;font-weight:bold'>
-                        {{$session.get('warehouseName') | suWarehouseName($session.get("su"), $session.get('warehouseName')) | capitalize($session.get('warehouseName'))}}
+                        <!-- {{$session.get('warehouseName') | suWarehouseName($session.get("su"), $session.get('warehouseName')) | capitalize($session.get('warehouseName'))}} -->
+                        {{$session.get('warehouseName') | capitalize($session.get('warehouseName'))}}
                     </span>
                     warehouse
                 </h2>
@@ -23,7 +24,7 @@
                     label="Transfer To*"
                     outlined
                     style='width: 85%'
-                    @click='getWarehouses'
+                    @click='getWarehouses, excludeCurrentWarehouseFromArr'
                 ></v-select>
                 <v-text-field
                     v-model="qty"
@@ -107,7 +108,7 @@ export default {
             this.warehouses[0].forEach(items => {
                 self.warehousesArr.push(items.name)
             })
-            this.excludeCurrentWarehouseFromArr()
+            // this.excludeCurrentWarehouseFromArr()
         }, 100);
     },
 
@@ -143,7 +144,7 @@ export default {
                 callback: function(data) {
                     // console.log(data);
                     self.$store.getters["setData"]([self.$store.state.dashboard.warehouseArr, [data]]);
-                    console.log(self.$store.state.dashboard.warehouseArr);
+                    // console.log(self.$store.state.dashboard.warehouseArr);
                 },
             });
         },
@@ -167,7 +168,8 @@ export default {
                         profiles: self.productDetails[0].products[0].profiles
                     }
                     let body = {
-                        sender_id: self.$session.get('userId'),
+                        // sender_id: self.$session.get('userId'),
+                        sender_id: self.$session.get('warehouseId'),
                         receiver_name: self.transferTo,
                         size: self.productDetails[0].products[0].tire[0].size,
                         price: self.productDetails[0].products[0].tire[0].price,
@@ -176,28 +178,32 @@ export default {
                         brands: brandsPayload,
                         profiles: profilesPayload,
                     }
-                    // send request
-                    this.$store.dispatch("postReq", {
-                        url: "product/transfer_product",
-                        params: body,
-                        auth: self.$session.get('token'),
-                        csrftoken: self.$session.get('token'),
-                        callback: function(data) {
-                            console.log('transfer',data);
-                            if(data.transfered){
-                                formErrMsg.innerHTML = 'Product tranfered'
-                                document.querySelector('.transfer-form').reset()
-                                //close dialog after 2sec
-                                setTimeout(() => {
-                                    self.$store.state.product.transferDialog = false
-                                    formErrMsg.innerHTML = ''
-                                    // window.location.reload()
-                                }, 2000)
-                            }else{
-                                formErrMsg.innerHTML = 'Something went wrong, try to reload the page and try again'
-                            }
-                        },
-                    });
+                   if(self.transferTo != self.$session.get('warehouseName')){
+                        // send request
+                        this.$store.dispatch("postReq", {
+                            url: "product/transfer_product_waiting",
+                            params: body,
+                            auth: self.$session.get('token'),
+                            csrftoken: self.$session.get('token'),
+                            callback: function(data) {
+                                console.log('transfer',data);
+                                if(data.transfered){
+                                    formErrMsg.innerHTML = 'Product tranfered'
+                                    document.querySelector('.transfer-form').reset()
+                                    //close dialog after 2sec
+                                    setTimeout(() => {
+                                        self.$store.state.product.transferDialog = false
+                                        formErrMsg.innerHTML = ''
+                                        // window.location.reload()
+                                    }, 2000)
+                                }else{
+                                    formErrMsg.innerHTML = 'Something went wrong, try to reload the page and try again'
+                                }
+                            },
+                        });
+                   }else{
+                       formErrMsg.innerHTML = `You are now in ${self.$session.get('warehouseName')} warehouse, Goods can not be send to the same warehouse`
+                   }
                 }else{
                     formErrMsg.innerHTML = 'Product quantity should not be 0 and should not be greater than the quantity available in the sender warehouse'
                 }

@@ -87,7 +87,8 @@
                     <td v-else>
                         <p >None</p>
                     </td>
-                    <td>{{product.products[0].price}}</td>
+                    <td v-if='product.ordered_product.custome_price==0'>{{formatPrice(product.products[0].price)}}FRS</td>
+                    <td v-else>{{formatPrice(product.ordered_product.custome_price)}}FRS</td>
                     <td>{{product.ordered_product.quantity}}</td>
                 </tr>
             </table>

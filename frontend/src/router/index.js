@@ -7,6 +7,7 @@ import Order from "../views/Order.vue";
 import Product from "../views/Product.vue";
 import Settings from "../views/Settings.vue";
 import Expenses from "../views/Expenses.vue";
+import Transfers from "../views/Transfers.vue";
 // import NotAuthorize from "../views/dashboard/NotAuthorize.vue";
 
 Vue.use(VueRouter);
@@ -46,6 +47,11 @@ const routes = [
     path: "/expenses",
     name: "Expenses",
     component: Expenses
+  },
+  {
+    path: "/transfers",
+    name: "Transfers",
+    component: Transfers
   },
   // {
   //   path: "/notAuthorize",
