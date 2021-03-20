@@ -41,6 +41,7 @@ urlpatterns = [
     path('products/', views.products, name='products'),
     path('settings/', views.settings, name='settings'),
     path('expenses/', views.expenses, name='expenses'),
+    path('transfers/', views.transfers, name='transfers'),
     path('warehouses/', views.warehouses, name='warehouses'),
 
 ] + static(

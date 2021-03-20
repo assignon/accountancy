@@ -27,3 +27,6 @@ def warehouses(request):
 
 def expenses(request):
     return render(request, template_name='index.html')
+
+def transfers(request):
+    return render(request, template_name='index.html')
