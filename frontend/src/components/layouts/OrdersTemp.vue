@@ -44,6 +44,7 @@
                     <v-flex xs12 sm12 md2 lg2 xl2 
                         :style="[currentDate == ps.payment_date ? {display:'flex'} : {display:'none'}]" 
                         :class='currentDate' 
+                        style='display:flex;flex-direction:row;justify-content:center;align-items:center'
                         v-for='(ps, i) in order.p_status' 
                         :key='i'
                     > <!-- ther could be multiple payment dates -->
@@ -51,22 +52,25 @@
                             v-if='currentDate == ps.payment_date'
                             v-model="ps.payed"
                             :value="ps.payed"
-                            :label="ps.employee_name"
-                            @click='displayConfirmationDialog(ps.payed, order.customer_id, ps.payment_date, order.order.id)'
+                            @click='displayConfirmationDialog(ps.payed, order.customer_id, ps.payment_date, order.order.id), paying=order.paying'
                         ></v-checkbox>
+                        <span class='ml-2'>{{ps.employee_name}}</span>
+                        <span v-if="ps.custome_payment>0 && order.paying>ps.custome_payment" class='ml-2' style='color:orange'>(rem)</span>
                     </v-flex>
                 </div>
         
                 <v-flex xs12 sm12 md3 lg3 xl3 
                     v-else
                     :class='currentDate' 
+                    style='display:flex;flex-direction:row;justify-content:center;align-items:center'
                 > 
                     <v-checkbox
                         v-model="order.p_status[0].payed"
                         :value="order.p_status[0].payed"
-                        :label="order.p_status[0].employee_name"
-                        @click='displayConfirmationDialog(order.p_status[0].payed, order.customer_id, order.p_status[0].payment_date, order.order.id)'
+                        @click='displayConfirmationDialog(order.p_status[0].payed, order.customer_id, order.p_status[0].payment_date, order.order.id), paying=order.paying'
                     ></v-checkbox>
+                    <span class='ml-2'>{{order.p_status[0].employee_name}}</span>
+                    <span v-if="order.p_status[0].custome_payment>0 && order.paying>order.p_status[0].custome_payment" class='ml-2' style='color:orange'>(rem)</span>
                 </v-flex>
             </div>
 
@@ -84,6 +88,13 @@
                     label="Employee Name*"
                     required
                     outlined
+                    style='width:90%;'
+                ></v-text-field>
+                <v-text-field
+                    v-model="customePayment"
+                    label="Custom Price"
+                    outlined
+                    type='number'
                     style='width:90%;'
                 ></v-text-field>
                 <div class="btn-container">
@@ -135,6 +146,8 @@ export default {
             updatedPaymentdate: null,
             employeeName: null,
             orderId: null,
+            customePayment: 0,
+            paying: 0, // order total amount
         }
     },
 
@@ -236,25 +249,31 @@ export default {
                 customer_id: self.customerID,
                 payment_date: self.updatedPaymentdate,
                 employee_name: self.employeeName,
-                order_id: self.orderId
+                order_id: self.orderId,
+                custome_payment: self.customePayment,
+                update_custom_price: false, //confirm payment not updating the custom price
             }
 
             if(this.employeeName != null && !document.body.contains(validationErrMsg)){
-                this.$store.dispatch("putReq", {
-                    url: "payment/update_payment_status",
-                    params: body,
-                    auth: self.$session.get('token'),
-                    csrftoken: self.$session.get('token'),
-                    callback: function(data) {
-                        console.log(data);
-                        if(data.updated){
-                        document.querySelector('.confirmation-text').innerHTML = data.msg
-                        setTimeout(() => {
-                            self.paymentConfirmationDialog = false
-                        }, 1500)
-                        }
-                    },
-                });
+                // if(self.paying <= self.customePayment){
+                    this.$store.dispatch("putReq", {
+                        url: "payment/update_payment_status",
+                        params: body,
+                        auth: self.$session.get('token'),
+                        csrftoken: self.$session.get('token'),
+                        callback: function(data) {
+                            console.log(data);
+                            if(data.updated){
+                            document.querySelector('.confirmation-text').innerHTML = data.msg
+                            setTimeout(() => {
+                                self.paymentConfirmationDialog = false
+                            }, 1500)
+                            }
+                        },
+                    });
+                // }else if(self.paying > self.customePayment){
+                //     confirmationText.innerHTML = `The order total price (${self.payin}) cannot be less than the custom price`
+                // }
             }
         }
     }

@@ -335,5 +335,12 @@ export default {
         justify-content: center;
         align-items: center;
     }
+      @media only screen and (max-width: 500px) {
+        .transfer-core{
+            width: 100%;
+            align-items: center;
+            margin-left: 0%;
+        }
+    }
  </style>
 

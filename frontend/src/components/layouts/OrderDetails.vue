@@ -67,6 +67,13 @@
                         <p>{{dates}} ,</p>
                     </div>
                 </div>
+                <p 
+                    style='color:#0163d1;font-weight:bold;cursor:pointer' class='mt-5'
+                    @click='$store.state.infoDrawer=true, paymentDetails(orderDeteails[0].payment[0].id)'
+                >
+                    See Payment Status 
+                    <v-icon medium class='ml-1' color='#0163d1'>fas fa-long-arrow-alt-right</v-icon>
+                </p>
             </div>
         </div>
 
@@ -108,6 +115,25 @@ export default {
         formatPrice(value) {
             let val = (value/1).toFixed(0).replace('.', ',')
             return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+        },
+
+        paymentDetails(paymentid){
+            let self = this;
+
+            this.$store.dispatch('order/getPaymentDetails', {
+                url: 'order/payment_details',
+                params: {
+                    customerId: paymentid
+                },
+                auth: self.$session.get('token'),
+                csrftoken: self.$session.get('token'),
+                callback: function(data){
+                    // console.log('api data', data);
+                    self.$store.state.infoTempName = 'PaymentDetails'
+                    self.$store.getters["setData"]([self.$store.state.order.customerPaymentArr, [data]]);
+                    
+                },
+            })
         },
 
         removeOrder(){

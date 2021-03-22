@@ -30,6 +30,7 @@ export default {
         payMethod: null,
         // payment status obj
         currentStatus: null, //payment status of the current date
+        updateCustomPrice: false,
     },
 
     getters: {
