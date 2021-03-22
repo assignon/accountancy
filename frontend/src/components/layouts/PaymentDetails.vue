@@ -33,16 +33,28 @@
                     <h3>Payment Status</h3>
                     <div class='payment-status-container' v-for='(ps, i) in paymentDetails[0].p_status' :key='i'>
                         <p>{{ps.payment_date}}</p>
-                        <v-checkbox
-                            v-model="ps.payed"
-                            v-if='$session.get("su")'
-                            :value="ps.payed"
-                            label=""
-                            class='ml-5'
-                            style='position:relative;bottom:20px;'
-                            @click='displayConfirmationDialog(ps.payed, paymentDetails[0].customer[0].id, ps.payment_date,paymentDetails[0].customer[0].order_id)'
-                        ></v-checkbox>
-                         <p>{{ps.employee_name}}</p>
+                        <div class='check-bc ml-5'>
+                            <v-checkbox
+                                v-model="ps.payed"
+                                v-if='$session.get("su")'
+                                :value="ps.payed"
+                                label=""
+                                class=''
+                                style='position:relative;bottom:20px;'
+                                @click='displayConfirmationDialog(ps.payed, paymentDetails[0].customer[0].id, ps.payment_date,paymentDetails[0].customer[0].order_id, paymentDetails[0].paying_term), $store.state.order.updateCustomPrice=false'
+                            ></v-checkbox>
+                        </div>
+                        <p class='ml-3'>{{ps.employee_name}}</p>
+                        <div class='remaining-payment ml-5' v-if="ps.custome_payment>0 && paymentDetails[0].paying_term>ps.custome_payment">
+                            <p>Remain ({{formatPrice(paymentDetails[0].paying_term-ps.custome_payment)}}FRS)</p>
+                            <v-btn 
+                                medium color='#0163d1'
+                                class='ml-3'
+                                @click='displayConfirmationDialog(ps.payed, paymentDetails[0].customer[0].id, ps.payment_date,paymentDetails[0].customer[0].order_id, paymentDetails[0].paying_term), employeeName=ps.employee_name, $store.state.order.updateCustomPrice=true'
+                            >
+                                <span style='color:white'>Complete</span>
+                            </v-btn>
+                        </div>
                     </div>
                 </div>
                 
@@ -62,12 +74,20 @@
         >
             <div class='payment-confirmation-container'>
                 <p class='confirmation-text' style='font-size: 17px;font-weight:bold;text-align:left;'></p>
+                <!-- <span style='font-size: 17px;text-align:left;' class='mb-3 err-msg'></span> -->
                 <v-text-field
                     v-model="employeeName"
                     :rules="[$store.state.rules.required]"
                     label="Employee Name*"
                     required
                     outlined
+                    style='width:90%;'
+                ></v-text-field>
+                <v-text-field
+                    v-model="customePayment"
+                    label="Custom Price"
+                    outlined
+                    type='number'
                     style='width:90%;'
                 ></v-text-field>
                 <div class="btn-container">
@@ -119,6 +139,8 @@ export default {
             updatedPaymentdate: null,
             employeeName: null,
             orderId: null,
+            customePayment: 0,
+            payByTerms: null,
         }
     },
 
@@ -152,17 +174,23 @@ export default {
             alert()
         },
 
-        displayConfirmationDialog(updateValue, customerId, updatedPaymentdate,orderId){
+        displayConfirmationDialog(updateValue, customerId, updatedPaymentdate,orderId, pay_terms){
             let self = this;
             self.paymentConfirmationDialog = true
+            // document.querySelector('.err-msg').innerHTML = 'Update Custom price'
             setTimeout(() => {
                 self.paymentStatus = updateValue
                 self.customerID = customerId
                 self.orderId= orderId
                 self.updatedPaymentdate = updatedPaymentdate
-                document.querySelector('.confirmation-text').innerHTML = updateValue ? 
-                'Current payment status: NOT PAYED <br> Do you wanna update the current paymentstatus?' :
-                'Current payment status: PAYED <br> Do you wanna update the current payment status?'
+                self.payByTerms = pay_terms
+                if(!self.$store.state.order.updateCustomPrice){
+                    document.querySelector('.confirmation-text').innerHTML = updateValue ? 
+                    'Current payment status: NOT PAYED <br> Do you wanna update the current paymentstatus?' :
+                    'Current payment status: PAYED <br> Do you wanna update the current payment status?'
+                }else{
+                     document.querySelector('.confirmation-text').innerHTML = 'Update Custom price'
+                }
             }, 100)
         },
 
@@ -180,23 +208,29 @@ export default {
                 payment_date: self.updatedPaymentdate,
                 employee_name: self.employeeName,
                 order_id: self.orderId,
+                custome_payment: self.customePayment,
+                update_custom_price: self.$store.state.order.updateCustomPrice,
             }
             if(this.employeeName != null && !document.body.contains(validationErrMsg)){
-                this.$store.dispatch("putReq", {
-                    url: "payment/update_payment_status",
-                    params: body,
-                    auth: self.$session.get('token'),
-                    csrftoken: self.$session.get('token'),
-                    callback: function(data) {
-                        console.log(data);
-                        if(data.updated){
-                            document.querySelector('.confirmation-text').innerHTML = data.msg
-                            setTimeout(() => {
-                                self.paymentConfirmationDialog = false
-                            }, 1500)
-                        }
-                    },
-                });
+                if(self.payByTerms >= self.customePayment){
+                    this.$store.dispatch("putReq", {
+                        url: "payment/update_payment_status",
+                        params: body,
+                        auth: self.$session.get('token'),
+                        csrftoken: self.$session.get('token'),
+                        callback: function(data) {
+                            console.log(data);
+                            if(data.updated){
+                                document.querySelector('.confirmation-text').innerHTML = data.msg
+                                setTimeout(() => {
+                                    self.paymentConfirmationDialog = false
+                                }, 1500)
+                            }
+                        },
+                    });
+                }else if(self.payByTerms < self.customePayment){
+                    alert(`The order total price (${self.payByTerms}) cannot be less than the custom price`)
+                }
             }
         }
     }
@@ -272,6 +306,19 @@ export default {
         flex-direction: row;
         justify-content: flex-start;
         align-items: flex-start;
+    }
+    .check-bc{
+        width: 22px;
+        height: 22px;
+        background-color: white;
+    }
+    .remaining-payment{
+        width: auto;
+        height: auto;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
     }
     .details-actions{
         height: 10%;

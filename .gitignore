@@ -2,3 +2,5 @@
 /.vscode
 /frontend/vue.config.js
 /accountancy/settings.py
+/accountancy/router.py
+/accountancy/urls.py

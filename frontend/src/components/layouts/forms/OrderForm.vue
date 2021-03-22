@@ -92,7 +92,7 @@
             <v-flex xs12 sm12 md8 lg8 xl8>
                 <v-text-field
                     v-model="$store.state.order.customePrice"
-                    label="Price (leave it to 0 if you want to use the default price)"
+                    label="Custom Price (leave it to 0 if you want to use the default price)"
                     type="number"
                     required
                     outlined

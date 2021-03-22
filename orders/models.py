@@ -29,6 +29,7 @@ class Payment_status(models.Model):
     payed = models.BooleanField(default=False)
     employee_name = models.CharField(
         max_length=200, default=None, blank=True, null=True)  # employee who receive the paymanet
+    custome_payment = models.IntegerField(default=0)
 
     def __str__(self):
         pass
@@ -95,6 +96,8 @@ class Payment(models.Model):
         self = Payment.objects.get(id=customer.payment_id)
         if self.pay_in.lower() == 'terms':
             return round(int(Orders.paying(customer.order_id))/int(customer.times))
+        else:
+            return Orders.paying(customer.order_id)
 
     @staticmethod
     def completed(customer_id):
