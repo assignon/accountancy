@@ -399,7 +399,8 @@ class ProductManager(models.Manager):
             if kwargs['vehicle'] != None:
                 vehicle = Vehicule.objects.create(name=vehicle_name)
         # if len(kwargs['brands']) > 0 and len(kwargs['profiles']) > 0
-
+        print('bbbrrrnnddd', kwargs['brands'])
+        print('prrooofffiiillee', kwargs['profiles'])
         if kwargs['vehicle'] != None:
             product_by_sender = Tires.objects.filter(
                 Q(size=kwargs['size']) &
@@ -420,22 +421,27 @@ class ProductManager(models.Manager):
                 Q(warehouse_id=sender_id)
             )
 
+        brands_sorted = ','.join(sorted(kwargs['brands'])) if len(
+                    kwargs['brands']) > 0 else None
+        profiles_sorted = ','.join(sorted(kwargs['profiles'])) if len(
+                    kwargs['profiles']) > 0 else None
+        
         if kwargs['vehicle'] != None:
             product_by_receiver = Tires.objects.filter(
                 Q(size=kwargs['size']) &
-                Q(brands_str=','.join(sorted(kwargs['brands']))) &
-                Q(profiles_str=','.join(sorted(kwargs['profiles']))) &
+                Q(brands_str=brands_sorted) &
+                Q(profiles_str=profiles_sorted) &
                 Q(vehicule=vehicle) &
                 Q(warehouse_id=receiver_wh_id.id)
             )
         else:
             product_by_receiver = Tires.objects.filter(
                 Q(size=kwargs['size']) &
-                Q(brands_str=','.join(sorted(kwargs['brands']))) &
-                Q(profiles_str=','.join(sorted(kwargs['profiles']))) &
+                Q(brands_str=brands_sorted) &
+                Q(profiles_str=profiles_sorted) &
                 Q(warehouse_id=receiver_wh_id.id)
             )
-
+        print('receiver counntt', product_by_receiver.count())
         if product_by_receiver.count() == 0:
             # create
             brands_arr = ','.join(sorted(kwargs['brands'])) if len(
