@@ -59,8 +59,9 @@ export default {
       this.$session.set('authenticated', true)
       this.$session.set('su', su)
       if(su){
-        this.$session.set('warehouseName', 'All')
-        this.$session.set('warehouseId', 0)
+        this.$session.set('warehouseName', 'Main')
+        // this.$session.set('warehouseId', 0)
+        this.$session.set('warehouseId', userId)
       }else{
         this.$session.set('warehouseId', userId)
         this.$session.set('warehouseName', username)

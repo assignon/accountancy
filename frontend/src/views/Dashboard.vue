@@ -188,7 +188,7 @@ export default {
                 url: "product/products",
                 params: {
                     date: null,
-                    user_id: this.$session.get('warehouseId')
+                    user_id: Number(this.$session.get('warehouseId'))==this.$session.get('userId') ? 0 : this.$session.get('warehouseId')
                 },
                 auth: self.$session.get('token'),
                 csrftoken: self.$session.get('token'),

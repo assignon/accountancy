@@ -15,7 +15,7 @@ import VueSession from "vue-session";
 
 import vuetify from "./plugins/vuetify";
 
-Vue.config.productionTip = false;
+Vue.config.productionTip = true;
 Vue.use(VAnimateCss);
 Vue.use(Vuex);
 Vue.use(VueSession, { persist: true    });
