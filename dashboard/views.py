@@ -85,6 +85,7 @@ def signin(request):
                 return Response({'token': token.key,
                                  'id': token.user_id,
                                  'is_superuser': request.user.is_superuser,
+                                 'username': request.user.username,
                                  'authenticate': True},
                                 status=HTTP_200_OK)
             else:
