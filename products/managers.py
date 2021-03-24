@@ -288,21 +288,18 @@ class ProductManager(models.Manager):
             profiles['profiles']) > 0 else None
 
         if len(brands['brands']) > 0 and len(profiles['profiles']) > 0 and vehicle != 'noname':
-            print('halloo1')
             results = Tires.objects.filter(
                 Q(brands_str=brand) &
                 Q(profiles_str=profile) &
                 Q(vehicule_id=vehicle_id) &
                 Q(warehouse_id=warehouse_id)
             )
-        elif len(brands['brands']) == 0 and len(profiles['profiles']) == 0 and vehicle != None:
-            print('halloo2')
+        elif len(brands['brands']) == 0 and len(profiles['profiles']) == 0 and vehicle != 'noname':
             results = Tires.objects.filter(
                 Q(vehicule_id=vehicle_id) &
                 Q(warehouse_id=warehouse_id)
             )
         elif len(brands['brands']) == 0 and len(profiles['profiles']) == 0:
-            print('halloo3')
             tires = Tires.objects.filter(
                 Q(brands_str=None) &
                 Q(profiles_str=None) &
@@ -310,7 +307,6 @@ class ProductManager(models.Manager):
             )
             results = tires if tires.count() > 0 else Tires.objects.all()
         else:
-            print('halloo4')
             results = Tires.objects.filter(
                 Q(brands_str=brand) &
                 Q(profiles_str=profile) &
