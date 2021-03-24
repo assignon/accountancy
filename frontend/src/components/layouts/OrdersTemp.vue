@@ -12,11 +12,12 @@
             </v-flex>
 
             <v-flex xs12 sm12 md3 lg3 xl3 class='product-name' @click.stop='$store.state.infoDrawer=true, customerOrder(order.customer_id)'>
-                <p>
+                <p v-if='order.ordered_products.length>0'>
                     <v-icon small color='#1e1d2b' class='mr-1 hidden-sm-and-down'>fas fa-boxes</v-icon>
                     {{order.ordered_products[0].product[0].size}} 
                     <span>( {{order.ordered_products[0].ordered_product.quantity}}x )</span>
-                    <span class='ml-2' v-if='order.ordered_products.length>=2'>[ +{{order.ordered_products.length-1}} ]</span></p>
+                    <span class='ml-2' v-if='order.ordered_products.length>=2'>[ +{{order.ordered_products.length-1}} ]</span>
+                </p>
             </v-flex>
 
             <v-flex xs12 sm12 md3 lg2 xl2 class='date' @click.stop='$store.state.infoDrawer=true, customerOrder(order.customer_id)'>
@@ -54,7 +55,7 @@
                             :value="ps.payed"
                             @click='displayConfirmationDialog(ps.payed, order.customer_id, ps.payment_date, order.order.id), paying=order.paying'
                         ></v-checkbox>
-                        <span class='ml-2'>{{ps.employee_name}}</span>
+                        <span class='ml-3'>{{ps.employee_name}}</span>
                         <span v-if="ps.custome_payment>0 && order.paying>ps.custome_payment" class='ml-2' style='color:orange'>(rem)</span>
                     </v-flex>
                 </div>
@@ -69,7 +70,7 @@
                         :value="order.p_status[0].payed"
                         @click='displayConfirmationDialog(order.p_status[0].payed, order.customer_id, order.p_status[0].payment_date, order.order.id), paying=order.paying'
                     ></v-checkbox>
-                    <span class='ml-2'>{{order.p_status[0].employee_name}}</span>
+                    <span class='ml-3'>{{order.p_status[0].employee_name}}</span>
                     <span v-if="order.p_status[0].custome_payment>0 && order.paying>order.p_status[0].custome_payment" class='ml-2' style='color:orange'>(rem)</span>
                 </v-flex>
             </div>
