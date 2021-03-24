@@ -159,7 +159,7 @@ export default {
                 url: "product/product_received",
                 params: {
                     wh_id: this.$session.get('warehouseId'),
-                    receiver_name: this.$session.get('warehouseName'),
+                    receiver_name: self.$session.get('warehouseName'),
                     date: date,
                 },
                 auth: self.$session.get('token'),

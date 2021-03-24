@@ -50,7 +50,7 @@ export default {
   },
 
   methods: {
-    startSession(token, su, userId){
+    startSession(token, su, userId, username){
       // start a session
       this.$session.start()
       // store token en user id
@@ -63,6 +63,7 @@ export default {
         this.$session.set('warehouseId', 0)
       }else{
         this.$session.set('warehouseId', userId)
+        this.$session.set('warehouseName', username)
       }
     },
 
@@ -83,7 +84,7 @@ export default {
           callback: function(data) {
               console.log(data);
               if(data.authenticate){
-                self.startSession(data.token, data.is_superuser, data.id)
+                self.startSession(data.token, data.is_superuser, data.id, data.username)
                 self.$router.push({name: "Dashboard"})
               }else{
                  formErrMsg.innerHTML = data.msg
