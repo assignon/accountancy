@@ -153,7 +153,7 @@ export default {
 
     created(){
         // console.log(this.orderArr[0].order);
-        console.log(this.orderArr[0]);
+        // console.log(this.orderArr[0]);
     },
 
     methods: {
