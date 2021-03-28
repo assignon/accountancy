@@ -115,6 +115,7 @@ class ProductManager(models.Manager):
 
         try:
             tire = Tires.objects.filter(id=kwargs['tire_id'])
+            tire_obj = Tires.objects.get(id=kwargs['tire_id'])
         except:
             return {'updated': False, 'msg': 'Something went wrong, refresh the page and try it again'}
 
@@ -136,6 +137,12 @@ class ProductManager(models.Manager):
                 profiles_str=profile_arr,
                 brands_str=brands_arr
             )
+            
+        # update date and time
+        Products.objects.filter(tire=tire_obj).update(
+            add_on=datetime.now().date(),
+            add_at=datetime.now().time()
+        )
 
         # update brands
         tire[0].brands.all().delete()

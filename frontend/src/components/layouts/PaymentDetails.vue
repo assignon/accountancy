@@ -201,9 +201,10 @@ export default {
 
         updatePaymentStatus(){
             let self = this;
+            console.log('new value', self.paymentStatus);
             let validationErrMsg = document.querySelector('.v-messages__message');
             let body = {
-                new_value: self.paymentStatus,
+                new_value: self.paymentStatus==null ? false : self.paymentStatus,
                 customer_id: self.customerID,
                 payment_date: self.updatedPaymentdate,
                 employee_name: self.employeeName,
@@ -212,7 +213,9 @@ export default {
                 update_custom_price: self.$store.state.order.updateCustomPrice,
             }
             if(this.employeeName != null && !document.body.contains(validationErrMsg)){
-                if(self.payByTerms >= self.customePayment){
+                console.log('termss', self.payByTerms);
+                console.log('custom payment', self.customePayment);
+                if(self.payByTerms >= Number(self.customePayment)){
                     this.$store.dispatch("putReq", {
                         url: "payment/update_payment_status",
                         params: body,
