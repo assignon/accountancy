@@ -53,7 +53,7 @@
                             v-if='currentDate == ps.payment_date'
                             v-model="ps.payed"
                             :value="ps.payed"
-                            @click='displayConfirmationDialog(ps.payed, order.customer_id, ps.payment_date, order.order.id), paying=order.paying'
+                            @click='displayConfirmationDialog(ps.payed, order.customer_id, ps.payment_date, order.order.id, order.payment.times, order.payment.pay_in), paying=order.paying'
                         ></v-checkbox>
                         <span class='ml-3'>{{ps.employee_name}}</span>
                         <span v-if="ps.custome_payment>0 && order.paying>ps.custome_payment" class='ml-2' style='color:orange'>(rem)</span>
@@ -68,7 +68,7 @@
                     <v-checkbox
                         v-model="order.p_status[0].payed"
                         :value="order.p_status[0].payed"
-                        @click='displayConfirmationDialog(order.p_status[0].payed, order.customer_id, order.p_status[0].payment_date, order.order.id), paying=order.paying'
+                        @click='displayConfirmationDialog(order.p_status[0].payed, order.customer_id, order.p_status[0].payment_date, order.order.id, order.payment.times, order.payment.pay_in), paying=order.paying'
                     ></v-checkbox>
                     <span class='ml-3'>{{order.p_status[0].employee_name}}</span>
                     <span v-if="order.p_status[0].custome_payment>0 && order.paying>order.p_status[0].custome_payment" class='ml-2' style='color:orange'>(rem)</span>
@@ -149,6 +149,9 @@ export default {
             orderId: null,
             customePayment: 0,
             paying: 0, // order total amount
+            customPricePaid: null,
+            paymentTimes: null,
+            payIn: null,
         }
     },
 
@@ -222,7 +225,7 @@ export default {
             })
         },
 
-        displayConfirmationDialog(updateValue, customerId, updatedPaymentdate, orderId){
+        displayConfirmationDialog(updateValue, customerId, updatedPaymentdate, orderId, times, payIn){
             let self = this;
             self.paymentConfirmationDialog = true
             setTimeout(() => {
@@ -230,6 +233,8 @@ export default {
                 self.customerID = customerId
                 self.updatedPaymentdate = updatedPaymentdate
                 self.orderId = orderId
+                self.paymentTimes = times
+                self.payIn = payIn
                 document.querySelector('.confirmation-text').innerHTML = updateValue ? 
                 'Current payment status: NOT PAID <br> Do you wanna update the current paymentstatus?' :
                 'Current payment status: PAID <br> Do you wanna update the current payment status?'
@@ -256,7 +261,17 @@ export default {
             }
 
             if(this.employeeName != null && !document.body.contains(validationErrMsg)){
-                // if(self.paying <= self.customePayment){
+                let cPayment = Number(self.customePayment)
+                let payingTimes = Number(self.paymentTimes)
+                let paying = Number(self.paying)
+                let payingTerms = 0
+
+                if(self.payIn == 'Once'){
+                    payingTerms = paying
+                }else{
+                    payingTerms = paying/payingTimes
+                }
+                if(payingTerms >= cPayment){
                     this.$store.dispatch("putReq", {
                         url: "payment/update_payment_status",
                         params: body,
@@ -272,9 +287,9 @@ export default {
                             }
                         },
                     });
-                // }else if(self.paying > self.customePayment){
-                //     confirmationText.innerHTML = `The order total price (${self.payin}) cannot be less than the custom price`
-                // }
+                }else if(payingTerms < cPayment){
+                    alert(`The order total price (${paying}) cannot be less than the custom price`)
+                }
             }
         }
     }
