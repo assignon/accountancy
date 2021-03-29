@@ -41,7 +41,7 @@
                                 label=""
                                 class=''
                                 style='position:relative;bottom:20px;'
-                                @click='displayConfirmationDialog(ps.payed, paymentDetails[0].customer[0].id, ps.payment_date,paymentDetails[0].customer[0].order_id, paymentDetails[0].paying_term), $store.state.order.updateCustomPrice=false'
+                                @click='displayConfirmationDialog(ps.payed, paymentDetails[0].customer[0].id, ps.payment_date,paymentDetails[0].customer[0].order_id, paymentDetails[0].paying_term, (paymentDetails[0].paying_term-ps.custome_payment)), $store.state.order.updateCustomPrice=false'
                             ></v-checkbox>
                         </div>
                         <p class='ml-3'>{{ps.employee_name}}</p>
@@ -50,7 +50,7 @@
                             <v-btn 
                                 medium color='#0163d1'
                                 class='ml-3'
-                                @click='displayConfirmationDialog(ps.payed, paymentDetails[0].customer[0].id, ps.payment_date,paymentDetails[0].customer[0].order_id, paymentDetails[0].paying_term), employeeName=ps.employee_name, $store.state.order.updateCustomPrice=true'
+                                @click='displayConfirmationDialog(ps.payed, paymentDetails[0].customer[0].id, ps.payment_date,paymentDetails[0].customer[0].order_id, paymentDetails[0].paying_term, (paymentDetails[0].paying_term-ps.custome_payment)), employeeName=ps.employee_name, $store.state.order.updateCustomPrice=true'
                             >
                                 <span style='color:white'>Complete</span>
                             </v-btn>
@@ -141,6 +141,7 @@ export default {
             orderId: null,
             customePayment: 0,
             payByTerms: null,
+            customPricePaid: null,
         }
     },
 
@@ -174,9 +175,10 @@ export default {
             alert()
         },
 
-        displayConfirmationDialog(updateValue, customerId, updatedPaymentdate,orderId, pay_terms){
+        displayConfirmationDialog(updateValue, customerId, updatedPaymentdate,orderId, pay_terms, customPricePaid){
             let self = this;
             self.paymentConfirmationDialog = true
+            console.log(customPricePaid);
             // document.querySelector('.err-msg').innerHTML = 'Update Custom price'
             setTimeout(() => {
                 self.paymentStatus = updateValue
@@ -184,6 +186,7 @@ export default {
                 self.orderId= orderId
                 self.updatedPaymentdate = updatedPaymentdate
                 self.payByTerms = pay_terms
+                self.customPricePaid = customPricePaid
                 if(!self.$store.state.order.updateCustomPrice){
                     document.querySelector('.confirmation-text').innerHTML = updateValue ? 
                     'Current payment status: NOT PAYED <br> Do you wanna update the current paymentstatus?' :
@@ -213,9 +216,12 @@ export default {
                 update_custom_price: self.$store.state.order.updateCustomPrice,
             }
             if(this.employeeName != null && !document.body.contains(validationErrMsg)){
-                console.log('termss', self.payByTerms);
-                console.log('custom payment', self.customePayment);
-                if(self.payByTerms >= Number(self.customePayment)){
+
+                let cPayment = Number(self.customePayment)
+                let customPricePaid = Number(self.customPricePaid)
+                let byTerms = Number(self.payByTerms)
+
+                if(customPricePaid >= cPayment){
                     this.$store.dispatch("putReq", {
                         url: "payment/update_payment_status",
                         params: body,
@@ -231,9 +237,28 @@ export default {
                             }
                         },
                     });
-                }else if(self.payByTerms < self.customePayment){
-                    alert(`The order total price (${self.payByTerms}) cannot be less than the custom price`)
+                }else if((byTerms-customPricePaid) == 0){
+                    this.$store.dispatch("putReq", {
+                        url: "payment/update_payment_status",
+                        params: body,
+                        auth: self.$session.get('token'),
+                        csrftoken: self.$session.get('token'),
+                        callback: function(data) {
+                            console.log(data);
+                            if(data.updated){
+                                document.querySelector('.confirmation-text').innerHTML = data.msg
+                                setTimeout(() => {
+                                    self.paymentConfirmationDialog = false
+                                }, 1500)
+                            }
+                        },
+                    });
                 }
+                else if(customPricePaid < cPayment){
+                    alert(`The order remaining price (${customPricePaid}) cannot be less than the custom price`)
+                }
+            }else{
+                alert('Give employee name')
             }
         }
     }

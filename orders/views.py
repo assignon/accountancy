@@ -209,7 +209,10 @@ class PaymentView(viewsets.ModelViewSet):
             Q(payment_date=payment_date)
         )
         # print([pstatus])
-        updated_custom_payment = pstatus.values()[0]['custome_payment']+int(custome_payment)
+        if new_value:
+            updated_custom_payment = pstatus.values()[0]['custome_payment']+int(custome_payment)
+        else:
+            updated_custom_payment = 0
         pstatus.update(payed=new_value, employee_name=employee_name, custome_payment=updated_custom_payment)
         
         ## update tire qty after payment received
