@@ -325,7 +325,7 @@ export default {
                 vehicle: store.state.order.vehicule != null ? store.state.order.vehicule : 'noname',
                 brands: brandsPayload,
                 profiles: profilesPayload,
-                user_id: self.$session.get('userId')
+                user_id: self.$session.get('warehouseId')
             },
             auth: self.$session.get('token'),
             csrftoken: self.$session.get('token'),
