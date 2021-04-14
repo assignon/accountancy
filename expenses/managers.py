@@ -13,7 +13,7 @@ class ExpensesManager(models.Manager):
 
         return {'added': True, 'expense_id': new_expense.pk}
 
-    def get_daily_expenses(self, dte, user_id):
+    def get_expenses(self, dte, user_id):
         from .models import Expenses
 
         expenses = self.get_queryset().filter(add_on=dte) if user_id == 0 else self.get_queryset(
@@ -22,5 +22,6 @@ class ExpensesManager(models.Manager):
         return {
             'expenses': expenses.values(),
             'count': expenses.count(),
-            'daily_total': Expenses.daily_expenses_price(dte, user_id)
+            'daily_total': Expenses.daily_expenses_price(dte, user_id),
+            'montly_total': Expenses.monthly_expense_price(user_id)
         }

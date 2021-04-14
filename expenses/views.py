@@ -44,9 +44,9 @@ class ExpensesView(viewsets.ModelViewSet):
 
     @csrf_exempt
     @action(methods=['get'], detail=False)
-    def daily_expenses(self, request):
+    def expenses(self, request):
         dte = datetime.strftime(datetime.now().date(), '%Y-%m-%d') if request.query_params.get(
             'date') == None else request.query_params.get('date')
         user_id = int(request.query_params.get('user_id'))
 
-        return Response(Expenses.objects.get_daily_expenses(dte, user_id))
+        return Response(Expenses.objects.get_expenses(dte, user_id))

@@ -36,3 +36,22 @@ class Expenses(models.Model):
             total_expense += expense['price']
 
         return total_expense
+    
+    @staticmethod
+    def monthly_expense_price(user_id):
+        """get expense of the current month
+
+        Args:
+            mth (date str): [current date]
+            user_id (int): [logged user id]
+        """
+        current_month = datetime.now().date().month
+        month_expense = 0
+        #get monthly expenses
+        expenses = Expenses.objects.filter(add_on__month=current_month) if user_id == 0 else Expenses.objects.filter(
+            Q(add_on__month=current_month) & Q(warehouse_id=user_id))
+        
+        for expense in expenses.values():
+            month_expense += expense['price']
+
+        return month_expense

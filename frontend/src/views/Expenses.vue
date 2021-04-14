@@ -66,7 +66,8 @@
                         <p><v-icon medium color='#15141c' class='mr-2'>fas fa-wallet</v-icon>Total Expenses</p>
                     </div>
                     <div class='total-expense'>
-                        <h1 class='animated bounceIn'>{{formatPrice(expenses[0].daily_total)}}FRS</h1>
+                        <h1 class='animated bounceIn'>Daily: {{formatPrice(expenses[0].daily_total)}}FRS</h1>
+                        <h1 class='animated bounceIn'>Monthly: {{formatPrice(expenses[0].montly_total)}}FRS</h1>
                     </div>
                 </div>
             </v-flex>
@@ -115,7 +116,7 @@ export default {
             let store = self.$store;
 
             this.$store.dispatch("getReq", {
-                url: "expense/daily_expenses",
+                url: "expense/expenses",
                 params: {
                     date: date,
                     user_id: this.$session.get('warehouseId')
@@ -249,9 +250,13 @@ export default {
         display: flex;
         justify-content: center;
         align-items: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start
     }
     .total-expense h1{
-        font-size: 40px;
+        font-size: 25px;
         color: #15141c;
         width: 100%;
         height: auto;
