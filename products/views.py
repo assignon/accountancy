@@ -109,6 +109,7 @@ class ProductView(viewsets.ModelViewSet):
             'sender_id': request.data['body']['sender_id'],
             'size': request.data['body']['size'],
             'price': request.data['body']['price'],
+            'current_qty':  request.data['body']['current_qty']
         }
 
         return Response(Products.objects.transfer_product_waiting(**transfer_data))
@@ -129,7 +130,7 @@ class ProductView(viewsets.ModelViewSet):
             'price': data['price'],
         }
 
-        Products.objects.transfer_product(**transfer_data)
+        return Products.objects.transfer_product(**transfer_data)
         # return Response({'data': transfer_data['brands']})
         
     @csrf_exempt
@@ -167,9 +168,35 @@ class ProductView(viewsets.ModelViewSet):
         transfer.update(status=status)
         # update product quantity if transfer accepted
         if status == 'accept':
-            self.transfer_product(transfer.values()[0])
+            transfer = self.transfer_product(transfer.values()[0])
             
-        return Response({'updated': True, 'msg': 'Product {}'.format(status)})
+            return Response({'updated': True, 'msg': 'Product {}'.format(status), 'error': transfer['error'], 'transfermsg': transfer['msg']})
+        else:
+            vehicle_name = transfer.values()[0]['vehicle']
+            print('tttrrraaannsss', transfer.values()[0])
+            
+            if transfer.values()[0]['vehicle'] != None:
+                tire = Tires.objects.filter(
+                    Q(size=transfer.values()[0]['size']) &
+                    Q(brands_str=','.join(sorted(transfer.values()[0]['brands'])) if 
+                        transfer.values()[0]['brands'] != None else None) &
+                    Q(profiles_str=','.join(sorted(transfer.values()[0]['profiles'])) if 
+                        transfer.values()[0]['profiles'] != None else None) &
+                    Q(vehicule=Vehicule.objects.get(name=vehicle_name)) &
+                    Q(warehouse_id=transfer.values()[0]['sender'])
+                )
+            else:
+                tire = Tires.objects.filter(
+                    Q(size=transfer.values()[0]['size']) &
+                    Q(brands_str=','.join(sorted(transfer.values()[0]['brands'])) if 
+                        transfer.values()[0]['brands'] != None else None) &
+                    Q(profiles_str=','.join(sorted(transfer.values()[0]['profiles'])) if 
+                        transfer.values()[0]['profiles'] != None else None) &
+                    Q(warehouse_id=transfer.values()[0]['sender'])
+                )
+            tire.update(pending_qty=0)
+                    
+            return Response({'updated': True, 'msg': 'Product {}'.format(status)})
             
 
     @csrf_exempt

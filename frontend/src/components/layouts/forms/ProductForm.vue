@@ -40,15 +40,27 @@
                     v-model="price"
                     label="Price*"
                     type='number'
+                    :rules="[$store.state.rules.qty]"
                     outlined
                 ></v-text-field>
             </div>
             <div class='product-field-container' v-if="$store.state.product.productProforma==false">
                 <v-text-field
                     v-model="quantity"
-                    label="Quantity*"
+                    label="Current Quantity"
+                    :disabled='$store.state.product.addProductForm==false && $store.state.product.productProforma==false'
                     type='number'
+                    :rules="[$store.state.rules.qty]"
                     outlined
+                ></v-text-field>
+                 <v-text-field
+                    v-if='$store.state.product.addProductForm==false && $store.state.product.productProforma==false'
+                    v-model="addQuantity"
+                    label="Add Quantity*"
+                    type='number'
+                    :rules="[$store.state.rules.qty]"
+                    outlined
+                    min
                 ></v-text-field>
             </div>
             <div class='product-field-container'>
@@ -189,6 +201,7 @@ export default {
             size: null,
             price: 0,
             quantity: 1,
+            addQuantity: 0,
             selectVehicleArr: [],
             selectBrandArr: [],
             brands: [],
@@ -477,6 +490,7 @@ export default {
 
         submitUpdatedProduct(){
             let self = this
+            let validationErrMsg = document.querySelector('.v-messages__message');
             let brandsPayload = {
                 brands: self.brands
             }
@@ -486,27 +500,29 @@ export default {
             let body = {
                 size: self.size,
                 price: self.price,
-                quantity: self.quantity,
+                quantity: self.addQuantity,
                 vehicle: self.vehicle,
                 brands: brandsPayload,
                 profiles: profilesPayload,
                 tire_id: self.productDetails[0].products[0].tire[0].id
             }
-
-            this.$store.dispatch("putReq", {
-                url: "product/update_product",
-                params: body,
-                auth: self.$session.get('token'),
-                csrftoken: self.$session.get('token'),
-                callback: function(data) {
-                    console.log('added',data);
-                    if(data.updated){
-                        self.productsDetails(data.product_id)
-                        self.$store.state.pdfTemp = 'ProductPdf';
-                        self.$store.state.pdfDialog = true;
-                    }
-                },
-            });
+            
+            if(!document.body.contains(validationErrMsg)){
+                this.$store.dispatch("putReq", {
+                    url: "product/update_product",
+                    params: body,
+                    auth: self.$session.get('token'),
+                    csrftoken: self.$session.get('token'),
+                    callback: function(data) {
+                        console.log('added',data);
+                        if(data.updated){
+                            self.productsDetails(data.product_id)
+                            self.$store.state.pdfTemp = 'ProductPdf';
+                            self.$store.state.pdfDialog = true;
+                        }
+                    },
+                });
+            }
         }
     },
 }

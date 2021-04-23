@@ -9,6 +9,7 @@ from django.db.models import Q
 # from django.http import QueryDict
 import json
 from datetime import datetime, timedelta
+from django.core.exceptions import ObjectDoesNotExist
 # from django.contrib.auth.hashers import make_password
 ################################## DRF IMPORTS #######################################
 from rest_framework import viewsets
@@ -24,7 +25,7 @@ from rest_framework.status import (
 
 from orders.serializers import OrderSerializer, PaymentSerializer, CustomerSerializer
 from .models import Customers, Orders, Payment, PaymentMethods, Payment_status, ProductOrdered
-from products.models import Tires
+from products.models import Tires, Vehicule
 
 # Create your views here.
 
@@ -62,6 +63,10 @@ class OrderView(viewsets.ModelViewSet):
         }
 
         return Response(Orders.objects.create_order(**data))
+    
+    # @csrf_exempt
+    # @action(methods=['get'], detail=False)
+    # def productHas_enoughQty(self, request):
 
     @csrf_exempt
     @action(methods=['delete'], detail=False)

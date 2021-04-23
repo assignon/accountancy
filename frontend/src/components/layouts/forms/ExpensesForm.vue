@@ -19,7 +19,7 @@
             label='Amount*'
             required
             outlined
-            :rules="[$store.state.rules.required]"
+            :rules="[$store.state.rules.required, $store.state.rules.qty]" 
             v-model='$store.state.expenses.price'
             type='number'
         ></v-text-field>

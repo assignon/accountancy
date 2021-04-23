@@ -1,3 +1,4 @@
+# from products.models import Transfers
 from django.db import models
 from django.db.models import Q, Sum, Count
 from django.core.exceptions import NON_FIELD_ERRORS, ObjectDoesNotExist
@@ -121,10 +122,12 @@ class ProductManager(models.Manager):
 
         if kwargs['vehicle'] != None:
             vehicle = Vehicule.objects.get(name=kwargs['vehicle'])
+            current_qty = tire.values()[0]['quantity']
+            new_qty = int(current_qty) + int(kwargs['quantity'])
             tire.update(
                 size=kwargs['size'],
                 price=kwargs['price'],
-                quantity=kwargs['quantity'],
+                quantity=new_qty,
                 vehicule=vehicle,
                 profiles_str=profile_arr,
                 brands_str=brands_arr
@@ -393,24 +396,47 @@ class ProductManager(models.Manager):
             kwargs['profiles']) > 0 else None
         
         vehicle = kwargs['vehicle'] if kwargs['vehicle'] != None else None
-
-        transfer = Transfers.objects.create(
-            sender=kwargs['sender_id'],
-            sender_name=User.objects.get(id=kwargs['sender_id']).username,
-            receiver=kwargs['receiver_name'],
-            size=kwargs['size'],
-            price=kwargs['price'],
-            vehicle=vehicle,
-            profiles=profile_arr,
-            brands=brands_arr,
-            quantity=kwargs['qty']
-        )
-        transfer.save()
         
-        return {'transfered': True, 'msg': 'Product transfered', 'status': 'Pending'}
+        # in case the product is pending in other warehouse(s) check if the transfer qty <= currentQty - pending QTy
+        # get product current qty
+        product_qty = kwargs['current_qty']
+        #pending qty
+        pending_qty = 0
+        # get pending qty
+        pendings = Transfers.objects.filter(
+            Q(size=kwargs['size']) &
+            Q(brands=brands_arr) &
+            Q(profiles=profile_arr) &
+            Q(vehicle=vehicle) &
+            Q(price=kwargs['price']),
+            Q(status='pending')
+        )
+        
+        for p_qty in pendings.values():
+            pending_qty += p_qty['quantity']
+            
+        qty_remain = int(product_qty) - int(pending_qty)
+        
+        if int(qty_remain) < int(kwargs['qty']):
+            return {'transfered': False, 'msg': 'This product is pending in one or more warehouse(s). The remain quantity({}) is lesser than the quantity you want to transfer'.format(qty_remain), 'status': 'Pending'}
+        else:
+            transfer = Transfers.objects.create(
+                sender=kwargs['sender_id'],
+                sender_name=User.objects.get(id=kwargs['sender_id']).username,
+                receiver=kwargs['receiver_name'],
+                size=kwargs['size'],
+                price=kwargs['price'],
+                vehicle=vehicle,
+                profiles=profile_arr,
+                brands=brands_arr,
+                quantity=kwargs['qty']
+            )
+            transfer.save()
+            
+            return {'transfered': True, 'msg': 'Product transfered', 'status': 'Pending'}
 
     def transfer_product(self, **kwargs):
-        from .models import Tires, Vehicule, Brands, Profiles, Products
+        from .models import Tires, Vehicule, Brands, Profiles, Products, Transfers
         from django.contrib.auth.models import User
 
         receiver_wh_id = User.objects.get(username=kwargs['receiver_name'])
@@ -425,8 +451,7 @@ class ProductManager(models.Manager):
             if kwargs['vehicle'] != None:
                 vehicle = Vehicule.objects.create(name=vehicle_name)
         # if len(kwargs['brands']) > 0 and len(kwargs['profiles']) > 0
-        print('bbbrrrnnddd', kwargs['brands'])
-        print('prrooofffiiillee', kwargs['profiles'])
+
         if kwargs['vehicle'] != None:
             product_by_sender = Tires.objects.filter(
                 Q(size=kwargs['size']) &
@@ -452,6 +477,7 @@ class ProductManager(models.Manager):
         profiles_sorted = ','.join(sorted(kwargs['profiles'])) if len(
                     kwargs['profiles']) > 0 else None
         
+        
         if kwargs['vehicle'] != None:
             product_by_receiver = Tires.objects.filter(
                 Q(size=kwargs['size']) &
@@ -467,7 +493,8 @@ class ProductManager(models.Manager):
                 Q(profiles_str=profiles_sorted) &
                 Q(warehouse_id=receiver_wh_id.id)
             )
-        print('receiver counntt', product_by_receiver.count())
+        
+        
         if product_by_receiver.count() == 0:
             # create
             brands_arr = ','.join(sorted(kwargs['brands'])) if len(
@@ -515,12 +542,15 @@ class ProductManager(models.Manager):
             product_by_receiver.update(quantity=new_qty)
 
         # update sender product quantity
-        current_qty = product_by_sender.values()[0]['quantity']
-        qty_tranfered = kwargs['qty']
-        new_qty = int(current_qty) - int(qty_tranfered)
-        product_by_sender.update(quantity=new_qty)
+        try:
+            current_qty = product_by_sender.values()[0]['quantity']
+            qty_tranfered = kwargs['qty']
+            new_qty = int(current_qty) - int(qty_tranfered)
+            product_by_sender.update(quantity=new_qty)
+        except :
+            return {'transfered': False, 'msg': 'Somrthink went wrong, try to update this product from the sender warehouse and try again.', 'error': True}
 
-        return {'transfered': True, 'msg': 'Product transfered'}
+        return {'transfered': True, 'msg': 'Product transfered', 'error': False}
     
 
 class TransferManager(models.Manager):

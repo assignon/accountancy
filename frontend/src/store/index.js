@@ -24,6 +24,7 @@ export default new Vuex.Store({
     rules: {
       required: value => !!value || "This field is required",
       min: v => v.length >= 8 || "8 characters minimal",
+      qty: value => value >= 1 || "Quantity should be greater than 0", // check if input type number value>=1
       textareaMin: v => v.length >= 10 || "100 characters minimal",
       emailMatch: () => "Email and password don't match"
     },

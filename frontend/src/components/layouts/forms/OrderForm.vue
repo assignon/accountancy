@@ -332,7 +332,7 @@ export default {
             callback: function(data) {
                 console.log(data);
                 data.tire.forEach(item => {
-                    self.selectItemsArr.push(item.size+'-'+item.quantity)
+                    self.selectItemsArr.push(item.size+'-'+item.quantity+'-'+item.pending_qty)
                 })
                 store.getters["setData"]([store.state.product.filteredProductsArr, [data]]);
                 },
@@ -547,6 +547,32 @@ export default {
             }
         },
 
+        // enoughQty(stepNum){
+        //     // check if added product has enought quantity  
+        //     let self = this;
+        //     let formErrMsg = document.querySelector(".order-form-err-msg");
+
+        //     this.$store.dispatch("getReq", {
+        //         url: "order/productHas_enoughQty",
+        //         params: {
+        //             ordered_products: self.$store.state.order.productArr,
+        //         },
+        //         auth: self.$session.get('token'),
+        //         csrftoken: self.$session.get('token'),
+        //         callback: function(data) {
+        //             console.log('enough qty',data);
+        //             if(data.enough){
+        //                 // this.$emit('updatestep', stepNum)
+        //                 console.log(stepNum);
+        //                 console.log(data);
+        //             }else{
+        //                 formErrMsg.innerHTML = data.msg
+        //             }
+        //             // store.getters["setData"]([store.state.order.paymentsArr, [data]]);
+        //         },
+        //     });
+        // },
+
         updateStep(stepNum){
             let self = this;
             let store = self.$store.state.order;
@@ -557,14 +583,16 @@ export default {
                 let productSize = store.product.split('-')
                 store.product  = productSize[0]
                 let productEnough = Number(productSize[1]) > Number(store.quantity)
-                if(productEnough){
+                let pendingEnough = Number(productSize[2]) > Number(store.quantity)
+       
+                if(productEnough && pendingEnough){
                     if(!document.body.contains(validationErrMsg)){
                         this.$emit('updatestep', stepNum)
                     }else{
                         formErrMsg.innerHTML = validationErrMsg.textContent;
                     }
                 }else{
-                    alert(`The quantity ordered (${store.quantity}) is greater than the quantity of product in stock (${productSize[1]})`)
+                    alert(`The quantity ordered (${store.quantity}) is greater than the quantity of product in stock (${productSize[1]}) or product might be transfered and is pending`)
                 }
             } else {
                 formErrMsg.innerHTML = "Fields are empty";

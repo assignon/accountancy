@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from .managers import *
 from django.db.models import Q
 from django.contrib.auth.models import User
@@ -77,6 +79,7 @@ class Tires(models.Model):
     quantity = models.IntegerField(default=1)
     profiles_str = models.CharField(max_length=255, null=True, blank=True)
     brands_str = models.CharField(max_length=255, null=True, blank=True)
+    pending_qty = models.IntegerField(default=0)
     warehouse_id = models.IntegerField(default=1)  # user id
 
     class Meta:
@@ -128,3 +131,33 @@ class Products(models.Model):
 
     def __str__(self):
         return Tires.objects.get(id=self.tire_id).size
+
+
+@receiver(post_save, sender=Transfers)
+def track_payment_status(sender, instance, created, **kwargs):
+    if created:
+        transfer_qty = instance.quantity
+        sender_id = instance.sender
+        try:
+            vehicle = Vehicule.objects.get(name=instance.vehicle)
+        except ObjectDoesNotExist:
+            pass
+        
+        if instance.vehicle != None:
+            tire = Tires.objects.filter(
+                Q(size=instance.size) &
+                Q(brands_str=instance.brands) &
+                Q(profiles_str=instance.profiles) &
+                Q(vehicule=vehicle) &
+                Q(warehouse_id=sender_id)
+            )
+        else:
+            tire = Tires.objects.filter(
+                Q(size=instance.size) &
+                Q(brands_str=instance.brands) &
+                Q(profiles_str=instance.profiles) &
+                Q(warehouse_id=sender_id)
+            )
+        
+        new_qty = int(tire.values()[0]['pending_qty']) + int(transfer_qty)
+        tire.update(pending_qty=int(new_qty))

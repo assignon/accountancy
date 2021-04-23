@@ -5,7 +5,7 @@
             <h3 class='mt-3'>CHICAM</h3>
             <div class='warehouses-container mt-5 ml-5' v-if="$session.get('su')">
                 <select class="warehouse-select" v-model='warehouse' @change='changeWarehouse()'>
-                    <!-- <option value='all,0'>All</option> -->
+                    <option value='all,0'>All</option>
                     <option v-for='(whouse, i) in warehouses[0]' :key='i' :value="whouse.name+','+whouse.id">{{whouse.name | suWarehouseName(whouse.su, whouse.name) | capitalize(whouse.name)}}</option>
                 </select>
                 <v-icon small color='white' style='position:relative;right:20px;'>fas fa-angle-down</v-icon>
@@ -60,6 +60,7 @@
                     <p>Sales</p>
                 </router-link>
                 <v-icon 
+                    v-if="!$session.get('su')"
                     style='font-size:28px;position:relative;bottom:1px' 
                     color='#0163d1' class='add-icon' 
                     @click='newOrder(), $store.state.sidebarDrawer=false'

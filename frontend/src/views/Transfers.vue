@@ -204,6 +204,9 @@ export default {
                 callback: function(data) {
                     // console.log('payments',data);
                     if(data.updated){
+                        if(data.error){
+                            alert(data.transfermsg)
+                        }
                         self.getReceives(null)
                     }
                 },

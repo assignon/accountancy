@@ -177,6 +177,7 @@ export default {
                         qty: self.qty,
                         brands: brandsPayload,
                         profiles: profilesPayload,
+                        current_qty: self.productDetails[0].products[0].tire[0].quantity
                     }
                    if(self.transferTo != self.$session.get('warehouseName')){
                         // send request
@@ -197,7 +198,8 @@ export default {
                                         // window.location.reload()
                                     }, 2000)
                                 }else{
-                                    formErrMsg.innerHTML = 'Something went wrong, try to reload the page and try again'
+                                    // formErrMsg.innerHTML = 'Something went wrong, try to reload the page and try again'
+                                    formErrMsg.innerHTML = data.msg
                                 }
                             },
                         });
