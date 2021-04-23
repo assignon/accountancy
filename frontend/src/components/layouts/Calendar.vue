@@ -67,6 +67,7 @@ export default {
           this.$emit('expenses', date)
           this.$emit('transfer', date) // transfer products
           this.$emit('receive', date) // received products
+          this.$emit('productWaiting', date) // added and updated product not validated by admin 
           setTimeout(() => {
               this.$store.state.mobileCalendarStatus=false
           }, 100)

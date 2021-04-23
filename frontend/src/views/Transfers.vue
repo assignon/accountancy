@@ -38,9 +38,15 @@
                                 Received ({{productReceived[0].count}})
                             </p>
                         </v-tab>
+                        <v-tab class='ml-5' v-if="$session.get('su')">
+                            <p style='color:#15141c;font-size: 17px;text-transform:capitalize;font-weight:bold'>
+                                <v-icon  style='font-size: 30px;' color='#15141c'>fas fa-boxes</v-icon>
+                                Product ({{waitingProducts[0].count}})
+                            </p>
+                        </v-tab>
 
                         <v-tabs-items v-model='tab' class='mt-5'>
-                            <v-tab-item v-if='productTransfered.length > 0'>
+                            <v-tab-item v-if='productTransfered[0].transfers.length > 0'>
                                 <div
                                     class='transfer-temp animated fadeInUp pt-5 pb-5 ml-5'
                                     v-for="(transfer,i) in productTransfered[0].transfers"
@@ -61,8 +67,8 @@
                                     <p class='mt-3'>No Transfer</p>
                                 </div>
                             </v-tab-item>
-
-                            <v-tab-item v-if='productReceived.length > 0'>
+                            <!-- received product -->
+                            <v-tab-item v-if='productReceived[0].receives.length > 0'>
                                 <div
                                     class='transfer-temp animated fadeInUp pt-5 pb-5 ml-5'
                                     v-for="(receive,i) in productReceived[0].receives"
@@ -85,6 +91,29 @@
                                     <p class='mt-3'>No Product Received</p>
                                 </div>
                             </v-tab-item>
+                            <!-- waiting product -->
+                            <v-tab-item v-if='waitingProducts[0].products.length > 0 && $session.get("su")'>
+                                <div
+                                    class='transfer-temp animated fadeInUp pt-5 pb-5 ml-5'
+                                    v-for="(wp,i) in waitingProducts[0].products"
+                                    :key='i'
+                                >
+                                    <v-flex xs11 sm11 md4 lg4 xl4 class='transfer-flex ml-5'><strong>{{wp.size}}</strong></v-flex>
+                                    <v-flex xs11 sm11 md4 lg4 xl4 class='transfer-flex'>from: <strong>{{wp.warehouse}}</strong></v-flex>
+                                    <v-flex xs11 sm11 md4 lg4 xl4 class='transfer-flex'>quantity: <strong>{{wp.quantity}}</strong></v-flex>
+
+                                    <v-flex xs11 sm11 md4 lg4 xl4 class='btn-container mr-5'>
+                                        <v-btn medium color='green' class='mr-5' @click='updateWaitingProductStatus("accepted", wp.id)'><span style='color:white'>Accept</span></v-btn>
+                                        <v-btn medium color='red' class='ml-5' @click='updateWaitingProductStatus("rejected", wp.id)'><span style='color:white'>Reject</span></v-btn>
+                                    </v-flex>
+                                </div>
+                            </v-tab-item>
+                            <v-tab-item v-else>
+                                <div class='no-transfer' style='margin-top:50px;'>
+                                    <v-icon>fas fa-boxes</v-icon>
+                                    <p class='mt-3'>No Product Waiting</p>
+                                </div>
+                            </v-tab-item>
                         </v-tabs-items>
                     </v-tabs>
                 </v-card>
@@ -93,6 +122,7 @@
                     <Calendar 
                         @transfer='getTransfers'
                         @receive='getReceives'
+                        @productWaiting='getWaitingProduct'
                     />
                 </v-flex>
             </div>
@@ -115,6 +145,7 @@ export default {
             productReceived: 'transfers/getReceivedProduct',
             productTransfered: 'transfers/getTransferedProduct',
             productTransferedDetails: 'transfers/getTransferedProductDetails',
+            waitingProducts: 'product/getwaitingProduct',
         }),
     },
 
@@ -127,6 +158,7 @@ export default {
     created(){
         this.getTransfers(null)
         this.getReceives(null)
+        this.getWaitingProduct(null)
         console.log(this.productTransfered[0].transfers);
     },
 
@@ -170,6 +202,23 @@ export default {
                 },
             });
         },
+         getWaitingProduct(date){
+            let self = this;
+            let store = self.$store;
+
+            this.$store.dispatch("getReq", {
+                url: "product/product_waiting",
+                params: {
+                    date: date,
+                },
+                auth: self.$session.get('token'),
+                csrftoken: self.$session.get('token'),
+                callback: function(data) {
+                    console.log('waiting Product',data);
+                    store.getters["setData"]([store.state.product.waitingProductArr, [data]]);
+                },
+            });
+        },
 
         transferDetails(id){
             let self = this;
@@ -208,6 +257,30 @@ export default {
                             alert(data.transfermsg)
                         }
                         self.getReceives(null)
+                    }
+                },
+            });
+        },
+
+        updateWaitingProductStatus(status, tireId){
+            let self = this;
+            let body = {
+                tire_id: tireId,
+                status: status,
+            }
+
+            this.$store.dispatch("putReq", {
+                url: "product/update_product_waiting_status",
+                params: body,
+                auth: self.$session.get('token'),
+                csrftoken: self.$session.get('token'),
+                callback: function(data) {
+                    // console.log('payments',data);
+                    if(data.updated){
+                        if(data.error){
+                            alert(data.transfermsg)
+                        }
+                        self.getWaitingProduct(null)
                     }
                 },
             });

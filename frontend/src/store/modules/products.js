@@ -19,6 +19,7 @@ export default {
         proPrice: null,
         proProfiles: [],
         proBrands: [],
+        waitingProductArr: [],
 
     },
 
@@ -37,6 +38,9 @@ export default {
         },
         getProductDetails: (state) => {
             return state.productDetailsArr
+        },
+        getwaitingProduct: (state) => {
+            return state.waitingProductArr
         }
     },
 

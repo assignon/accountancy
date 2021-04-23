@@ -121,6 +121,7 @@ class Tires(models.Model):
 # info in Products model is important for the admin not raly for the customer
 class Products(models.Model):
     tire = models.ForeignKey(Tires, on_delete=models.CASCADE)
+    status = models.CharField(max_length=50, default='pending')
     add_on = models.DateField(auto_now=True)
     add_at = models.TimeField(auto_now=True)
     objects = ProductManager()
@@ -134,7 +135,8 @@ class Products(models.Model):
 
 
 @receiver(post_save, sender=Transfers)
-def track_payment_status(sender, instance, created, **kwargs):
+def update_pendingQty(sender, instance, created, **kwargs):
+    # update product pending quantity in Tires when product transfered
     if created:
         transfer_qty = instance.quantity
         sender_id = instance.sender
@@ -158,6 +160,5 @@ def track_payment_status(sender, instance, created, **kwargs):
                 Q(profiles_str=instance.profiles) &
                 Q(warehouse_id=sender_id)
             )
-        
         new_qty = int(tire.values()[0]['pending_qty']) + int(transfer_qty)
         tire.update(pending_qty=int(new_qty))
