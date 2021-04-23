@@ -24,6 +24,7 @@ from rest_framework.status import (
 
 from products.serializers import ProductSerializer
 from .models import Products, Brands, Profiles, Tires, Transfers, Vehicule
+from orders.models import ProductOrdered
 
 # Create your views here.
 
@@ -64,6 +65,31 @@ class ProductView(viewsets.ModelViewSet):
         }
 
         return Response(Products.objects.update_product(**data))
+    
+    @csrf_exempt
+    @action(methods=['delete'], detail=False)
+    def remove_product(self, request):
+        tire_id = request.query_params.get('product_id')
+        
+        try:
+            # check if product is ordered
+            product_ordered = ProductOrdered.objects.filter(product_id=tire_id)
+            
+            if product_ordered.count() == 0:
+                product_obj = Products.objects.filter(tire_id=tire_id)
+                product_obj.delete()
+                # delete tire
+                tire_obj = Tires.objects.filter(id=tire_id)
+                tire_obj.delete()
+                
+                return Response({'deleted': True, 'msg': 'Product deleted'})
+            else:
+                return Response({'deleted': False, 'msg': 'This product has been ordered'})
+        except Exception as e:
+            return Response({'deleted': False, 'msg': 'Something went wrong {}'.format(e)})
+        
+        
+        
 
     @csrf_exempt
     @action(methods=['get'], detail=False)
@@ -173,7 +199,6 @@ class ProductView(viewsets.ModelViewSet):
             return Response({'updated': True, 'msg': 'Product {}'.format(status), 'error': transfer['error'], 'transfermsg': transfer['msg']})
         else:
             vehicle_name = transfer.values()[0]['vehicle']
-            print('tttrrraaannsss', transfer.values()[0])
             
             if transfer.values()[0]['vehicle'] != None:
                 tire = Tires.objects.filter(

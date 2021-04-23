@@ -583,7 +583,7 @@ export default {
                 let productSize = store.product.split('-')
                 store.product  = productSize[0]
                 let productEnough = Number(productSize[1]) > Number(store.quantity)
-                let pendingEnough = Number(productSize[2]) > Number(store.quantity)
+                let pendingEnough = (Number(productSize[1]) - Number(productSize[2])) > Number(store.quantity)
        
                 if(productEnough && pendingEnough){
                     if(!document.body.contains(validationErrMsg)){

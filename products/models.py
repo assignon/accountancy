@@ -120,7 +120,7 @@ class Tires(models.Model):
 
 # info in Products model is important for the admin not raly for the customer
 class Products(models.Model):
-    tire = models.ForeignKey(Tires, on_delete=models.DO_NOTHING)
+    tire = models.ForeignKey(Tires, on_delete=models.CASCADE)
     add_on = models.DateField(auto_now=True)
     add_at = models.TimeField(auto_now=True)
     objects = ProductManager()

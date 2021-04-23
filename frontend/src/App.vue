@@ -22,7 +22,7 @@
             max-width="600px"
         >
             <ExpensesForm />
-        </v-dialog>
+      </v-dialog>
     </v-main>
   </v-app>
 </template>

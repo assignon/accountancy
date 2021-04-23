@@ -9,7 +9,8 @@
                     xs12 sm12 md3 lg3 xl4
                     v-for="(product, i) in products[0].products"
                     :key="i"
-                    class='prduct-flex'
+                    class='prduct-flex animated'
+                    :class='"product"+product.id'
                     
                 >
                     <div class='product-inner-container'>
@@ -19,17 +20,47 @@
                                 <h3>{{product.tire.size}}</h3>
                             </v-flex>
                             <v-flex xs12 sm12 md4 lg4 xl4 style='display:flex;flex-direction:row;justify-content:flex-end;align-items:center;'>
-                                <v-icon  
-                                    style='font-size:30px'
-                                    color='#0163d1' class='mr-4' 
-                                    @click='productDetails(product.id), UpdateProduct()'
-                                >fas fa-edit</v-icon>
-                                <v-icon  
-                                    v-if='$session.get("warehouseName")!="all"'
-                                    style='font-size:30px'
-                                    color='#0163d1' class='' 
-                                    @click='$store.state.product.transferDialog=true, productDetails(product.id)'
-                                >fas fa-share-square</v-icon>
+                                
+                                <v-tooltip bottom>
+                                    <template v-slot:activator="{ on, attrs }">
+                                        <v-icon  
+                                            style='font-size:23px'
+                                            v-bind="attrs"
+                                            v-on="on"
+                                            color='#0163d1' class='mr-4' 
+                                            @click='productDetails(product.id), UpdateProduct()'
+                                        >fas fa-edit</v-icon>
+                                    </template>
+                                    <span>Edit/add quantity</span>
+                                </v-tooltip>
+
+                                <v-tooltip bottom>
+                                    <template v-slot:activator="{ on, attrs }">
+                                        <v-icon  
+                                            v-if='$session.get("warehouseName")!="all"'
+                                            v-bind="attrs"
+                                            v-on="on"
+                                            style='font-size:23px'
+                                            color='#0163d1' class='' 
+                                            @click='$store.state.product.transferDialog=true, productDetails(product.id)'
+                                        >fas fa-share-square</v-icon>
+                                    </template>
+                                    <span>Transfer</span>
+                                </v-tooltip>
+                                
+                                <v-tooltip bottom>
+                                    <template v-slot:activator="{ on, attrs }">
+                                        <v-icon  
+                                            v-if='$session.get("su")'
+                                            v-bind="attrs"
+                                            v-on="on"
+                                            style='font-size:23px'
+                                            color='red' class='ml-3' 
+                                            @click='removeDialog=true, productId=product.id'
+                                        >fas fa-trash-alt</v-icon>
+                                    </template>
+                                    <span>Remove</span>
+                                </v-tooltip>
                             </v-flex>
                         </div>
                         <div class='product-qty' @click='$store.state.infoDrawer=true, productDetails(product.id)'>
@@ -63,6 +94,20 @@
             closeClr='white' 
         />
         <TransferModal/>
+         <!-- product remove confirmation dialog -->
+        <v-dialog
+            v-model="removeDialog"
+            persistent
+            max-width="600px"
+        >   
+            <div class='remove-dialog'>
+                <p>Are you sure you want to delete this product?</p>
+                <div class='btn-container'>
+                    <v-btn mediun color="#1976d2" style='cursor:pointer;text-transform:capitalize' class='mr-3 pa-2' rounded @click="removeDialog=false"><span style='color:white'>No</span></v-btn>
+                    <v-btn mediun color="red" style='cursor:pointer;text-transform:capitalize' class='pa-3' rounded @click="removeProduct()"><span style='color:white'>Yes</span></v-btn>
+                </div>
+            </div>
+        </v-dialog>
     </div>
 </template>
 
@@ -87,6 +132,8 @@ export default {
 
   data(){
     return{
+        removeDialog: false,
+        productId: null,
     }
   },
 
@@ -137,6 +184,31 @@ export default {
             this.$store.state.formName = ' Product';
             this.$store.state.formsTemp = 'ProductForm';
             this.$store.reload = true
+      },
+
+      removeProduct(){
+        let self = this
+        this.$store.dispatch("deleteReq", {
+            url: "product/remove_product",
+            params: {
+                product_id: self.productId
+            },
+            auth: self.$session.get('token'),
+            csrftoken: self.$session.get('token'),
+            callback: function(data) {
+                console.log(data);
+                if(data.deleted){
+                    alert(data.msg)
+                    self.removeDialog = false
+                    document.querySelector('.product'+self.productId).classList.add('fadeOutUp')
+                    setTimeout(() => {
+                         document.querySelector('.product'+self.productId).style.display = 'none'
+                    }, 300)
+                }else{
+                    alert(data.msg)
+                }
+            },
+        });
       },
 
       productDetails(productId){
@@ -286,6 +358,25 @@ export default {
     }
     .no-product .v-icon{
         font-size: 100px;
+    }
+    .remove-dialog{
+        height: auto;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: white;
+        padding-top: 50px;
+        padding-bottom: 50px;
+    } 
+    .btn-container{
+        height: auto;
+        width: 90%;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: center;
     }
     @media only screen and (max-width: 500px){
         .product-core{

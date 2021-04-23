@@ -50,7 +50,6 @@
                     label="Current Quantity"
                     :disabled='$store.state.product.addProductForm==false && $store.state.product.productProforma==false'
                     type='number'
-                    :rules="[$store.state.rules.qty]"
                     outlined
                 ></v-text-field>
                  <v-text-field
@@ -387,6 +386,7 @@ export default {
 
         addProduct(){
             let self = this
+            // let formErrMsg = document.querySelector(".product-form-err-msg");
             let brandsPayload = {
                 brands: self.brands
             }
@@ -415,6 +415,8 @@ export default {
                         self.productsDetails(data.product_id)
                         self.$store.state.pdfTemp = 'ProductPdf';
                         self.$store.state.pdfDialog = true;
+                    }else{
+                        alert(data.msg)
                     }
                 },
             });
@@ -424,8 +426,7 @@ export default {
             let self = this;
             let formErrMsg = document.querySelector(".product-form-err-msg");
             let validationErrMsg = document.querySelector('.v-messages__message');
-            console.log(self.vehicle);
-                        console.log(self.profiles);
+
             if (
                 // self.vehicle != null 
                 self.size != null 
@@ -522,7 +523,7 @@ export default {
                         }
                     },
                 });
-            }
+            }else{alert('errror')}
         }
     },
 }
