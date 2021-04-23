@@ -20,7 +20,7 @@
                     @input='searchOrder'
                 ></v-text-field>
             </div>
-            <v-btn large @click='newOrder()' rounded color='#1976d2' class='mr-5 hidden-sm-and-down'>New Sale</v-btn>
+            <!-- <v-btn large @click='newOrder()' rounded color='#1976d2' class='mr-5 hidden-sm-and-down'>New Sale</v-btn> -->
             <!-- calendar ctrl -->
             <v-btn
                 class="mr-4 hidden-sm-and-down"
