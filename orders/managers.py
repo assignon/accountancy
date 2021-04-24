@@ -297,13 +297,14 @@ class OrdersManager(models.Manager):
         products_ordered_arr = []
         
         customers = Customers.objects.filter(
-            Q(order__order_on__range=(start_date, end_date)) &
-            Q(payment__payment_status__payed=True)
-        ) if user_id == 0 else Customers.objects.filter(
+            Q(order__order_on__range=(start_date, end_date)) 
+            &
+            Q(payment__payment_status__payed=1)
+        ) if int(user_id) == 0 else Customers.objects.filter(
             Q(order__warehouse_id=user_id) &
             Q(order__order_on__range=(start_date, end_date)) 
             &
-            Q(payment__payment_status__payed=True)
+            Q(payment__payment_status__payed=1)
         )
         
         

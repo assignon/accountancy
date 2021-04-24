@@ -215,11 +215,15 @@ export default {
                 custome_payment: self.customePayment,
                 update_custom_price: self.$store.state.order.updateCustomPrice,
             }
+
             if(this.employeeName != null && !document.body.contains(validationErrMsg)){
 
                 let cPayment = Number(self.customePayment)
                 let customPricePaid = Number(self.customPricePaid)
                 let byTerms = Number(self.payByTerms)
+
+                // alert(customPricePaid)
+                // alert(cPayment)
 
                 if(customPricePaid >= cPayment){
                     this.$store.dispatch("putReq", {
@@ -233,7 +237,8 @@ export default {
                                 document.querySelector('.confirmation-text').innerHTML = data.msg
                                 setTimeout(() => {
                                     self.paymentConfirmationDialog = false
-                                }, 1500)
+                                    window.location.reload()
+                                }, 1000)
                             }
                         },
                     });
@@ -249,7 +254,8 @@ export default {
                                 document.querySelector('.confirmation-text').innerHTML = data.msg
                                 setTimeout(() => {
                                     self.paymentConfirmationDialog = false
-                                }, 1500)
+                                    window.location.reload()
+                                }, 1000)
                             }
                         },
                     });
