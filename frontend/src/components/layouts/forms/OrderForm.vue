@@ -332,7 +332,7 @@ export default {
             callback: function(data) {
                 console.log(data);
                 data.tire.forEach(item => {
-                    self.selectItemsArr.push(item.size+'-'+item.quantity+'-'+item.pending_qty)
+                    self.selectItemsArr.push(item.size+'-'+item.quantity+'-'+item.pending_qty+'-'+item.sale_qty)
                 })
                 store.getters["setData"]([store.state.product.filteredProductsArr, [data]]);
                 },
@@ -582,17 +582,18 @@ export default {
             if (store.product != null && store.quantity > 0) {
                 let productSize = store.product.split('-')
                 store.product  = productSize[0]
-                let productEnough = Number(productSize[1]) > Number(store.quantity)
-                let pendingEnough = (Number(productSize[1]) - Number(productSize[2])) > Number(store.quantity)
+                let productEnough = Number(productSize[1]) > Number(store.quantity) // if product has more qty than the qty ordered
+                let pendingEnough = (Number(productSize[1]) - Number(productSize[2])) > Number(store.quantity) // if transfer panding product soustracted from product qty > the qty ordered
+                let saleEnough = (Number(productSize[1]) - Number(productSize[2]) - Number(productSize[3])) > Number(store.quantity)// if transfer panding product soustracted from product qty and pending order qty > the qty ordered
        
-                if(productEnough && pendingEnough){
+                if(productEnough && pendingEnough && saleEnough){
                     if(!document.body.contains(validationErrMsg)){
                         this.$emit('updatestep', stepNum)
                     }else{
                         formErrMsg.innerHTML = validationErrMsg.textContent;
                     }
                 }else{
-                    alert(`The quantity ordered (${store.quantity}) is greater than the quantity of product in stock (${productSize[1]}) or product might be transfered and is pending`)
+                    alert(`The quantity ordered (${store.quantity}) is greater or equal than the quantity of product in stock (${Number(productSize[1]) - Number(productSize[2]) - Number(productSize[3])}) or product might be transfered and is pending`)
                 }
             } else {
                 formErrMsg.innerHTML = "Fields are empty";

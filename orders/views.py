@@ -247,12 +247,12 @@ class PaymentView(viewsets.ModelViewSet):
                     else:
                         tire.update(quantity=0)
             else:
-                # if the custer is paying in terms
+                # if the customer is paying in terms
                 ps_arr = [] #payment status payed array
                 payment_status = payment.payment_status.all()
                 for ps in payment_status.values():
                     ps_arr.append(ps['payed'])
-                # check if all payment terma are been pais
+                # check if all payment terms are been paid
                 if False not in ps_arr:
                     for po in product_ordered.values():
                         tire = Tires.objects.filter(id=po['product_id'])

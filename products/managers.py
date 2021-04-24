@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 # from .models import Tires
 from datetime import datetime
 import json
+from django.db.models import Sum
 
 
 def get_related(obj, parent, obj_id):
@@ -284,6 +285,7 @@ class ProductManager(models.Manager):
 
     def filter_products(self, vehicle, brands, profiles, warehouse_id):
         from .models import Tires, Vehicule
+        from orders.models import ProductOrdered
 
         vehicle_id = Vehicule.objects.get(
             name=vehicle).id if vehicle != 'noname' else None
@@ -358,7 +360,28 @@ class ProductManager(models.Manager):
                 Q(warehouse_id=warehouse_id) &
                 Q(products__status='accepted')
             )
+            
+        results_arr = []
+        for result in results.values():
+            p_o = ProductOrdered.objects.filter(
+                Q(product_id=result['id']) 
+                & Q(orders__customers__payment__payment_status__payed=0)
+            )
 
+            results_arr.append(
+                {
+                    'sale_qty': p_o.aggregate(Sum('quantity'))['quantity__sum'] if p_o.count() > 0 else 0,
+                    'brands_str': result['brands_str'],
+                    'id': result['id'],
+                    'pending_qty': result['pending_qty'],
+                    'price': result['price'],
+                    'profiles_str': result['profiles_str'],
+                    'quantity': result['quantity'],
+                    'size': result['size'],
+                    'vehicule_id': result['vehicule_id'],
+                    'warehouse_id': result['warehouse_id'],
+                }
+            )
         # if len(brands['brands']) > 0 and len(profiles['profiles']) > 0 and vehicle != None:
         #     results = Tires.objects.filter(
         #         Q(brands_str=','.join(sorted(brands['brands']))) &
@@ -397,7 +420,7 @@ class ProductManager(models.Manager):
         #     )
         #     results = tires if tires.count() > 0 else Tires.objects.all()
 
-        return {'tire': results.values(), 'v': vehicle_id}
+        return {'tire': results_arr, 'v': vehicle_id}
     
     def transfer_product_waiting(self, **kwargs):
         from .models import Transfers

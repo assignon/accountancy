@@ -4,6 +4,7 @@ from django.dispatch import receiver
 from .managers import *
 from django.db.models import Q
 from django.contrib.auth.models import User
+import uuid
 
 # Create your models here.
 
@@ -80,7 +81,11 @@ class Tires(models.Model):
     profiles_str = models.CharField(max_length=255, null=True, blank=True)
     brands_str = models.CharField(max_length=255, null=True, blank=True)
     pending_qty = models.IntegerField(default=0)
-    warehouse_id = models.IntegerField(default=1)  # user id
+    warehouse_id = models.IntegerField(default=1) 
+    tire_uid = models.CharField(max_length=255, default=uuid.uuid4())
+    # tire_uid = models.UUIDField(
+    #      default = uuid.uuid4,
+    #      editable = False)
 
     class Meta:
         ordering = ['-id']
