@@ -350,7 +350,7 @@ class ProductManager(models.Manager):
             )
             results = tires if tires.count() > 0 else Tires.objects.filter(warehouse_id=warehouse_id)
         elif len(brands['brands']) == 0 and len(profiles['profiles']) == 0 and vehicle == 'noname':
-            results = Tires.objects.filter(warehouse_id=warehouse_id)
+            results = Tires.objects.filter(Q(warehouse_id=warehouse_id) & Q(products__status='accepted'))
         else:
             results = Tires.objects.filter(
                 Q(brands_str=brand) &
