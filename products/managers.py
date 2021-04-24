@@ -220,11 +220,8 @@ class ProductManager(models.Manager):
         qty = 0  # tire quantity
 
         # product_obj = self.select_related().all()
-        try:
-            product_obj = Tires.objects.all().values(
-            ) if user_id == 0 else Tires.objects.filter(warehouse_id=user_id).values()
-        except:
-            pass
+        product_obj = Tires.objects.filter(products__status='accepted').values(
+            ) if user_id == 0 else Tires.objects.filter(Q(warehouse_id=user_id) & Q(products__status='accepted')).values()
 
         for product in product_obj:
             qty += product['quantity']
@@ -341,22 +338,25 @@ class ProductManager(models.Manager):
                 Q(brands_str=brand) &
                 Q(profiles_str=profile) &
                 Q(vehicule_id=vehicle_id) &
-                Q(warehouse_id=warehouse_id)
+                Q(warehouse_id=warehouse_id) &
+                Q(products__status='accepted')
             )
         elif vehicle == 'noname' and len(brands['brands']) > 0 and len(profiles['profiles']) > 0:
             tires = Tires.objects.filter(
                 Q(brands_str=brand) &
                 Q(profiles_str=profile) &
-                Q(warehouse_id=warehouse_id)
+                Q(warehouse_id=warehouse_id) &
+                Q(products__status='accepted')
             )
             results = tires if tires.count() > 0 else Tires.objects.filter(warehouse_id=warehouse_id)
         elif len(brands['brands']) == 0 and len(profiles['profiles']) == 0 and vehicle == 'noname':
-            results = Tires.objects.filter(warehouse_id=warehouse_id)
+            results = Tires.objects.filter(Q(warehouse_id=warehouse_id) & Q(products__status='accepted'))
         else:
             results = Tires.objects.filter(
                 Q(brands_str=brand) &
                 Q(profiles_str=profile) &
-                Q(warehouse_id=warehouse_id)
+                Q(warehouse_id=warehouse_id) &
+                Q(products__status='accepted')
             )
 
         # if len(brands['brands']) > 0 and len(profiles['profiles']) > 0 and vehicle != None:
@@ -561,7 +561,7 @@ class ProductManager(models.Manager):
             new_qty = int(current_qty) - int(qty_tranfered)
             product_by_sender.update(quantity=new_qty)
         except :
-            return {'transfered': False, 'msg': 'Somrthink went wrong, try to update this product from the sender warehouse and try again.', 'error': True}
+            return {'transfered': False, 'msg': 'Somethink went wrong, try to update this product from the sender warehouse and try again.', 'error': True}
 
         return {'transfered': True, 'msg': 'Product transfered', 'error': False}
     
@@ -583,12 +583,20 @@ class TransferManager(models.Manager):
             Q(sender=wh_id)
         )
         
+        pending = self.get_queryset().filter(
+            Q(send_on=dte) & Q(status='pending')
+        ) if wh_id==0 else self.get_queryset().filter(
+            Q(send_on=dte) &
+            Q(status='pending') &
+            Q(sender=wh_id)
+        )
+        
         # transfer = {
         #     'sender_name': User.objects.get(id=transfers.values()[0]['sender']).username,
         #     'data': transfers.values()
         # }
             
-        return {'transfers': transfers.values(), 'count': transfers.count()}
+        return {'transfers': transfers.values(), 'count': pending.count()}
     
     def receives(self, receiver_name, dte, wh_id):
         """
@@ -606,6 +614,14 @@ class TransferManager(models.Manager):
             Q(receiver=receiver_name)
         )
         
+        pending = self.get_queryset().filter(
+            Q(send_on=dte) & Q(status='pending')
+        ) if wh_id==0 else self.get_queryset().filter(
+            Q(send_on=dte) &
+            Q(status='pending') &
+            Q(receiver=receiver_name)
+        )
+        
         processed_transfers_count =  self.get_queryset().filter(
             Q(status='accept') | Q(status='reject')
         ).count()
@@ -614,10 +630,10 @@ class TransferManager(models.Manager):
             
         return {
             'receives': receives.values(), 
-            'count': receives.count(), 
+            'count': pending.count(), 
             'processed_transfers': processed_transfers_count, 
             'pending_transfers': pending_transfers_count
-        }
+        } 
     
     def transfer_details(self, transfer_id):
         """

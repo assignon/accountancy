@@ -31,6 +31,8 @@ export default {
         // payment status obj
         currentStatus: null, //payment status of the current date
         updateCustomPrice: false,
+        printDialog: false,
+        printSalesArr: [],
     },
 
     getters: {
@@ -51,6 +53,9 @@ export default {
         },
         getSearchedOrder: (state) => {
             return state.serachOrderArr
+        },
+        getPrintSales: (state) => {
+            return state.printSalesArr
         },
     },
 

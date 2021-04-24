@@ -88,9 +88,6 @@ class ProductView(viewsets.ModelViewSet):
         except Exception as e:
             return Response({'deleted': False, 'msg': 'Something went wrong {}'.format(e)})
         
-        
-        
-
     @csrf_exempt
     @action(methods=['get'], detail=False)
     def products(self, request):
@@ -123,6 +120,44 @@ class ProductView(viewsets.ModelViewSet):
 
         return Response(Products.objects.product_details(product_id))
     
+    @csrf_exempt
+    @action(methods=['get'], detail=False)
+    def product_waiting(self, request):
+        from .models import Tires
+        
+        # add or updated product who are not yet validate by admin
+        dte = datetime.now() if request.query_params.get('date')==None else request.query_params.get('date')
+        product_Arr = []
+        
+        products = Tires.objects.filter(Q(products__status='pending') & Q(products__add_on=dte))
+        for product in  products.values():
+            try:
+                warehouse = User.objects.get(id=product['warehouse_id']).username
+            except:
+                warehouse = None
+                
+            product_Arr.append({
+                'size': product['size'],
+                'quantity': product['quantity'],
+                'warehouse': warehouse,
+                'id': product['id']
+            })
+        
+        return Response( {
+            'products': product_Arr,
+            'count': products.count()
+        })
+        
+    @csrf_exempt
+    @action(methods=['put'], detail=False)
+    def update_product_waiting_status(self, request):
+        status = request.data['body']['status']
+        tire_id = request.data['body']['tire_id']
+        
+        Products.objects.filter(tire_id=tire_id).update(status=status)
+        
+        return Response({'updated': True, 'msg': 'Product status updated'})
+        
     @csrf_exempt
     @action(methods=['post'], detail=False)
     def transfer_product_waiting(self, request):

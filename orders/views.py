@@ -99,6 +99,15 @@ class OrderView(viewsets.ModelViewSet):
         orders = Orders.objects.get_orders(user_id, pagination, dte, limit)
 
         return Response(orders)
+    
+    @csrf_exempt
+    @action(methods=['get'], detail=False)
+    def print_order(self, request):
+        start_date = request.query_params.get('start')
+        end_date = request.query_params.get('end')
+        user_id = request.query_params.get('user_id')
+        
+        return Response(Orders.objects.print_sales(user_id, start_date, end_date))
 
     @csrf_exempt
     @action(methods=['get'], detail=False)

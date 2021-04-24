@@ -22,6 +22,21 @@
             </div>
             <!-- <v-btn large @click='newOrder()' rounded color='#1976d2' class='mr-5 hidden-sm-and-down'>New Sale</v-btn> -->
             <!-- calendar ctrl -->
+            <!-- print sales on week or month base -->
+            <v-btn
+                class="mr-4 hidden-sm-and-down"
+                large
+                color="#1976d2"
+                style='cursor:pointer'
+                rounded
+                @click='$store.state.order.printDialog=true'
+            >
+                <v-icon left style='font-size:20px;' class='pl-2 pt-2 pb-2' color='white'>
+                    fas fa-print
+                </v-icon>
+                <span style='color:white;'>Print Sales</span>
+            </v-btn>
+            <!-- show hide calendar -->
             <v-btn
                 class="mr-4 hidden-sm-and-down"
                 large
@@ -159,6 +174,8 @@
             border='1px solid #15141c'
             closeClr='white' 
     />
+    <!-- print sales dialog -->
+    <PrintSalesModal />
   </div>
 </template>
 
@@ -167,6 +184,7 @@ import InformationModal from "@/components/modals/InformationModal.vue";
 import PaymentProgressBar from "@/components/layouts/PaymentProgressBar.vue";
 import OrdersTemp from "@/components/layouts/OrdersTemp.vue";
 import Calendar from "@/components/layouts/Calendar.vue";
+import PrintSalesModal from "@/components/modals/PrintSalesModal.vue";
 import { mapGetters } from 'vuex';
 export default {
   name: "Order",
@@ -176,6 +194,7 @@ export default {
         OrdersTemp,
         InformationModal,
         Calendar,
+        PrintSalesModal,
         // PaymentProgressBar
     },
 
@@ -191,14 +210,14 @@ export default {
 
   data(){
     return{
-      tab: null,
-      orderSearch: null, //v-model
-      searchView: false,
-      tabWidth: window.innerWidth > 500 ? '100vh' : '400px',
-      page: 1, // current pagination clicked number
-      winWidth: window.innerWidth > 500 ? '100vh' : '450px',
-      selectedDate: null,
-      isAllPayments: true, // check if payments are fetch base on current date
+        tab: null,
+        orderSearch: null, //v-model
+        searchView: false,
+        tabWidth: window.innerWidth > 500 ? '100vh' : '400px',
+        page: 1, // current pagination clicked number
+        winWidth: window.innerWidth > 500 ? '100vh' : '450px',
+        selectedDate: null,
+        isAllPayments: true, // check if payments are fetch base on current date
     }
   },
 
@@ -340,8 +359,9 @@ export default {
                     }
                 },
             })
-    }   
-    }
+        }   
+    },
+
   }
 };
 </script>

@@ -288,6 +288,124 @@ class OrdersManager(models.Manager):
                 'order': orders_arr,
                 'count': order_count
             }
+            
+    def print_sales(self, user_id, start_date, end_date):
+        from products.models import Vehicule, Tires
+        from orders.models import Customers, Payment, PaymentMethods, ProductOrdered, Orders, Payment_status, Credentials
+        
+        orders_arr = []
+        products_ordered_arr = []
+        
+        customers = Customers.objects.filter(
+            Q(order__order_on__range=(start_date, end_date)) &
+            Q(payment__payment_status__payed=True)
+        ) if user_id == 0 else Customers.objects.filter(
+            Q(order__warehouse_id=user_id) &
+            Q(order__order_on__range=(start_date, end_date)) 
+            &
+            Q(payment__payment_status__payed=True)
+        )
+        
+        
+        if customers.count() > 0:
+            for customer in customers.values():
+                # get orders
+                order = Orders.objects.get(
+                    id=customer['order_id'])
+                # print('ord', order.id)
+                payment = Payment.objects.filter(
+                    id=customer['payment_id'])
+                # payment_id = payment.values()[0]['id']
+                # products_ordered = order.product_ordered.all()
+                products_ordered = ProductOrdered.objects.filter(
+                        orders__id=customer['order_id'])
+
+                # for product_ordered in products_ordered.values():
+                    # try:
+                    #     products = Tires.objects.filter(id=product_ordered['product_id'])
+                    #     products_ordered_arr.append(
+                    #         {
+                    #             'ordered_product': product_ordered,
+                    #             'products': products.values(),
+                    #             'profiles': get_prefetch_related(products).profiles.all().values(),
+                    #             'brands': get_prefetch_related(products).brands.all().values(),
+                    #             'vehicule': get_related(Vehicule, products, 'vehicule_id'),
+                    #         }
+                    #     )
+                    # except:
+                    #     pass
+                    
+                orders_arr.append({
+                    'order': {
+                        'order_on': order.order_on,
+                        'order_at': order.order_at
+                    },
+                    'customer': customers.values(),
+                    'credential': Credentials.objects.filter(id=customer['credential_id']).values(),
+                    'products': [
+                        {
+                            'ordered_product': order.product_ordered.all().values(),
+                            'product': Tires.objects.filter(id=p_d['product_id']).values(),
+                            'vehicule': get_related(Vehicule, Tires.objects.filter(id=p_d['product_id']), 'vehicule_id'),
+                            'brands': [brand for brand in get_prefetch_related(Tires.objects.filter(id=p_d['product_id'])).brands.all().values()],
+                            'profiles':  [profile for profile in get_prefetch_related(Tires.objects.filter(id=p_d['product_id'])).profiles.all().values()],
+                        }
+                        for p_d in products_ordered.values()
+                    ],
+                    'payment': payment.values(),
+                    'paying': Orders.paying(order.id),
+                    'method': get_related(PaymentMethods, payment, 'method_id'),
+                    'payment_helper': {
+                        'paymentDates_end': Payment.paymentDates_end(customer['id']),
+                        'paying_in_terms': Payment.paying_in_terms(customer['id']),
+                        'completed': Payment.completed(customer['id'])
+                    },
+                    
+                })
+            
+            return orders_arr
+            #     try:
+            #         orders = Orders.objects.filter(id=customer['order_id']).values()
+            #         credentials = Customers.objects.filter(id=customer['credential_id']).values()
+            #         payment = Payment.objects.filter(id=customer['payment_id'])
+            #         ordered_products = ProductOrdered.objects.filter(
+            #             orders__id=customer['order_id'])
+
+            #         payment_data = {
+            #             'method': PaymentMethods.objects.get(payment__id=customer['payment_id']).name,
+            #             'pay_in': payment.values()[0]['pay_in'],
+            #             'payment_interval': payment.values()[0]['payment_interval'],
+            #             'times': customer['times'],
+            #             'start': customer['start']
+            #         }
+            #         # get payment stats
+            #         p_status = Payment_status.objects.filter(
+            #             payment__id=payment.values()[0]['id']).values()
+            #     except :
+            #         pass
+        
+            #     orders_arr.append({
+            #         'customer_id': customer['id'],
+            #         'order': orders,
+            #         'credentials': credentials,
+            #         'payment': payment_data,
+            #         'p_status': p_status,
+            #         'paying': Orders.paying(customer['order_id']),
+            #         'ordered_products': [
+            #             {
+            #                 'ordered_product': p_d,
+            #                 'product': Tires.objects.filter(id=p_d['product_id']).values(),
+            #                 'vehicule': get_related(Vehicule, Tires.objects.filter(id=p_d['product_id']), 'vehicule_id'),
+            #                 'brands': [brand for brand in get_prefetch_related(Tires.objects.filter(id=p_d['product_id'])).brands.all().values()],
+            #                 'profiles':  [profile for profile in get_prefetch_related(Tires.objects.filter(id=p_d['product_id'])).profiles.all().values()],
+            #             }
+            #             for p_d in ordered_products.values()
+            #         ]
+            #     })
+                
+                # return {'orders': orders_arr, 'count': len(orders_arr)}
+        else:
+            return orders_arr
 
     def search_order(self, customer_name, whouse_id):
         from orders.models import Customers, Credentials, Orders, Payment, ProductOrdered, PaymentMethods, Payment_status
@@ -445,38 +563,38 @@ class CustomerManager(models.Manager):
         Returns:
             [obj]: [products data]
         """
-
+        
         try:
             customer = self.select_related().filter(id=customerid)
+
+            products_ordered_arr = []
+
+            # get orders
+            order = Orders.objects.get(
+                id=customer.values()[0]['order_id'])
+            # print('ord', order.id)
+            payment = Payment.objects.filter(
+                id=customer.values()[0]['payment_id'])
+            # payment_id = payment.values()[0]['id']
+            products_ordered = order.product_ordered.all()
+
+            for product_ordered in products_ordered.values():
+                try:
+                    products = Tires.objects.filter(
+                        id=product_ordered['product_id'])
+                    products_ordered_arr.append(
+                        {
+                            'ordered_product': product_ordered,
+                            'products': products.values(),
+                            'profiles': get_prefetch_related(products).profiles.all().values(),
+                            'brands': get_prefetch_related(products).brands.all().values(),
+                            'vehicule': get_related(Vehicule, products, 'vehicule_id'),
+                        }
+                    )
+                except:
+                    pass
         except:
             pass
-
-        products_ordered_arr = []
-
-        # get orders
-        order = Orders.objects.get(
-            id=customer.values()[0]['order_id'])
-        # print('ord', order.id)
-        payment = Payment.objects.filter(
-            id=customer.values()[0]['payment_id'])
-        # payment_id = payment.values()[0]['id']
-        products_ordered = order.product_ordered.all()
-
-        for product_ordered in products_ordered.values():
-            try:
-                products = Tires.objects.filter(
-                    id=product_ordered['product_id'])
-                products_ordered_arr.append(
-                    {
-                        'ordered_product': product_ordered,
-                        'products': products.values(),
-                        'profiles': get_prefetch_related(products).profiles.all().values(),
-                        'brands': get_prefetch_related(products).brands.all().values(),
-                        'vehicule': get_related(Vehicule, products, 'vehicule_id'),
-                    }
-                )
-            except:
-                pass
 
         return {
             'order': {

@@ -18,19 +18,19 @@
             <div class='customer-info-flex'>
                 <h3 class='mb-5'>Customer Information</h3>
                 <div class='info-format'>
-                    <p class='font-weight-bold mb-1'>Name</p>
+                    <p class='font-weight-bold mb-1 pr-2'>Name:</p>
                     <p class='mb-3'>{{orderDeteails[0].credential[0].name}}</p>
                 </div>
                 <div class='info-format' v-if='orderDeteails[0].credential[0].email!=null'>
-                    <p class='font-weight-bold mb-1'>Email</p>
+                    <p class='font-weight-bold mb-1 pr-2'>Email:</p>
                     <p class='mb-3'>{{orderDeteails[0].credential[0].email}}</p>
                 </div>
                 <div class='info-format' v-if='orderDeteails[0].credential[0].address!=null'>
-                    <p class='font-weight-bold mb-1'>Address</p>
+                    <p class='font-weight-bold mb-1 pr-2'>Address:</p>
                     <p class='mb-3'>{{orderDeteails[0].credential[0].address}}</p>
                 </div>
                 <div class='info-format' v-if='orderDeteails[0].credential[0].tel_number!=null'>
-                    <p class='font-weight-bold mb-1'>Tel. Number</p>
+                    <p class='font-weight-bold mb-1 pr-2'>Tel. Number:</p>
                     <p class='mb-3'>{{orderDeteails[0].credential[0].tel_number}}</p>
                 </div>
             </div>
@@ -38,19 +38,19 @@
             <div class='payment-flex'>
                 <h3 class='mb-5'>Payments Method</h3>
                 <div class='info-format'>
-                    <p class='font-weight-bold mb-1'>Start Date</p>
+                    <p class='font-weight-bold mb-1 pr-2'>Start Date:</p>
                     <p class='mb-3'>{{orderDeteails[0].customer[0].start}}</p>
                 </div>
                 <div class='info-format'>
-                    <p class='font-weight-bold mb-1'>Pay In</p>
+                    <p class='font-weight-bold mb-1 pr-2'>Pay In:</p>
                     <p class='mb-3'>{{orderDeteails[0].payment[0].pay_in}}</p>
                 </div>
                 <div class='info-format'>
-                    <p class='font-weight-bold mb-1'>Payment Interval</p>
+                    <p class='font-weight-bold mb-1 pr-2'>Payment Interval:</p>
                     <p class='mb-3'>{{orderDeteails[0].payment[0].payment_interval}}</p>
                 </div>
                 <div class='info-format'>
-                    <p class='font-weight-bold' mb-1>Method</p>
+                    <p class='font-weight-bold mb-1 pr-2'>Method:</p>
                     <p class='mb-3'>{{orderDeteails[0].method[0].name}}</p>
                 </div>
             </div>
@@ -59,7 +59,7 @@
         <div class='pdf-footer'>
             <h3 class='mb-5 mt-5'>Orders</h3>
             <div class='info-format'>
-                <p class='font-weight-bold'>Order Place on</p>
+                <p class='font-weight-bold pr-2'>Order Place on:</p>
                 <p>{{parseDate(orderDeteails[0].order.order_on)}}</p>
             </div>
             <table class='order-table mt-5'>
@@ -207,8 +207,16 @@ export default {
         margin-top: 50px;
         margin-bottom: 50px;
     }
-    .customer-info-flex, .payment-flex{
-        width: 50%;
+     .customer-info-flex{
+        width: auto;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+    }
+    .payment-flex{
+        width: auto;
         height: auto;
         display: flex;
         flex-direction: column;
@@ -219,7 +227,7 @@ export default {
         width: 100%;
         height: auto;
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         justify-content: flex-start;
         align-items: flex-start;
     }
