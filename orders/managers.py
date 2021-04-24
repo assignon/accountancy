@@ -302,8 +302,8 @@ class OrdersManager(models.Manager):
         ) if user_id == 0 else Customers.objects.filter(
             Q(order__warehouse_id=user_id) &
             Q(order__order_on__range=(start_date, end_date)) 
-            # &
-            # Q(payment__payment_status__payed=True)
+            &
+            Q(payment__payment_status__payed=True)
         )
         
         
@@ -360,7 +360,7 @@ class OrdersManager(models.Manager):
                         'paying_in_terms': Payment.paying_in_terms(customer['id']),
                         'completed': Payment.completed(customer['id'])
                     },
-                    'count': customers.count()
+                    
                 })
             
             return orders_arr
@@ -405,7 +405,7 @@ class OrdersManager(models.Manager):
                 
                 # return {'orders': orders_arr, 'count': len(orders_arr)}
         else:
-            return {'count': 0}
+            return orders_arr
 
     def search_order(self, customer_name, whouse_id):
         from orders.models import Customers, Credentials, Orders, Payment, ProductOrdered, PaymentMethods, Payment_status

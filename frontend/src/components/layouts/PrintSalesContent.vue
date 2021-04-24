@@ -1,14 +1,14 @@
 <template>
     <div class='pdf-core'>
         <div class='pdf-header'>
-            <div class='header-text'>
+            <div class='header-text' v-if='data.length>0'>
                 <h2>CHICAM</h2>
                 <p class='font-weight-bold'>TEL. 675 22 04 91 / 679 59 80 73 / 651 12 25 79</p>
                 <p class='font-weight-bold'>Dealers in brand new tyres of all dimensions</p>
                 <p class='font-weight-bold'>No contribuable: M111812730146E BP3629 YAOUNDE</p>
                 <p class='font-weight-bold'>Import & Export commerce general</p>
             </div>
-            <p style='position:relative;top:10px; width:20%'>
+            <p style='position:relative;top:10px; width:20%' v-if='data.length>0'>
                 <span class='font-weight-bold'>Date</span><br>
                 {{new Date().toDateString()}}
             </p>
@@ -54,6 +54,10 @@
                         <p class='font-weight-bold pr-2' mb-1>Method:</p>
                         <p class='mb-3'>{{order.method[0].name}}</p>
                     </div>
+                    <div class='info-format'>
+                        <p class='font-weight-bold pr-2' mb-1>paying in terms:</p>
+                        <p class='mb-3'>{{formatPrice(order.payment_helper.paying_in_terms)}}FRS</p>
+                    </div>
                 </div>
             </div>
             <div class='divider'></div>
@@ -72,7 +76,7 @@
                         <th>Price</th>
                         <th>Quantity</th>
                     </tr>
-                    <tr v-for="(product,i) in order.products[0]" :key="i" >
+                    <tr v-for="(product,p) in order.products" :key="p" >
                         <td>{{product.product[0].size}}</td>
                         <td v-if=' product.brands.length>0'>
                             <p v-for="(brand, b) in product.brands" :key="b">{{brand.name}}</p>
@@ -86,22 +90,18 @@
                             <p v-for="(profile, p) in product.profiles" :key="p">{{profile.name}}</p>
                         </td>
                         <td v-else>
-                            <p >None</p>
+                            <p>None</p>
                         </td>
-                        <td v-if='product.ordered_product.custome_price==0'>{{formatPrice(product.products[0].price)}}FRS</td>
-                        <td v-else>{{formatPrice(product.ordered_product.custome_price)}}FRS</td>
-                        <td>{{product.ordered_product.quantity}}</td>
+                        <td v-if='product.ordered_product[0].custome_price==0'>{{formatPrice(product.product[0].price)}}FRS</td>
+                        <td v-else>{{formatPrice(product.ordered_product[0].custome_price)}}FRS</td>
+                        <td>{{product.ordered_product[0].quantity}}</td>
                     </tr>
                 </table>
 
-                <!-- <div class='total-price pb-3'>
-                    <v-btn large color='#1976d2' class='action-btn' style='position:relative;top:70px;color:white;text-transform:capitalize;font-weight:bold;' @click='reloadPAge()'>Back</v-btn>
-                    <v-btn large color='#1976d2' class='action-btn' style='position:relative;top:70px;color:white;text-transform:capitalize;font-weight:bold;' @click='printOrder()'>Print PDF</v-btn>
-                    <h3>
-                      
-                        <span style='color: #1976d2;'>Total Price: {{formatPrice(order.paying)}}FRS</span>
-                    </h3>
-                </div> -->
+                <h3 class='mt-3'>
+                    <span style='color: #1976d2;'>Total Price: {{formatPrice(order.paying)}}FRS</span>
+                </h3>
+
             </div>
         </div>
     </div>
@@ -125,23 +125,6 @@ export default {
     },
 
     methods: {
-        printOrder(){
-            let actionBtn = document.querySelectorAll('.action-btn')
-            for (let i = 0; i < actionBtn.length; i++) {
-                const elem = actionBtn[i];
-                elem.style.display = 'None'
-            }
-            setTimeout(() => {
-               if (window.print) {
-                    window.print(0);
-                    window.location.reload()
-                } else {
-                    alert("your browser doesn't support this function")
-                }
-              
-            }, 100);
-        },
-
         formatPrice(value) {
             let val = (value/1).toFixed(0).replace('.', ',')
             return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
@@ -165,7 +148,7 @@ export default {
     }
     .pdf-core{
         width: 100%;
-        min-height: 100vh;
+        min-height: auto;
         height: auto;
         margin-bottom: 50px;
         overflow-y: scroll;
@@ -175,6 +158,7 @@ export default {
         flex-direction: column;
         justify-content: flex-start;
         align-items: center;
+        /* overflow-y: scroll; */
         /* background-color: #fff;
         background-image: url('../../assets/chicam.jpg');
         background-size: 20%;
@@ -183,7 +167,7 @@ export default {
     }
     .pdf-header{
         height: auto;
-        width: 80%;
+        width: 90%;
         display: flex;
         flex-direction: row;
         justify-content: space-between;
@@ -199,7 +183,7 @@ export default {
         align-items: flex-start;
     }
     .order-content{
-        width: 80%;
+        width: 90%;
         height: auto;
         display: flex;
         flex-direction: column;
@@ -222,8 +206,16 @@ export default {
         margin-top: 50px;
         margin-bottom: 50px;
     }
-    .customer-info-flex, .payment-flex{
-        width: 50%;
+    .customer-info-flex{
+        width: auto;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+    }
+    .payment-flex{
+        width: auto;
         height: auto;
         display: flex;
         flex-direction: column;
@@ -294,4 +286,57 @@ export default {
         border: 2px solid #1976d2;
         background-color: #1976d2;
     }
+    
+    @media print {
+  *,
+  *::before,
+  *::after {
+    text-shadow: none !important;
+    box-shadow: none !important;
+  }
+
+  a:not(.btn) {
+    text-decoration: underline;
+  }
+
+  abbr[title]::after {
+    content: " (" attr(title) ")";
+  }
+
+  pre {
+    white-space: pre-wrap !important;
+  }
+
+  pre,
+  blockquote {
+    border: 1px solid #adb5bd;
+    page-break-inside: avoid;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tr,
+  img {
+    page-break-inside: avoid;
+  }
+
+  p,
+  h2,
+  h3 {
+    orphans: 3;
+    widows: 3;
+  }
+
+  h2,
+  h3 {
+    page-break-after: avoid;
+  }
+
+  @page {
+    size: a3;
+  }
+}
+
 </style>

@@ -9,19 +9,13 @@
         <v-toolbar
             dark
             color="#15141c"
+            height='80px'
+            class='toolbar'
+            
         >
-            <h3 style='color: #fff'>New {{$store.state.formName}}.</h3>
-            <v-spacer></v-spacer>
-            <v-btn
-                icon
-                dark
-                @click="$store.state.order.printDialog = false"
-            >
-                <v-icon color='white'>mdi-close</v-icon>
-            </v-btn>
-        </v-toolbar>
-        <v-layout class='print-sale-layout'>
-            <v-form class='print-dialog-form'>
+            <!-- <h3 style='color: #fff'>New {{$store.state.formName}}.</h3>
+            <v-spacer></v-spacer> -->
+            <v-form class='print-dialog-form mt-5 pt-3'>
                 <!-- start date picker -->
                 <v-menu
                     v-model="menuStart"
@@ -90,9 +84,34 @@
                     </v-btn>
                 </div>
             </v-form>
+
+            <v-btn
+                @click="downloadPdf()"
+                height="50"
+                width="150"
+                class="fot-weight-bold white--text"
+                color="#1976d2"
+            >
+                <span>Download</span>
+            </v-btn>
+
+            <v-btn
+                icon
+                dark
+                @click="$store.state.order.printDialog = false"
+                class='ml-5'
+            >
+                <v-icon color='white'>mdi-close</v-icon>
+            </v-btn>
+        </v-toolbar>
+        <v-layout class='print-sale-layout'>
+            
             <!-- sales container -->
-            <div class='sales-content'>
+            <div class='sales-content' v-if='$store.state.order.printSalesArr.length>0'>
                 <PrintSalesContent :data='printOrders[0]' />
+            </div>
+            <div class='no-order' v-else style='width:100%;height:90vh;display:flex;justify-content:center;align-items:center;font-weight:bold'>
+                <p>Select a start and end date and print the corresponding sales</p>
             </div>
         </v-layout>
     </v-dialog>
@@ -154,6 +173,7 @@ export default {
         printSales(){
             let self = this;
             let store = self.$store
+            
 
             if (self.startDate != null && self.endDate != null) {
                 if(self.compareDate(self.startDate, self.endDate).pass){
@@ -167,21 +187,37 @@ export default {
                         auth: self.$session.get('token'),
                         csrftoken: self.$session.get('token'),
                         callback: function(data) {
-                            console.log('print order',data);
                             store.getters["setData"]([store.state.order.printSalesArr, [data]]);
-                            console.log(self.printOrders);
+           
+                            if(self.$store.state.order.printSalesArr.length==0){
+                                alert('No sales founded')
+                            }else if(self.$store.state.order.printSalesArr[0].length == 0){
+                                alert('No sales founded')
+                            }
                         },
                     });
                 }else{
                     alert(self.compareDate(self.startDate, self.endDate).msg);
                 }
             }
+        },
+
+        downloadPdf(){
+            document.querySelector('.toolbar').style.display = 'none'
+            setTimeout(() => {
+                if (window.print) {
+                    window.print();
+                    window.location.reload()
+                } else {
+                    alert("your browser doesn't support this function")
+                }
+            }, 200)
         }
     }
 }
 </script>
 
-<style scoped>
+<style scoped media='print'>
     .print-sales-core{
         height: 90vh;
     }
@@ -200,7 +236,7 @@ export default {
         overflow: scroll;
     }
     .print-dialog-form{
-        width: 100%;
+        width: 80%;
         height: auto;
         display: flex;
         flex-direction: row;
@@ -229,4 +265,57 @@ export default {
         justify-content: flex-start;
         align-items: center;
     }
+    @media print {
+  *,
+  *::before,
+  *::after {
+    text-shadow: none !important;
+    box-shadow: none !important;
+  }
+
+  a:not(.btn) {
+    text-decoration: underline;
+  }
+
+  abbr[title]::after {
+    content: " (" attr(title) ")";
+  }
+
+  pre {
+    white-space: pre-wrap !important;
+  }
+
+  pre,
+  blockquote {
+    border: 1px solid #adb5bd;
+    page-break-inside: avoid;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tr,
+  img {
+    page-break-inside: avoid;
+  }
+
+  p,
+  h2,
+  h3 {
+    orphans: 3;
+    widows: 3;
+  }
+
+  h2,
+  h3 {
+    page-break-after: avoid;
+  }
+
+  @page {
+    size: a3;
+  }
+}
+
+ 
 </style>
