@@ -13,10 +13,10 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    HOST:
-      window.location.port != ""
-        ? "http://127.0.0.1:8000"
-        : "https://accountancy-tsgf2.ondigitalocean.app",
+    HOST: "https://accountancy-tsgf2.ondigitalocean.app",
+      // window.location.port != ""
+      //   ? "http://127.0.0.1:8000"
+      //   : "https://accountancy-tsgf2.ondigitalocean.app",
       //  "http://127.0.0.1:8000",
     AUTHENTICATED: undefined,
     usertoken: undefined,

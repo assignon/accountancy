@@ -16,10 +16,10 @@
                     <div class='product-inner-container'>
                         <div class='size'>
                             <!-- <h3>{{product.tire.size}} ({{formatPrice(product.tire.price)}}FRS)</h3> -->
-                            <v-flex xs12 sm12 md8 lg8 xl8 style='display:flex;justify-content:flex-start;align-items:center;' @click='$store.state.infoDrawer=true, productDetails(product.id)'>
+                            <v-flex xs12 sm12 md12 lg12 xl12 style='display:flex;justify-content:flex-start;align-items:center;' @click='$store.state.infoDrawer=true, productDetails(product.id)'>
                                 <h3>{{product.tire.size}}</h3>
                             </v-flex>
-                            <v-flex xs12 sm12 md4 lg4 xl4 style='display:flex;flex-direction:row;justify-content:flex-end;align-items:center;'>
+                            <v-flex xs12 sm12 md11 lg11 xl11 style='width:95%;position:relative;bottom:20px;display:flex;flex-direction:row;justify-content:flex-end;align-items:center;'>
                                 
                                 <v-tooltip bottom>
                                     <template v-slot:activator="{ on, attrs }">
@@ -321,10 +321,11 @@ export default {
     }
     .size{
         height: auto;
-        width: 90%;
+        width: 100%;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        flex-direction: column-reverse;
     }
     .product-qty{
         height: auto;

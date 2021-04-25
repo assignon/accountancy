@@ -49,6 +49,9 @@ export default {
         justify-content: flex-start;
         align-items: center;
     }
+    ::-webkit-scrollbar {
+        width: 0px;
+    }
     .mobile-topbar{
         width: 100%;
         height: 50px;

@@ -177,6 +177,7 @@ export default {
                         qty: self.qty,
                         brands: brandsPayload,
                         profiles: profilesPayload,
+                        tire_uid: self.productDetails[0].products[0].tire[0].tire_uid,
                         current_qty: self.productDetails[0].products[0].tire[0].quantity
                     }
                    if(self.transferTo != self.$session.get('warehouseName')){

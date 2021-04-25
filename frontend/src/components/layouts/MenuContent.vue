@@ -403,13 +403,18 @@ export default {
 
 <style scoped>
     .default-sidebar{
-        height: 100%;
+        min-height: 100%;
+        height: auto;
+        overflow-y: scroll;
         width: 100%;
         display: flex;
         flex-direction: column;
         justify-content: space-around;
         align-items: flex-start;
         background-color: #15141c;
+    }
+    ::-webkit-scrollbar {
+        width: 0px;
     }
     .logo{
         width: 100%;
@@ -574,6 +579,12 @@ export default {
         } */
         .add-icon{
             margin-left: 40px;
+        }
+        .warehouses-container{
+            margin-bottom: 30px;
+        }
+        .logo{
+            margin-top:70px;
         }
     }
     @media only screen and (max-width: 500px) {

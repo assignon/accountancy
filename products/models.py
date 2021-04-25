@@ -61,6 +61,7 @@ class Transfers(models.Model):
     brands = models.CharField(max_length=255, null=True, blank=True)
     quantity =  models.IntegerField(default=1)
     status = models.CharField(max_length=100, default='pending') # pending, accepted, refused
+    # tire_uid = models.CharField(max_length=255, default=uuid.uuid4())
     send_on = models.DateField(auto_now=True)
     objects = TransferManager()
     

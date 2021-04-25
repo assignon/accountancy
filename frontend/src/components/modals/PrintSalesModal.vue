@@ -219,14 +219,15 @@ export default {
 
 <style scoped media='print'>
     .print-sales-core{
-        height: 90vh;
+        height: auto;
+        /* min-height: 90vh; */
     }
     ::-webkit-scrollbar {
     width: 0px;
     }
     .print-sale-layout{
         width: 100%;
-        height: 95%;
+        height: auto;
         padding: 30px;
         display: flex;
         flex-direction: column;

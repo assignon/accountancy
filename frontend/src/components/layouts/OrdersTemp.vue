@@ -11,7 +11,7 @@
                 <p>{{order.credentials.name}}</p>
             </v-flex>
 
-            <v-flex xs12 sm12 md3 lg3 xl3 class='product-name' @click.stop='$store.state.infoDrawer=true, customerOrder(order.customer_id)'>
+            <v-flex xs12 sm12 md4 lg4 xl4 class='product-name' @click.stop='$store.state.infoDrawer=true, customerOrder(order.customer_id)'>
                 <p v-if='order.ordered_products.length>0'>
                     <v-icon small color='#1e1d2b' class='mr-1 hidden-sm-and-down'>fas fa-boxes</v-icon>
                     {{order.ordered_products[0].product[0].size}} 
@@ -20,14 +20,14 @@
                 </p>
             </v-flex>
 
-            <v-flex xs12 sm12 md3 lg2 xl2 class='date' @click.stop='$store.state.infoDrawer=true, customerOrder(order.customer_id)'>
+            <v-flex xs12 sm12 md3 lg2 xl2 class='date hidden-lg-and-down' @click.stop='$store.state.infoDrawer=true, customerOrder(order.customer_id)'>
                 <p>
                     <v-icon small color='#1e1d2b' class='mr-1 hidden-sm-and-down'>fas fa-calendar-alt</v-icon>
                     {{parseDate(order.order.order_on)}}
                 </p>
             </v-flex>
 
-            <v-flex xs12 sm12 md3 lg3 xl3 class='price hidden-sm-and-down' @click.stop='$store.state.infoDrawer=true, customerOrder(order.customer_id)'>
+            <v-flex xs12 sm12 md3 lg3 xl3 class='price hidden-sm-and-down' @click.stop='$store.state.infoDrawer=true, customerOrder(order.customer_id)' style=''>
                 <p>
                     <v-icon small color='#1e1d2b' class='mr-1'>fas fa-coins</v-icon>
                     {{formatPrice(order.paying)}}FRS
@@ -40,30 +40,30 @@
                     {{order.payment.method[0].name}}
                 </p>
             </v-flex> -->
-            <div v-if='$session.get("su")'>
-                <div  v-if='order.payment.pay_in != "Once"'>
-                    <v-flex xs12 sm12 md2 lg2 xl2 
+            <div v-if='$session.get("su")' style='width:20%;'>
+                <div  v-if='order.payment.pay_in != "Once"' style='width:100%;'>
+                    <v-flex xs12 sm12 md4 lg4 xl2 
                         :style="[currentDate == ps.payment_date ? {display:'flex'} : {display:'none'}]" 
                         :class='currentDate' 
-                        style='display:flex;flex-direction:row;justify-content:center;align-items:center'
+                        style='display:flex;flex-direction:row;justify-content:flex-start;align-items:center;'
                         v-for='(ps, i) in order.p_status' 
                         :key='i'
-                    > <!-- ther could be multiple payment dates -->
+                    > <!-- there could be multiple payment dates -->
                         <v-checkbox
                             v-if='currentDate == ps.payment_date'
                             v-model="ps.payed"
                             :value="ps.payed"
                             @click='displayConfirmationDialog(ps.payed, order.customer_id, ps.payment_date, order.order.id, order.payment.times, order.payment.pay_in), paying=order.paying'
                         ></v-checkbox>
-                        <span class='ml-3'>{{ps.employee_name}}</span>
+                        <span class='ml-2'>{{ps.employee_name}}</span>
                         <span v-if="ps.custome_payment>0 && order.paying>ps.custome_payment" class='ml-2' style='color:orange'>(rem)</span>
                     </v-flex>
                 </div>
         
-                <v-flex xs12 sm12 md3 lg3 xl3 
+                <v-flex xs12 sm12 md4 lg4 xl3 
                     v-else
                     :class='currentDate' 
-                    style='display:flex;flex-direction:row;justify-content:center;align-items:center'
+                    style='display:flex;flex-direction:row;justify-content:flex-start;align-items:center;'
                 > 
                     <v-checkbox
                         v-model="order.p_status[0].payed"
