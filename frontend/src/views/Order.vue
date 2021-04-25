@@ -54,7 +54,7 @@
         </div>
 
         <div class='flex-container' v-if='!searchView'>
-             <v-card  flat  width='100%' class='orders-flex'>
+             <v-card  flat class='orders-flex'>
                  <v-tabs
                     v-model="tab"
                     background-color="white"
@@ -77,9 +77,9 @@
 
                 <v-tabs-items v-model='tab'>
                     <v-tab-item v-if='orders[0].count > 0' :style='{width: winWidth}' style='margin-top:50px;' class='ml-5'>
-                        <v-flex xs9 sm9 md12 xl12 lg12 style='min-height:50vh'>
+                        <!-- <v-flex xs9 sm9 md12 xl12 lg12 style='min-height:50vh'> -->
                             <OrdersTemp :orderArr='orders'/>
-                        </v-flex>
+                        <!-- </v-flex> -->
                         <div class='pagination-container'>
                             <!-- <v-pagination
                                 v-if='orders[0].count>$store.state.limit'
@@ -98,7 +98,7 @@
                     </v-tab-item>
                      
                     <v-tab-item style='margin-top:50px;' :style='{width:tabWidth}' class='ml-5'>
-                        <v-flex xs12 sm12 md8 lg10 xl12  class='payment-container' v-if='customerPayments[0].count > 0'>
+                        <v-flex  class='payment-container' v-if='customerPayments[0].count > 0'>
                             <div class='payments mt-5 ml-5 animated fadeInUp' 
                                 v-for="(payment, i) in customerPayments[0].payments" 
                                 :key='i'
@@ -151,7 +151,7 @@
                 </v-tabs-items>
             </v-card>
 
-            <v-flex xs12 sm12 md4 lg3 xl3 class='calendar-flex mt-5 mr-5' v-if='$store.state.calendarStatus'>
+            <v-flex xs12 sm12 md4 lg4 xl4 class='calendar-flex mt-5 mr-5' v-if='$store.state.calendarStatus'>
                 <Calendar 
                     @orders='getOrders'
                     @payments='getPayments'
@@ -215,7 +215,7 @@ export default {
         searchView: false,
         tabWidth: window.innerWidth > 500 ? '100vh' : '400px',
         page: 1, // current pagination clicked number
-        winWidth: window.innerWidth > 500 ? '100vh' : '450px',
+        winWidth: window.innerWidth > 500 ? '130%' : '450px',
         selectedDate: null,
         isAllPayments: true, // check if payments are fetch base on current date
     }
