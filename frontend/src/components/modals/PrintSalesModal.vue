@@ -227,6 +227,7 @@ export default {
     }
     .print-sale-layout{
         width: 100%;
+        min-height: 90vh;
         height: auto;
         padding: 30px;
         display: flex;

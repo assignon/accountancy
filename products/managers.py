@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from datetime import datetime
 import json
 from django.db.models import Sum
+import uuid
 
 
 def get_related(obj, parent, obj_id):
@@ -72,7 +73,7 @@ class ProductManager(models.Manager):
         if this_tire.count() == 0:
             # add tire
             # add vehicle if is not none
-            print('not exxxiissst')
+            
             if kwargs['vehicle'] != None:
                 tire = Tires.objects.create(
                     size=kwargs['size'],
@@ -81,7 +82,8 @@ class ProductManager(models.Manager):
                     vehicule=vehicle,
                     profiles_str=profile_arr,
                     brands_str=brands_arr,
-                    warehouse_id=kwargs['user_id']
+                    warehouse_id=kwargs['user_id'],
+                    tire_uid=uuid.uuid4()
                 )
                 tire.save()
             else:
@@ -91,7 +93,8 @@ class ProductManager(models.Manager):
                     quantity=kwargs['quantity'],
                     profiles_str=profile_arr,
                     brands_str=brands_arr,
-                    warehouse_id=kwargs['user_id']
+                    warehouse_id=kwargs['user_id'],
+                    tire_uid=uuid.uuid4()
                 )
                 tire.save()
             # get brands
@@ -105,7 +108,6 @@ class ProductManager(models.Manager):
 
             return {'created': True, 'msg': 'Product added','product_id': product.id}
         else:
-            print('exxxiiissssttt')
             # updated_qty = int(this_tire.values()[
             #     0]['quantity']) + int(kwargs['quantity'])
             # # update quantity
@@ -363,14 +365,16 @@ class ProductManager(models.Manager):
             
         results_arr = []
         for result in results.values():
-            p_o = ProductOrdered.objects.filter(
-                Q(product_id=result['id']) 
-                & Q(orders__customers__payment__payment_status__payed=0)
-            )
+            
+            # p_o = ProductOrdered.objects.filter(
+            #     Q(product_id=result['id']) 
+            #     & Q(orders__customers__payment__payment_status__payed=0)
+            # )
 
             results_arr.append(
                 {
-                    'sale_qty': p_o.aggregate(Sum('quantity'))['quantity__sum'] if p_o.count() > 0 else 0,
+                    # 'sale_qty': p_o.aggregate(Sum('quantity'))['quantity__sum'] if p_o.count() > 0 else 0,
+                    'sale_qty': ProductOrdered().get_pending_qty(result['id']),
                     'brands_str': result['brands_str'],
                     'id': result['id'],
                     'pending_qty': result['pending_qty'],
@@ -465,7 +469,8 @@ class ProductManager(models.Manager):
                 vehicle=vehicle,
                 profiles=profile_arr,
                 brands=brands_arr,
-                quantity=kwargs['qty']
+                quantity=kwargs['qty'],
+                tire_uid=kwargs['tire_uid']
             )
             transfer.save()
             
@@ -487,46 +492,15 @@ class ProductManager(models.Manager):
             if kwargs['vehicle'] != None:
                 vehicle = Vehicule.objects.create(name=vehicle_name)
         # if len(kwargs['brands']) > 0 and len(kwargs['profiles']) > 0
-
-        if kwargs['vehicle'] != None:
-            product_by_sender = Tires.objects.filter(
-                Q(size=kwargs['size']) &
-                Q(brands_str=','.join(sorted(kwargs['brands'])) if len(
-                    kwargs['brands']) > 0 else None) &
-                Q(profiles_str=','.join(sorted(kwargs['profiles'])) if len(
-                    kwargs['profiles']) > 0 else None) &
-                Q(vehicule=vehicle) &
-                Q(warehouse_id=sender_id)
-            )
-        else:
-            product_by_sender = Tires.objects.filter(
-                Q(size=kwargs['size']) &
-                Q(brands_str=','.join(sorted(kwargs['brands'])) if len(
-                    kwargs['brands']) > 0 else None) &
-                Q(profiles_str=','.join(sorted(kwargs['profiles'])) if len(
-                    kwargs['profiles']) > 0 else None) &
+        
+        product_by_sender = Tires.objects.filter(
+                Q(tire_uid=kwargs['tire_uid']),
                 Q(warehouse_id=sender_id)
             )
 
-        brands_sorted = ','.join(sorted(kwargs['brands'])) if len(
-                    kwargs['brands']) > 0 else None
-        profiles_sorted = ','.join(sorted(kwargs['profiles'])) if len(
-                    kwargs['profiles']) > 0 else None
         
-        
-        if kwargs['vehicle'] != None:
-            product_by_receiver = Tires.objects.filter(
-                Q(size=kwargs['size']) &
-                Q(brands_str=brands_sorted) &
-                Q(profiles_str=profiles_sorted) &
-                Q(vehicule=vehicle) &
-                Q(warehouse_id=receiver_wh_id.id)
-            )
-        else:
-            product_by_receiver = Tires.objects.filter(
-                Q(size=kwargs['size']) &
-                Q(brands_str=brands_sorted) &
-                Q(profiles_str=profiles_sorted) &
+        product_by_receiver = Tires.objects.filter(
+                Q(tire_uid=kwargs['tire_uid']),
                 Q(warehouse_id=receiver_wh_id.id)
             )
         
@@ -547,7 +521,8 @@ class ProductManager(models.Manager):
                     vehicule=vehicle,
                     profiles_str=profile_arr,
                     brands_str=brands_arr,
-                    warehouse_id=receiver_wh_id.id
+                    warehouse_id=receiver_wh_id.id,
+                    tire_uid=kwargs['tire_uid']
                 )
                 tire.save()
             else:
@@ -557,7 +532,8 @@ class ProductManager(models.Manager):
                     quantity=kwargs['qty'],
                     profiles_str=profile_arr,
                     brands_str=brands_arr,
-                    warehouse_id=receiver_wh_id.id
+                    warehouse_id=receiver_wh_id.id,
+                    tire_uid=kwargs['tire_uid']
                 )
                 tire.save()
 
@@ -570,12 +546,18 @@ class ProductManager(models.Manager):
                 for profile in kwargs['profiles']:
                     tire.profiles.add(Profiles.objects.get(name=profile))
             # add tire to product
-            Products.objects.create(tire=tire)
+            Products.objects.create(tire=tire, status='accepted')
         else:
             # update receiver product qty
             current_receiver_qty = product_by_receiver.values()[0]['quantity']
             new_qty = int(current_receiver_qty) + int(kwargs['qty'])
             product_by_receiver.update(quantity=new_qty)
+            
+        # update pending qty
+        Tires.objects.filter(
+            Q(tire_uid=kwargs['tire_uid']),
+            Q(warehouse_id=sender_id)
+        ).update(pending_qty=0)
 
         # update sender product quantity
         try:

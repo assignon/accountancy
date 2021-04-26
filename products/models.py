@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from .managers import *
 from django.db.models import Q
@@ -61,7 +61,7 @@ class Transfers(models.Model):
     brands = models.CharField(max_length=255, null=True, blank=True)
     quantity =  models.IntegerField(default=1)
     status = models.CharField(max_length=100, default='pending') # pending, accepted, refused
-    # tire_uid = models.CharField(max_length=255, default=uuid.uuid4())
+    tire_uid = models.CharField(max_length=255)
     send_on = models.DateField(auto_now=True)
     objects = TransferManager()
     
@@ -83,7 +83,7 @@ class Tires(models.Model):
     brands_str = models.CharField(max_length=255, null=True, blank=True)
     pending_qty = models.IntegerField(default=0)
     warehouse_id = models.IntegerField(default=1) 
-    tire_uid = models.CharField(max_length=255, default=uuid.uuid4())
+    tire_uid = models.CharField(max_length=255)
     # tire_uid = models.UUIDField(
     #      default = uuid.uuid4,
     #      editable = False)
@@ -168,3 +168,11 @@ def update_pendingQty(sender, instance, created, **kwargs):
             )
         new_qty = int(tire.values()[0]['pending_qty']) + int(transfer_qty)
         tire.update(pending_qty=int(new_qty))
+        
+@receiver(post_delete, sender=Tires)
+def delete_pendingTire(sender, instance, **kwargs):
+    tire_uid = instance.tire_uid
+    
+    # remove current tire pending transfer
+    transfer = Transfers.objects.filter(Q(tire_uid=tire_uid) & Q(status='pending'))
+    transfer.delete()

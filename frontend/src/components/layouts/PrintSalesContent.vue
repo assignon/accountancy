@@ -99,7 +99,8 @@
                 </table>
 
                 <h3 class='mt-3'>
-                    <span style='color: #1976d2;'>Total Price: {{formatPrice(order.paying)}}FRS</span>
+                    <!-- <span style='color: #1976d2;'>Total Price: {{formatPrice(order.paying)}}FRS</span> -->
+                    <span style='color: #1976d2;'>Total Price: {{formatPrice(order.payment_helper.paying_in_terms)}}FRS</span>
                 </h3>
 
             </div>

@@ -170,7 +170,8 @@ class ProductView(viewsets.ModelViewSet):
             'sender_id': request.data['body']['sender_id'],
             'size': request.data['body']['size'],
             'price': request.data['body']['price'],
-            'current_qty':  request.data['body']['current_qty']
+            'current_qty':  request.data['body']['current_qty'],
+            'tire_uid': request.data['body']['tire_uid']
         }
 
         return Response(Products.objects.transfer_product_waiting(**transfer_data))
@@ -189,6 +190,7 @@ class ProductView(viewsets.ModelViewSet):
             'sender_id': data['sender'],
             'size': data['size'],
             'price': data['price'],
+            'tire_uid': data['tire_uid']
         }
 
         return Products.objects.transfer_product(**transfer_data)
@@ -229,32 +231,17 @@ class ProductView(viewsets.ModelViewSet):
         transfer.update(status=status)
         # update product quantity if transfer accepted
         if status == 'accept':
+            print('traaannsssffeeerrr',transfer.values()[0]['tire_uid'])
             transfer = self.transfer_product(transfer.values()[0])
             
             return Response({'updated': True, 'msg': 'Product {}'.format(status), 'error': transfer['error'], 'transfermsg': transfer['msg']})
         else:
-            vehicle_name = transfer.values()[0]['vehicle']
+            # vehicle_name = transfer.values()[0]['vehicle']
             
-            if transfer.values()[0]['vehicle'] != None:
-                tire = Tires.objects.filter(
-                    Q(size=transfer.values()[0]['size']) &
-                    Q(brands_str=','.join(sorted(transfer.values()[0]['brands'])) if 
-                        transfer.values()[0]['brands'] != None else None) &
-                    Q(profiles_str=','.join(sorted(transfer.values()[0]['profiles'])) if 
-                        transfer.values()[0]['profiles'] != None else None) &
-                    Q(vehicule=Vehicule.objects.get(name=vehicle_name)) &
-                    Q(warehouse_id=transfer.values()[0]['sender'])
-                )
-            else:
-                tire = Tires.objects.filter(
-                    Q(size=transfer.values()[0]['size']) &
-                    Q(brands_str=','.join(sorted(transfer.values()[0]['brands'])) if 
-                        transfer.values()[0]['brands'] != None else None) &
-                    Q(profiles_str=','.join(sorted(transfer.values()[0]['profiles'])) if 
-                        transfer.values()[0]['profiles'] != None else None) &
-                    Q(warehouse_id=transfer.values()[0]['sender'])
-                )
-            tire.update(pending_qty=0)
+            Tires.objects.filter(
+                Q(tire_uid=transfer.values()[0]['tire_uid']) &
+                Q(warehouse_id=transfer.values()[0]['sender'])
+            ).update(pending_qty=0)
                     
             return Response({'updated': True, 'msg': 'Product {}'.format(status)})
             

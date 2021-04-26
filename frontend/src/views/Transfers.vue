@@ -79,8 +79,8 @@
                                     <v-flex xs11 sm11 md4 lg4 xl4 class='transfer-flex'>quantity: <strong>{{receive.quantity}}</strong></v-flex>
 
                                     <v-flex xs11 sm11 md4 lg4 xl4 class='btn-container mr-5' v-if='receive.status=="pending"'>
-                                        <v-btn medium color='green' class='mr-5' @click='updateTransferStatus("accept", receive.id)'><span style='color:white'>Accept</span></v-btn>
-                                        <v-btn medium color='red' class='ml-5' @click='updateTransferStatus("reject", receive.id)'><span style='color:white'>Reject</span></v-btn>
+                                        <v-btn medium color='green' class='mr-5' @click='updateTransferStatus("accept", receive.id, receive.tire_uid)'><span style='color:white'>Accept</span></v-btn>
+                                        <v-btn medium color='red' class='ml-5' @click='updateTransferStatus("reject", receive.id, receive.tire_uid)'><span style='color:white'>Reject</span></v-btn>
                                     </v-flex>
                                     <v-flex xs11 sm11 md4 lg4 xl4 v-else><strong>{{receive.status}}ed</strong></v-flex>
                                 </div>
@@ -238,7 +238,7 @@ export default {
             });
         },
 
-        updateTransferStatus(status, transferId){
+        updateTransferStatus(status, transferId, tire_uid){
             let self = this;
             // let store = self.$store;
 
@@ -247,6 +247,7 @@ export default {
                 params: {
                     transfer_id: transferId,
                     status: status,
+                    tire_uid:tire_uid
                 },
                 auth: self.$session.get('token'),
                 csrftoken: self.$session.get('token'),

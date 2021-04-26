@@ -295,6 +295,10 @@ class OrdersManager(models.Manager):
         
         orders_arr = []
         products_ordered_arr = []
+        paid_arr = []
+        
+        # for p in Payment.objects.all():
+        #     p_status = p.payment_status.all()
         
         customers = Customers.objects.filter(
             Q(order__order_on__range=(start_date, end_date)) 
