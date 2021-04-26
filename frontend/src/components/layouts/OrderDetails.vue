@@ -48,8 +48,8 @@
 
             <div class='payment-details mt-5'>
                 <h3>Payment details 
-                    <span style='color:' v-if='orderDeteails[0].payment_helper.completed'>[Payed]</span>
-                    <span style='color:magenta' v-else>[Ongoing]</span>
+                    <!-- <span style='color:' v-if='orderDeteails[0].payment_helper.completed'>[Payed]</span>
+                    <span style='color:magenta' v-else>[Ongoing]</span> -->
                 </h3>
                 <p>Paying: {{formatPrice(orderDeteails[0].paying)}}FRS</p>
                 <p>Method: {{orderDeteails[0].method[0].name}}</p>
