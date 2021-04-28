@@ -205,14 +205,20 @@ export default {
                         auth: self.$session.get('token'),
                         csrftoken: self.$session.get('token'),
                         callback: function(data) {
-                            document.querySelector('.sales-content').style.display = 'flex'
+                            if(document.querySelector('.sales-content')){
+                                document.querySelector('.sales-content').style.display = 'flex'
+                            }
                             store.getters["setData"]([store.state.order.printSalesArr, [data]]);
            
                             if(self.$store.state.order.printSalesArr.length==0){
-                                document.querySelector('.sales-content').style.display = 'none'
+                                if(document.querySelector('.sales-content')){
+                                    document.querySelector('.sales-content').style.display = 'none'
+                                }
                                 alert('No sales founded')
                             }else if(self.$store.state.order.printSalesArr[0].length == 0){
-                                document.querySelector('.sales-content').style.display = 'none'
+                                if(document.querySelector('.sales-content')){
+                                    document.querySelector('.sales-content').style.display = 'none'
+                                }
                                 alert('No sales founded')
                             }
                         },
