@@ -213,9 +213,9 @@ export default {
         tab: null,
         orderSearch: null, //v-model
         searchView: false,
-        tabWidth: window.innerWidth > 500 ? '100vh' : '400px',
+        tabWidth: window.innerWidth >= 550 ? '100vh' : '400px',
         page: 1, // current pagination clicked number
-        winWidth: window.innerWidth > 500 ? '130%' : '450px',
+        winWidth: window.innerWidth >= 550 ? '90vh' : '300px',
         selectedDate: null,
         isAllPayments: true, // check if payments are fetch base on current date
     }

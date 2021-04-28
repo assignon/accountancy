@@ -166,6 +166,7 @@ class ProductView(viewsets.ModelViewSet):
             # update qty
             tire.update(quantity=new_qty, updated_pending_qty=0)
         else:
+            Products.objects.filter(tire_id=tire_id).update(status='accepted')
             tire.update(updated_pending_qty=0)
         
         return Response({'updated': True, 'msg': 'Product status updated'})
@@ -177,13 +178,14 @@ class ProductView(viewsets.ModelViewSet):
             'vehicle': request.data['body']['vehicle'],
             'brands': [brand['name'] for brand in request.data['body']['brands']['brands']],
             'profiles': [profile['name'] for profile in request.data['body']['profiles']['profiles']],
-            'qty': request.data['body']['qty'],
+            'qty': request.data['body']['qty'], # new qty
             'receiver_name': request.data['body']["receiver_name"],
             'sender_id': request.data['body']['sender_id'],
             'size': request.data['body']['size'],
             'price': request.data['body']['price'],
             'current_qty':  request.data['body']['current_qty'],
-            'tire_uid': request.data['body']['tire_uid']
+            'tire_uid': request.data['body']['tire_uid'],
+            'tire_id': request.data['body']['tire_id']
         }
 
         return Response(Products.objects.transfer_product_waiting(**transfer_data))
