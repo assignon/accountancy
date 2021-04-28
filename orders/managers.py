@@ -163,17 +163,20 @@ class OrdersManager(models.Manager):
         if dte == None:
             # get products of the current date
             if whouse_id == 0:
-                orders = self.prefetch_related().filter(order_on=current_date
-                                                        ) if limit == None else self.prefetch_related().filter(order_on=current_date
+                # orders = self.prefetch_related().filter(order_on=current_date
+                #                                         ) if limit == None else self.prefetch_related().filter(order_on=current_date
+                #                                                                                                )[int(start):int(end)]
+                orders = self.prefetch_related().filter(customers__payment__payment_status__payment_date=current_date
+                                                        ) if limit == None else self.prefetch_related().filter(customers__payment__payment_status__payment_date=current_date
                                                                                                                )[int(start):int(end)]
-                order_count = self.prefetch_related().filter(order_on=current_date).count()
+                order_count = self.prefetch_related().filter(customers__payment__payment_status__payment_date=current_date).count()
             else:
                 orders = self.prefetch_related().filter(
-                    Q(order_on=current_date) & Q(warehouse_id=whouse_id)) if limit == None else self.prefetch_related().filter(
-                    Q(order_on=current_date) & Q(warehouse_id=whouse_id))[int(start):int(end)]
+                    Q(customers__payment__payment_status__payment_date=current_date) & Q(warehouse_id=whouse_id)) if limit == None else self.prefetch_related().filter(
+                    Q(customers__payment__payment_status__payment_date=current_date) & Q(warehouse_id=whouse_id))[int(start):int(end)]
 
                 order_count = self.prefetch_related().filter(
-                    Q(order_on=current_date) & Q(warehouse_id=whouse_id)).count()
+                    Q(customers__payment__payment_status__payment_date=current_date) & Q(warehouse_id=whouse_id)).count()
 
             # get credentials and orders
             for order in orders.values():
@@ -227,18 +230,18 @@ class OrdersManager(models.Manager):
         else:
             # get products base on give date
             if whouse_id == 0:
-                orders = self.prefetch_related().filter(order_on=dte
-                                                        ) if limit == None else self.prefetch_related().filter(order_on=dte
+                orders = self.prefetch_related().filter(customers__payment__payment_status__payment_date=dte
+                                                        ) if limit == None else self.prefetch_related().filter(customers__payment__payment_status__payment_date=dte
                                                                                                                )[int(start):int(end)]
                 # order total count
-                order_count = self.prefetch_related().filter(order_on=dte).count()
+                order_count = self.prefetch_related().filter(customers__payment__payment_status__payment_date=dte).count()
             else:
                 orders = self.prefetch_related().filter(
-                    Q(order_on=dte) & Q(warehouse_id=whouse_id)) if limit == None else self.prefetch_related().filter(
-                    Q(order_on=dte) & Q(warehouse_id=whouse_id))[int(start):int(end)]
+                    Q(customers__payment__payment_status__payment_date=dte) & Q(warehouse_id=whouse_id)) if limit == None else self.prefetch_related().filter(
+                    Q(customers__payment__payment_status__payment_date=dte) & Q(warehouse_id=whouse_id))[int(start):int(end)]
                 # order total count
                 order_count = self.prefetch_related().filter(
-                    Q(order_on=dte) & Q(warehouse_id=whouse_id)).count()
+                    Q(customers__payment__payment_status__payment_date=dte) & Q(warehouse_id=whouse_id)).count()
 
             for order in orders.values():
                 try:

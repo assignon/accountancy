@@ -56,7 +56,7 @@
                             @click='displayConfirmationDialog(ps.payed, order.customer_id, ps.payment_date, order.order.id, order.payment.times, order.payment.pay_in), paying=order.paying'
                         ></v-checkbox>
                         <span class='ml-2'>{{ps.employee_name}}</span>
-                        <span v-if="ps.custome_payment>0 && order.paying>ps.custome_payment" class='ml-2' style='color:orange'>(rem)</span>
+                        <span v-if="ps.custome_payment>0 && (order.paying/order.payment.times)>ps.custome_payment" class='ml-2' style='color:orange'>(rem)</span>
                     </v-flex>
                 </div>
         
@@ -290,7 +290,7 @@ export default {
                         },
                     });
                 }else if(payingTerms < cPayment){
-                    alert(`The order total price (${paying}) cannot be less than the custom price`)
+                    alert(`The order total price (${payingTerms}) cannot be less than the custom price`)
                 }
             }
         }
