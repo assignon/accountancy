@@ -172,6 +172,7 @@ export default {
                         sender_id: self.$session.get('warehouseId'),
                         receiver_name: self.transferTo,
                         size: self.productDetails[0].products[0].tire[0].size,
+                        tire_id: self.productDetails[0].products[0].tire[0].id,
                         price: self.productDetails[0].products[0].tire[0].price,
                         vehicle: self.productDetails[0].products[0].vehicle,
                         qty: self.qty,

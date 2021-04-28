@@ -232,13 +232,15 @@ export default {
                         auth: self.$session.get('token'),
                         csrftoken: self.$session.get('token'),
                         callback: function(data) {
-                            console.log(data);
+                            // console.log(data);
                             if(data.updated){
                                 document.querySelector('.confirmation-text').innerHTML = data.msg
                                 setTimeout(() => {
                                     self.paymentConfirmationDialog = false
                                     window.location.reload()
                                 }, 1000)
+                            }else{
+                                alert(data.msg)
                             }
                         },
                     });
@@ -249,13 +251,15 @@ export default {
                         auth: self.$session.get('token'),
                         csrftoken: self.$session.get('token'),
                         callback: function(data) {
-                            console.log(data);
+                            // console.log(data);
                             if(data.updated){
                                 document.querySelector('.confirmation-text').innerHTML = data.msg
                                 setTimeout(() => {
                                     self.paymentConfirmationDialog = false
                                     window.location.reload()
                                 }, 1000)
+                            }else{
+                                alert(data.msg)
                             }
                         },
                     });

@@ -156,15 +156,15 @@ class ProductManager(models.Manager):
             current_tire.update(updated_pending_qty=kwargs['quantity'])
             # change product status to pending
             Products.objects.filter(tire_id=current_tire.values()[0]['id']).update(status='pending')
+            
+        # update date and time
+        Products.objects.filter(tire=Tires.objects.get(id=current_tire.values()[0]['id'])).update(
+            add_on=datetime.now().date(),
+            add_at=datetime.now().time()
+        )
                 
         
         for i in range(tires.count()):
-            print('ttttttttt',i)
-            # # update date and time
-            # Products.objects.filter(tire=Tires.objects.get(id=t['id'])).update(
-            #     add_on=datetime.now().date(),
-            #     add_at=datetime.now().time()
-            # )
 
             # update brands
             tires[i].brands.all().delete()
@@ -319,31 +319,6 @@ class ProductManager(models.Manager):
         profile = ','.join(sorted(profiles['profiles'])) if len(
             profiles['profiles']) > 0 else None
 
-        # if len(brands['brands']) > 0 and len(profiles['profiles']) > 0 and vehicle != 'noname':
-        #     results = Tires.objects.filter(
-        #         Q(brands_str=brand) &
-        #         Q(profiles_str=profile) &
-        #         Q(vehicule_id=vehicle_id) &
-        #         Q(warehouse_id=warehouse_id)
-        #     )
-        # elif len(brands['brands']) == 0 and len(profiles['profiles']) == 0 and vehicle != 'noname':
-        #     results = Tires.objects.filter(
-        #         Q(vehicule_id=vehicle_id) &
-        #         Q(warehouse_id=warehouse_id)
-        #     )
-        # elif len(brands['brands']) == 0 and len(profiles['profiles']) == 0 and vehicle == 'noname':
-        #     tires = Tires.objects.filter(
-        #         Q(brands_str=None) &
-        #         Q(profiles_str=None) &
-        #         Q(warehouse_id=warehouse_id)
-        #     )
-        #     results = tires if tires.count() > 0 else Tires.objects.filter(warehouse_id=warehouse_id)
-        # else:
-        #     results = Tires.objects.filter(
-        #         Q(brands_str=brand) &
-        #         Q(profiles_str=profile) &
-        #         Q(warehouse_id=warehouse_id)
-        #     )
         
         if vehicle != 'noname':
             results = Tires.objects.filter(
@@ -373,12 +348,6 @@ class ProductManager(models.Manager):
             
         results_arr = []
         for result in results.values():
-            
-            # p_o = ProductOrdered.objects.filter(
-            #     Q(product_id=result['id']) 
-            #     & Q(orders__customers__payment__payment_status__payed=0)
-            # )
-
             results_arr.append(
                 {
                     # 'sale_qty': p_o.aggregate(Sum('quantity'))['quantity__sum'] if p_o.count() > 0 else 0,
@@ -394,48 +363,12 @@ class ProductManager(models.Manager):
                     'warehouse_id': result['warehouse_id'],
                 }
             )
-        # if len(brands['brands']) > 0 and len(profiles['profiles']) > 0 and vehicle != None:
-        #     results = Tires.objects.filter(
-        #         Q(brands_str=','.join(sorted(brands['brands']))) &
-        #         Q(profiles_str=','.join(sorted(profiles['profiles']))) &
-        #         Q(vehicule_id=vehicle) &
-        #         Q(warehouse_id=warehouse_id)
-        #     )
-        # elif len(brands['brands']) == 0 and len(profiles['profiles']) > 0 and vehicle != None:
-        #     results = Tires.objects.filter(
-        #         Q(profiles_str=','.join(sorted(profiles['profiles']))) &
-        #         Q(vehicule_id=vehicle) &
-        #         Q(warehouse_id=warehouse_id)
-        #     )
-        # elif len(brands['brands']) > 0 and len(profiles['profiles']) == 0 and vehicle != None:
-        #     results = Tires.objects.filter(
-        #         Q(brands_str=','.join(sorted(brands['brands']))) &
-        #         Q(vehicule_id=vehicle) &
-        #         Q(warehouse_id=warehouse_id)
-        #     )
-        # elif len(brands['brands']) > 0 and len(profiles['profiles']) > 0 and vehicle == None:
-        #     results = Tires.objects.filter(
-        #         Q(brands_str=','.join(sorted(brands['brands']))) &
-        #         Q(profiles_str=','.join(sorted(profiles['profiles']))) &
-        #         Q(warehouse_id=warehouse_id)
-        #     )
-        # elif len(brands['brands']) == 0 and len(profiles['profiles']) == 0 and vehicle != None:
-        #     results = Tires.objects.filter(
-        #         Q(vehicule_id=vehicle) &
-        #         Q(warehouse_id=warehouse_id)
-        #     )
-        # else:
-        #     tires = Tires.objects.filter(
-        #         Q(brands_str=None) &
-        #         Q(profiles_str=None) &
-        #         Q(warehouse_id=warehouse_id)
-        #     )
-        #     results = tires if tires.count() > 0 else Tires.objects.all()
 
         return {'tire': results_arr, 'v': vehicle_id}
     
     def transfer_product_waiting(self, **kwargs):
         from .models import Transfers
+        from orders.models import ProductOrdered
         
         brands_arr = ','.join(sorted(kwargs['brands'])) if len(
             kwargs['brands']) > 0 else None
@@ -463,10 +396,14 @@ class ProductManager(models.Manager):
         for p_qty in pendings.values():
             pending_qty += p_qty['quantity']
             
-        qty_remain = int(product_qty) - int(pending_qty)
+        # not validated sales
+        pending_sales_qty = ProductOrdered().get_pending_qty(kwargs['tire_id'])
+        print('pending sales', pending_sales_qty)
+            
+        qty_remain = int(product_qty) - (int(pending_qty) + int(pending_sales_qty))
         
         if int(qty_remain) < int(kwargs['qty']):
-            return {'transfered': False, 'msg': 'This product is pending in one or more warehouse(s). The remain quantity({}) is lesser than the quantity you want to transfer'.format(qty_remain), 'status': 'Pending'}
+            return {'transfered': False, 'msg': 'This product is pending in one or more warehouse(s) and/or pending in sales. The remain quantity({}) is lesser than the quantity you want to transfer'.format(qty_remain), 'status': 'Pending'}
         else:
             transfer = Transfers.objects.create(
                 sender=kwargs['sender_id'],

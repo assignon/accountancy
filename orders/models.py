@@ -131,15 +131,15 @@ class ProductOrdered(models.Model):
     custome_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     
     @staticmethod
-    def get_pending_qty(id):
-        p_o = ProductOrdered.objects.filter(product_id=id)
+    def get_pending_qty(tire_id):
+        p_o = ProductOrdered.objects.filter(product_id=tire_id)
+        
         if p_o.count() > 0:
             p_o_id = p_o.values()[0]['id']
             order_id = Orders.objects.filter(product_ordered__id=p_o_id).values()[0]['id']
             payment_id = Payment.objects.filter(Q(customers__order_id=order_id)).values()[0]['id']
             p_status = Payment_status.objects.filter(payment__id=payment_id).values()[0]['payed']
-            
-            pending_qty = p_o.aggregate(Sum('quantity'))['quantity__sum'] if not p_status else 0,
+            pending_qty = p_o.aggregate(Sum('quantity'))['quantity__sum'] if not p_status else 0
         
             return pending_qty
         else:

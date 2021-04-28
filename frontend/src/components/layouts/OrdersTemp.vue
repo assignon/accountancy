@@ -278,12 +278,14 @@ export default {
                         auth: self.$session.get('token'),
                         csrftoken: self.$session.get('token'),
                         callback: function(data) {
-                            console.log(data);
+                            // console.log(data);
                             if(data.updated){
-                            document.querySelector('.confirmation-text').innerHTML = data.msg
-                            setTimeout(() => {
-                                self.paymentConfirmationDialog = false
-                            }, 1500)
+                                document.querySelector('.confirmation-text').innerHTML = data.msg
+                                setTimeout(() => {
+                                    self.paymentConfirmationDialog = false
+                                }, 1500)
+                            }else{
+                                alert(data.msg)
                             }
                         },
                     });

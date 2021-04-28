@@ -208,7 +208,7 @@ class PaymentView(viewsets.ModelViewSet):
     @action(methods=['put'], detail=False)
     def update_payment_status(self, request):
         payment_id = Customers.objects.get(
-            id=request.data['body']['customer_id']).payment_id
+            id=request.data['body']['customer_id'])
         # payment_date = request.data['body']['payment_date']
         # payment_date = datetime.strftime(datetime.now().date(), '%Y-%m-%d')
         order_id =  request.data['body']['order_id']
@@ -217,11 +217,28 @@ class PaymentView(viewsets.ModelViewSet):
         update_custom_price = request.data['body']['update_custom_price']
         custome_payment = request.data['body']['custome_payment'] if request.data['body']['custome_payment'] != None else 0
         new_value = request.data['body']['new_value']  # boolean
+        
+        # paymentDetails[0].paying_term-ps.custome_payment
 
         pstatus = Payment_status.objects.filter(
-            Q(payment__id=payment_id) &
+            Q(payment__id=payment_id.payment_id) &
             Q(payment_date=payment_date)
         )
+        # print('tteeerrrmmmsss',payment_id.paying_term)
+        print('custom pay',custome_payment)
+        print('custom price paid', pstatus.values()[0]['custome_payment'])
+        print('paying termssss', Payment.paying_in_terms(payment_id.payment_id))
+        print('resstttee', int(Payment.paying_in_terms(payment_id.payment_id))-int(custome_payment))
+        
+        total_custom_pay = pstatus.values()[0]['custome_payment'] # total custom price already paid by the customer
+        paying_in_terms = Payment.paying_in_terms(payment_id.payment_id) # price customer gonna pay by term
+        remaining_custome_price = int(Payment.paying_in_terms(payment_id.payment_id))-int(total_custom_pay) # remaing custom price after pay
+        
+        if int(custome_payment) > int(paying_in_terms) or int(custome_payment) < 0:
+            return Response({'updated': False, 'msg': 'The(0) order remaining price ({}) cannot be less than the custom priceee {} - {}'.format(remaining_custome_price, paying_in_terms, custome_payment)})
+        elif int(custome_payment) > int(remaining_custome_price) or int(custome_payment) < 0:
+            return Response({'updated': False, 'msg': 'The(1) order remaining price ({}) cannot be less than the custom priceee'.format(remaining_custome_price)})
+        
         # print([pstatus])
         if new_value:
             updated_custom_payment = pstatus.values()[0]['custome_payment']+int(custome_payment)
@@ -232,7 +249,7 @@ class PaymentView(viewsets.ModelViewSet):
         ## update tire qty after payment received
         # get payment interval
         if update_custom_price == False:
-            payment = Payment.objects.get(id=payment_id)
+            payment = Payment.objects.get(id=payment_id.payment_id)
             # get products ordered
             product_ordered = ProductOrdered.objects.filter(orders__id=order_id)
             
