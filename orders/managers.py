@@ -297,8 +297,11 @@ class OrdersManager(models.Manager):
         products_ordered_arr = []
         paid_arr = []
         
-        # for p in Payment.objects.all():
-        #     p_status = p.payment_status.all()
+        # for p in Payment.objects.all().values():
+        # p = Payment.objects.all()
+        # p_status = p.payment_status.all()
+        # print('pppp', p)
+        # print('p_statusp_status', p_status)
         
         customers = Customers.objects.filter(
             Q(order__order_on__range=(start_date, end_date)) 
@@ -309,10 +312,10 @@ class OrdersManager(models.Manager):
             Q(order__order_on__range=(start_date, end_date)) 
             &
             Q(payment__payment_status__payed=1)
-        )
-        
+        ) 
         
         if customers.count() > 0:
+            total_order_price = 0
             for customer in customers.values():
                 # get orders
                 order = Orders.objects.get(
@@ -324,21 +327,8 @@ class OrdersManager(models.Manager):
                 # products_ordered = order.product_ordered.all()
                 products_ordered = ProductOrdered.objects.filter(
                         orders__id=customer['order_id'])
-
-                # for product_ordered in products_ordered.values():
-                    # try:
-                    #     products = Tires.objects.filter(id=product_ordered['product_id'])
-                    #     products_ordered_arr.append(
-                    #         {
-                    #             'ordered_product': product_ordered,
-                    #             'products': products.values(),
-                    #             'profiles': get_prefetch_related(products).profiles.all().values(),
-                    #             'brands': get_prefetch_related(products).brands.all().values(),
-                    #             'vehicule': get_related(Vehicule, products, 'vehicule_id'),
-                    #         }
-                    #     )
-                    # except:
-                    #     pass
+                
+                total_order_price += Payment.paying_in_terms(customer['id'])
                     
                 orders_arr.append({
                     'order': {
@@ -367,48 +357,9 @@ class OrdersManager(models.Manager):
                     },
                     
                 })
-            
-            return orders_arr
-            #     try:
-            #         orders = Orders.objects.filter(id=customer['order_id']).values()
-            #         credentials = Customers.objects.filter(id=customer['credential_id']).values()
-            #         payment = Payment.objects.filter(id=customer['payment_id'])
-            #         ordered_products = ProductOrdered.objects.filter(
-            #             orders__id=customer['order_id'])
-
-            #         payment_data = {
-            #             'method': PaymentMethods.objects.get(payment__id=customer['payment_id']).name,
-            #             'pay_in': payment.values()[0]['pay_in'],
-            #             'payment_interval': payment.values()[0]['payment_interval'],
-            #             'times': customer['times'],
-            #             'start': customer['start']
-            #         }
-            #         # get payment stats
-            #         p_status = Payment_status.objects.filter(
-            #             payment__id=payment.values()[0]['id']).values()
-            #     except :
-            #         pass
-        
-            #     orders_arr.append({
-            #         'customer_id': customer['id'],
-            #         'order': orders,
-            #         'credentials': credentials,
-            #         'payment': payment_data,
-            #         'p_status': p_status,
-            #         'paying': Orders.paying(customer['order_id']),
-            #         'ordered_products': [
-            #             {
-            #                 'ordered_product': p_d,
-            #                 'product': Tires.objects.filter(id=p_d['product_id']).values(),
-            #                 'vehicule': get_related(Vehicule, Tires.objects.filter(id=p_d['product_id']), 'vehicule_id'),
-            #                 'brands': [brand for brand in get_prefetch_related(Tires.objects.filter(id=p_d['product_id'])).brands.all().values()],
-            #                 'profiles':  [profile for profile in get_prefetch_related(Tires.objects.filter(id=p_d['product_id'])).profiles.all().values()],
-            #             }
-            #             for p_d in ordered_products.values()
-            #         ]
-            #     })
-                
-                # return {'orders': orders_arr, 'count': len(orders_arr)}
+            print('ttooottaaalll', total_order_price)
+            return {'sales':orders_arr, 'total_sales':total_order_price}
+  
         else:
             return orders_arr
 

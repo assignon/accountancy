@@ -505,7 +505,8 @@ export default {
                 vehicle: self.vehicle,
                 brands: brandsPayload,
                 profiles: profilesPayload,
-                tire_id: self.productDetails[0].products[0].tire[0].id
+                tire_id: self.productDetails[0].products[0].tire[0].id,
+                tire_uid: self.productDetails[0].products[0].tire[0].tire_uid
             }
             
             if(!document.body.contains(validationErrMsg)){
@@ -520,6 +521,8 @@ export default {
                             self.productsDetails(data.product_id)
                             self.$store.state.pdfTemp = 'ProductPdf';
                             self.$store.state.pdfDialog = true;
+                        }else{
+                            alert(data.msg)
                         }
                     },
                 });

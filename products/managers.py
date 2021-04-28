@@ -126,60 +126,67 @@ class ProductManager(models.Manager):
         # kwargs['profiles']) > 0 else '{}'.format(sorted(kwargs['profiles'][0]))
 
         try:
-            tire = Tires.objects.filter(id=kwargs['tire_id'])
-            tire_obj = Tires.objects.get(id=kwargs['tire_id'])
-        except:
+            tires = Tires.objects.filter(tire_uid=kwargs['tire_uid'])
+            current_tire = Tires.objects.filter(id=kwargs['tire_id'])
+        except Exception as e:
             return {'updated': False, 'msg': 'Something went wrong, refresh the page and try it again'}
         
-        current_qty = tire.values()[0]['quantity']
-        new_qty = int(current_qty) + int(kwargs['quantity'])
-
         if kwargs['vehicle'] != None:
             vehicle = Vehicule.objects.get(name=kwargs['vehicle'])
-            tire.update(
+            tires.update(
                 size=kwargs['size'],
                 price=kwargs['price'],
-                quantity=new_qty,
                 vehicule=vehicle,
                 profiles_str=profile_arr,
                 brands_str=brands_arr
             )
         else:
-            tire.update(
+            tires.update(
                 size=kwargs['size'],
                 price=kwargs['price'],
-                quantity=new_qty,
                 profiles_str=profile_arr,
                 brands_str=brands_arr
             )
             
-        # update date and time
-        Products.objects.filter(tire=tire_obj).update(
-            add_on=datetime.now().date(),
-            add_at=datetime.now().time()
-        )
+        #update tire qty
+        if int(kwargs['quantity']) > 0:
+            # current_qty = current_tire.values()[0]['quantity']
+            # new_qty = int(current_qty) + int(kwargs['quantity'])
+            # update qty
+            current_tire.update(updated_pending_qty=kwargs['quantity'])
+            # change product status to pending
+            Products.objects.filter(tire_id=current_tire.values()[0]['id']).update(status='pending')
+                
+        
+        for i in range(tires.count()):
+            print('ttttttttt',i)
+            # # update date and time
+            # Products.objects.filter(tire=Tires.objects.get(id=t['id'])).update(
+            #     add_on=datetime.now().date(),
+            #     add_at=datetime.now().time()
+            # )
 
-        # update brands
-        tire[0].brands.all().delete()
-        for brand in kwargs['brands']:
-            try:
-                b = Brands.objects.get(name=brand)
-            except ObjectDoesNotExist:
-                b = Brands.objects.create(name=brand)
+            # update brands
+            tires[i].brands.all().delete()
+            for brand in kwargs['brands']:
+                try:
+                    b = Brands.objects.get(name=brand)
+                except ObjectDoesNotExist:
+                    b = Brands.objects.create(name=brand)
 
-            tire[0].brands.add(b)
+                tires[i].brands.add(b)
 
-        # update profiles
-        tire[0].profiles.all().delete()
-        for profile in kwargs['profiles']:
-            try:
-                p = Profiles.objects.get(name=profile)
-            except ObjectDoesNotExist:
-                p = Profiles.objects.create(name=profile)
+            # update profiles
+            tires[i].profiles.all().delete()
+            for profile in kwargs['profiles']:
+                try:
+                    p = Profiles.objects.get(name=profile)
+                except ObjectDoesNotExist:
+                    p = Profiles.objects.create(name=profile)
 
-            tire[0].profiles.add(p)
+                tires[i].profiles.add(p)
 
-        return {'updated': True, 'product_id': Products.objects.get(tire_id=tire.values()[0]['id']).id}
+        return {'updated': True, 'product_id': Products.objects.get(tire_id=tires.values()[0]['id']).id}
 
     def get_incoming_products(self, dte=None):
         from .models import Tires
@@ -240,6 +247,7 @@ class ProductManager(models.Manager):
                         # 'add_on': product['add_on'],
                         # 'id': product['id'],
                         'tire': product,
+                        'warehouse':  User.objects.get(id=product['warehouse_id']).username,
                         'id': self.get_queryset().get(tire_id=product['id']).id,
                         'brands': Tires.objects.get(id=product['id']).brands.all().values(),
                         'profiles': Tires.objects.get(id=product['id']).profiles.all().values(),

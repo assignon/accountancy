@@ -62,6 +62,7 @@ class ProductView(viewsets.ModelViewSet):
             'brands': req['brands']['brands'],
             'profiles': req['profiles']['profiles'],
             'tire_id': req['tire_id'],
+            'tire_uid': req['tire_uid'],
         }
 
         return Response(Products.objects.update_product(**data))
@@ -139,6 +140,7 @@ class ProductView(viewsets.ModelViewSet):
             product_Arr.append({
                 'size': product['size'],
                 'quantity': product['quantity'],
+                'updated_qty': product['updated_pending_qty'],
                 'warehouse': warehouse,
                 'id': product['id']
             })
@@ -154,7 +156,17 @@ class ProductView(viewsets.ModelViewSet):
         status = request.data['body']['status']
         tire_id = request.data['body']['tire_id']
         
-        Products.objects.filter(tire_id=tire_id).update(status=status)
+        tire = Tires.objects.filter(id=tire_id)
+        
+        if status == 'accepted':
+            current_qty = tire.values()[0]['quantity']
+            new_qty = int(current_qty) + int(tire.values()[0]['updated_pending_qty'])
+            # update status to accepted
+            Products.objects.filter(tire_id=tire_id).update(status=status)
+            # update qty
+            tire.update(quantity=new_qty, updated_pending_qty=0)
+        else:
+            tire.update(updated_pending_qty=0)
         
         return Response({'updated': True, 'msg': 'Product status updated'})
         

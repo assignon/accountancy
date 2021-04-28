@@ -90,6 +90,10 @@ class Payment(models.Model):
 
                 return {'paying_dates': payment_dates, 'end': end_date}
 
+    @property
+    def payment_done(self):
+        return 1
+    
     @staticmethod
     def paying_in_terms(customer_id):
         # amount of money pay by term

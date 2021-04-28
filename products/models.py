@@ -82,6 +82,7 @@ class Tires(models.Model):
     profiles_str = models.CharField(max_length=255, null=True, blank=True)
     brands_str = models.CharField(max_length=255, null=True, blank=True)
     pending_qty = models.IntegerField(default=0)
+    updated_pending_qty = models.IntegerField(default=0) # added qty when peoduct updated and wait for admin to validate
     warehouse_id = models.IntegerField(default=1) 
     tire_uid = models.CharField(max_length=255)
     # tire_uid = models.UUIDField(
@@ -127,7 +128,7 @@ class Tires(models.Model):
 # info in Products model is important for the admin not raly for the customer
 class Products(models.Model):
     tire = models.ForeignKey(Tires, on_delete=models.CASCADE)
-    status = models.CharField(max_length=50, default='pending')
+    status = models.CharField(max_length=50, default='accepted')
     add_on = models.DateField(auto_now=True)
     add_at = models.TimeField(auto_now=True)
     objects = ProductManager()

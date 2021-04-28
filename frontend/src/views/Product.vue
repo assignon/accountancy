@@ -19,36 +19,39 @@
                             <v-flex xs12 sm12 md12 lg12 xl12 style='display:flex;justify-content:flex-start;align-items:center;' @click='$store.state.infoDrawer=true, productDetails(product.id)'>
                                 <h3>{{product.tire.size}}</h3>
                             </v-flex>
-                            <v-flex xs12 sm12 md11 lg11 xl11 style='width:95%;position:relative;bottom:20px;display:flex;flex-direction:row;justify-content:flex-end;align-items:center;'>
+                            <v-flex xs12 sm12 md11 lg11 xl11 style='width:95%;position:relative;bottom:20px;display:flex;flex-direction:row;justify-content:space-around;align-items:center;'>
+                                <strong class='mr-5'>{{product.warehouse}}</strong>
                                 
-                                <v-tooltip bottom>
-                                    <template v-slot:activator="{ on, attrs }">
-                                        <v-icon  
-                                            style='font-size:23px'
-                                            v-bind="attrs"
-                                            v-on="on"
-                                            color='#0163d1' class='mr-4' 
-                                            @click='productDetails(product.id), UpdateProduct()'
-                                        >fas fa-edit</v-icon>
-                                    </template>
-                                    <span>Edit/add quantity</span>
-                                </v-tooltip>
+                               <div class='product-actions'  style='width:100%;display:flex;flex-direction:row;justify-content:flex-end;align-items:center;'>
+                                    <v-tooltip bottom>
+                                        <template v-slot:activator="{ on, attrs }">
+                                            <v-icon  
+                                                style='font-size:23px'
+                                                v-bind="attrs"
+                                                v-on="on"
+                                                color='#0163d1' class='mr-4' 
+                                                @click='productDetails(product.id), UpdateProduct()'
+                                            >fas fa-edit</v-icon>
+                                        </template>
+                                        <span>Edit/add quantity</span>
+                                    </v-tooltip>
 
-                                <v-tooltip bottom>
-                                    <template v-slot:activator="{ on, attrs }">
-                                        <v-icon  
-                                            v-if='$session.get("warehouseName")!="all"'
-                                            v-bind="attrs"
-                                            v-on="on"
-                                            style='font-size:23px'
-                                            color='#0163d1' class='' 
-                                            @click='$store.state.product.transferDialog=true, productDetails(product.id)'
-                                        >fas fa-share-square</v-icon>
-                                    </template>
-                                    <span>Transfer</span>
-                                </v-tooltip>
+                                    <v-tooltip bottom>
+                                        <template v-slot:activator="{ on, attrs }">
+                                            <v-icon  
+                                                v-if='$session.get("warehouseName")!="all"'
+                                                v-bind="attrs"
+                                                v-on="on"
+                                                style='font-size:23px'
+                                                color='#0163d1' class='' 
+                                                @click='$store.state.product.transferDialog=true, productDetails(product.id)'
+                                            >fas fa-share-square</v-icon>
+                                        </template>
+                                        <span>Transfer</span>
+                                    </v-tooltip>
+                               </div>
                                 
-                                <v-tooltip bottom>
+                                <!-- <v-tooltip bottom>
                                     <template v-slot:activator="{ on, attrs }">
                                         <v-icon  
                                             v-if='$session.get("su")'
@@ -60,7 +63,7 @@
                                         >fas fa-trash-alt</v-icon>
                                     </template>
                                     <span>Remove</span>
-                                </v-tooltip>
+                                </v-tooltip> -->
                             </v-flex>
                         </div>
                         <div class='product-qty' @click='$store.state.infoDrawer=true, productDetails(product.id)'>

@@ -100,7 +100,8 @@
                                 >
                                     <v-flex xs11 sm11 md4 lg4 xl4 class='transfer-flex ml-5'><strong>{{wp.size}}</strong></v-flex>
                                     <v-flex xs11 sm11 md4 lg4 xl4 class='transfer-flex'>from: <strong>{{wp.warehouse}}</strong></v-flex>
-                                    <v-flex xs11 sm11 md4 lg4 xl4 class='transfer-flex'>quantity: <strong>{{wp.quantity}}</strong></v-flex>
+                                    <v-flex xs11 sm11 md4 lg4 xl4 class='transfer-flex'>current quantity: <strong>{{wp.quantity}}</strong></v-flex>
+                                    <v-flex xs11 sm11 md4 lg4 xl4 class='transfer-flex'>updated quantity: <strong>{{wp.updated_qty}}</strong></v-flex>
 
                                     <v-flex xs11 sm11 md4 lg4 xl4 class='btn-container mr-5'>
                                         <v-btn medium color='green' class='mr-5' @click='updateWaitingProductStatus("accepted", wp.id)'><span style='color:white'>Accept</span></v-btn>

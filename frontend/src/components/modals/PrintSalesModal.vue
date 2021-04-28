@@ -85,7 +85,7 @@
                 </div>
             </v-form>
 
-            <v-btn
+            <!-- <v-btn
                 @click="downloadPdf()"
                 height="50"
                 width="150"
@@ -93,6 +93,18 @@
                 color="#1976d2"
             >
                 <span>Download</span>
+            </v-btn> -->
+            
+            <v-btn
+                @click="downloadPdf()"
+                height="50"
+                width="auto"
+                class="fot-weight-bold white--text"
+                color="#1976d2"
+                v-if='$store.state.order.printSalesArr.length>0'
+            >
+                <span v-if="printOrders[0].total_sales>=0">Total: {{formatPrice(printOrders[0].total_sales)}} FRS</span>
+                <span v-else>Total: 0 FRS</span>
             </v-btn>
 
             <v-btn
@@ -108,7 +120,7 @@
             
             <!-- sales container -->
             <div class='sales-content' v-if='$store.state.order.printSalesArr.length>0'>
-                <PrintSalesContent :data='printOrders[0]' />
+                <PrintSalesContent :data='printOrders[0].sales' />
             </div>
             <div class='no-order' v-else style='width:100%;height:90vh;display:flex;justify-content:center;align-items:center;font-weight:bold'>
                 <p>Select a start and end date and print the corresponding sales</p>
@@ -149,15 +161,21 @@ export default {
     },
 
     methods: {
+        formatPrice(value) {
+            let val = (value/1).toFixed(0).replace('.', ',')
+            return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+        },
+
         compareDate(date1, date2){
             let result = {};
             let startDate = new Date(date1);
             let endDate = new Date(date2);
             if(startDate > endDate){
                 result = {pass: false, msg: 'The end date shoul be in the future'}
-            }else if(+startDate === +endDate){
-                result = {pass: false, msg: 'The end date should not be the same as the start date'}
             }
+            // else if(+startDate === +endDate){
+            //     result = {pass: false, msg: 'The end date should not be the same as the start date'}
+            // }
             else if(startDate.toDateString() == new Date().toDateString()){
                 result = {pass: true, msg: ''}
             }
@@ -187,11 +205,14 @@ export default {
                         auth: self.$session.get('token'),
                         csrftoken: self.$session.get('token'),
                         callback: function(data) {
+                            document.querySelector('.sales-content').style.display = 'flex'
                             store.getters["setData"]([store.state.order.printSalesArr, [data]]);
            
                             if(self.$store.state.order.printSalesArr.length==0){
+                                document.querySelector('.sales-content').style.display = 'none'
                                 alert('No sales founded')
                             }else if(self.$store.state.order.printSalesArr[0].length == 0){
+                                document.querySelector('.sales-content').style.display = 'none'
                                 alert('No sales founded')
                             }
                         },
@@ -228,7 +249,7 @@ export default {
     .print-sale-layout{
         width: 100%;
         min-height: 90vh;
-        height: auto;
+        height: 90vh;
         padding: 30px;
         display: flex;
         flex-direction: column;
