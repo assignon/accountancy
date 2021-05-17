@@ -16,7 +16,7 @@ export default new Vuex.Store({
     HOST: 
       window.location.port != ""
         ? "http://127.0.0.1:8000"
-        : "https://accountancy-tsgf2.ondigitalocean.app",
+        : "http://yanick.pythonanywhere.com",
       //  "http://127.0.0.1:8000",
     AUTHENTICATED: undefined,
     usertoken: undefined,
