@@ -1,7 +1,7 @@
 <template>
     <div class='pdf-core'>
         <div class='pdf-header'>
-            <h2>CHICAM</h2>
+            <h2>!TECH</h2>
             <p style='position:relative;top:10px;'>
                 <span class='font-weight-bold'>Date</span><br>
                 {{new Date().toDateString()}}

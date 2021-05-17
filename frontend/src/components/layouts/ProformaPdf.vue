@@ -2,11 +2,11 @@
     <div class='proforma-core'>
         <div class='pdf-header'>
             <div class='header-text'>
-                <h2 style='color:#1976d2;'>CHICAM</h2>
-                <p class='font-weight-bold'>TEL. 675 22 04 91 / 679 59 80 73 / 651 12 25 79</p>
-                <p class='font-weight-bold'>Dealers in brand new tyres of all dimensions</p>
-                <p class='font-weight-bold'>No contribuable: M111812730146E BP3629 YAOUNDE</p>
-                <p class='font-weight-bold'>Import & Export commerce general</p>
+                <h2 style='color:#1976d2;'>ITECH</h2>
+                <p class='font-weight-bold'>TEL. </p>
+                <p class='font-weight-bold'></p>
+                <p class='font-weight-bold'></p>
+                <p class='font-weight-bold'></p>
             </div>
             <p style='position:relative;top:10px; width:20%'>
                 <span class='font-weight-bold'>Date</span><br>
@@ -104,7 +104,7 @@ export default {
         justify-content: flex-start;
         align-items: center;
         background-color: #fff;
-        background-image: url('../../assets/chicam.jpg');
+        /* background-image: url('../../assets/'); */
         background-size: 50%;
         background-position: center;
         background-repeat: no-repeat;

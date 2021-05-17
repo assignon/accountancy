@@ -235,9 +235,9 @@ class PaymentView(viewsets.ModelViewSet):
         remaining_custome_price = int(Payment.paying_in_terms(payment_id.payment_id))-int(total_custom_pay) # remaing custom price after pay
         
         if int(custome_payment) > int(paying_in_terms) or int(custome_payment) < 0:
-            return Response({'updated': False, 'msg': 'The(0) order remaining price ({}) cannot be less than the custom priceee {} - {}'.format(remaining_custome_price, paying_in_terms, custome_payment)})
+            return Response({'updated': False, 'msg': 'The order remaining price ({}) cannot be less than the custom priceee {} - {}'.format(remaining_custome_price, paying_in_terms, custome_payment)})
         elif int(custome_payment) > int(remaining_custome_price) or int(custome_payment) < 0:
-            return Response({'updated': False, 'msg': 'The(1) order remaining price ({}) cannot be less than the custom priceee'.format(remaining_custome_price)})
+            return Response({'updated': False, 'msg': 'The order remaining price ({}) cannot be less than the custom priceee'.format(remaining_custome_price)})
         
         # print([pstatus])
         if new_value:

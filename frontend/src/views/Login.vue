@@ -1,7 +1,7 @@
 <template>
   <div class="login-core animated fadeIn">
-      <div class='logo mb-5'></div>
-      <h2 class='mb-3'>CHICAM Signin</h2>
+      <!-- <div class='logo mb-5'></div> -->
+      <h2 class='mb-3'>!Tech Signin</h2>
       <v-form class='login-form' ref='loginForm'>
         <p class='err-msg mb-2'></p>
         <v-text-field
@@ -115,7 +115,7 @@ export default {
     height: 100px;
     border: 1px solid #15141c;
     border-radius: 15px;
-    background-image: url('../assets/chicam.jpg');
+    /* background-image: url('../assets/'); */
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;

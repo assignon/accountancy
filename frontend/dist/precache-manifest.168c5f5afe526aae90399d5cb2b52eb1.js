@@ -4,7 +4,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/favicon.png"
   },
   {
-    "revision": "3cf72266fa2d53c3d84b55f0b0c16df7",
+    "revision": "7837b1c17f73d3052560d76735b6dd51",
     "url": "/index.html"
   },
   {
@@ -16,8 +16,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/robots.txt"
   },
   {
-    "revision": "2a9da058f39891a48328",
-    "url": "/static/css/app.56a37fad.css"
+    "revision": "a4a87b899edc2c677d4a",
+    "url": "/static/css/app.72c838eb.css"
   },
   {
     "revision": "536410af0ad96f1d8c75",
@@ -88,10 +88,6 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/static/fonts/fa-solid-900.9ae050d1.woff2"
   },
   {
-    "revision": "3bcf46897202da51c39ec8c9cafa5e9b",
-    "url": "/static/img/chicam.3bcf4689.jpg"
-  },
-  {
     "revision": "5d10d00980077f67990f73b1961bc46e",
     "url": "/static/img/fa-brands-400.5d10d009.svg"
   },
@@ -104,8 +100,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/static/img/fa-solid-900.2306f642.svg"
   },
   {
-    "revision": "2a9da058f39891a48328",
-    "url": "/static/js/app.1f3ad235.js"
+    "revision": "a4a87b899edc2c677d4a",
+    "url": "/static/js/app.a7a253e6.js"
   },
   {
     "revision": "536410af0ad96f1d8c75",

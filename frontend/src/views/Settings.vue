@@ -1,7 +1,7 @@
 <template>
     <div class='settings-core'>
         <div class='user-data'>
-            <div class='user-logo'></div>
+            <!-- <div class='user-logo'></div> -->
             <v-form class='user-data-form' ref='userDataForm'>
                 <p class='form-err-msg'></p>
                 <v-text-field
@@ -221,7 +221,7 @@ export default {
         border-radius: 15px;
         border: 1px solid #15141c;
         border-radius: 15px;
-        background-image: url('../assets/chicam.jpg');
+        /* background-image: url('../assets/'); */
         background-repeat: no-repeat;
         background-position: center;
         background-size: cover;

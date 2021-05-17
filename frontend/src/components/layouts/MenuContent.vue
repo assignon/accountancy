@@ -1,8 +1,8 @@
 <template>
     <div class='default-sidebar mb-5'>
         <div class='logo'>
-            <div class='logo-img'></div>
-            <h3 class='mt-3'>CHICAM</h3>
+            <!-- <div class='logo-img'></div> -->
+            <h3 class='mt-3'>ITECH</h3>
             <div class='warehouses-container mt-5 ml-5' v-if="$session.get('su')">
                 <select class="warehouse-select" v-model='warehouse' @change='changeWarehouse()'>
                     <option value='all,0'>All</option>
@@ -428,7 +428,7 @@ export default {
     .logo .logo-img{
         border: 1px solid #15141c;
         border-radius: 15px;
-        background-image: url('../../assets/chicam.jpg');
+        /* background-image: url('../../assets/'); */
         background-repeat: no-repeat;
         background-position: center;
         background-size: cover;
